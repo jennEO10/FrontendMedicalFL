@@ -17,6 +17,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
+import { FaBuilding, FaUsers } from "react-icons/fa";
 
 type NavItem = {
   name: string;
@@ -32,9 +33,14 @@ const navItems: NavItem[] = [
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
   {
-    icon: <GridIcon />,
+    icon: <FaBuilding />,
     name: "Organizaciones",
     path: "/organizaciones",
+  },
+  {
+    icon: <FaUsers />,
+    name: "Usuarios",
+    path: "/usuarios",
   },
   {
     icon: <CalenderIcon />,
