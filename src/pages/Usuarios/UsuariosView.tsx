@@ -20,8 +20,8 @@ export default function UsuariosView() {
   const [filtros, setFiltros] = useState({
     nombre: '',
     email: '',
-    estado: 'Todos',
-    rol: 'Todos'
+    estado: 0,
+    rol: 0
   });
 
   const fetchUsuarios = async () => {
@@ -122,45 +122,76 @@ export default function UsuariosView() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Buscar por nombre"
-          className="col-span-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-          value={filtros.nombre}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          name="email"
-          placeholder="Buscar por email"
-          className="col-span-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-          value={filtros.email}
-          onChange={handleInputChange}
-        />
-        <select
-          name="estado"
-          className="col-span-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-          value={filtros.estado}
-          onChange={handleInputChange}
-        >
-          <option>Todos</option>
-          <option>Activo</option>
-          <option>Inactivo</option>
-        </select>
-        <select
-          name="rol"
-          className="col-span-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-          value={filtros.rol}
-          onChange={handleInputChange}
-        >
-          <option>Todos</option>
-          <option>Rol #1</option>
-          <option>Rol #2</option>
-        </select>
-        <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md">
-          Buscar
-        </button>
+        <div>
+          <label htmlFor="nombre" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            Nombre
+          </label>
+          <input
+            type="text"
+            name="nombre"
+            id="nombre"
+            placeholder="Buscar por nombre"
+            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+            value={filtros.nombre}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            Email
+          </label>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            placeholder="Buscar por email"
+            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+            value={filtros.email}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="estado" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            Estado
+          </label>
+          <select
+            name="estado"
+            id="estado"
+            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+            value={filtros.estado}
+            onChange={handleInputChange}
+          >
+            <option value="Todos">Todos</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="rol" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            Rol
+          </label>
+          <select
+            name="rol"
+            id="rol"
+            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+            value={filtros.rol}
+            onChange={handleInputChange}
+          >
+            {[{ id: 0, name: 'Todos' }, ...rules].map((rule) => (
+              <option key={rule.id} value={rule.id}>
+                {rule.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-end">
+          <button
+            // onClick={handleBuscar}
+            className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md"
+          >
+            Buscar
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl shadow-lg">

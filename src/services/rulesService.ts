@@ -1,4 +1,5 @@
 import * as ruleService from '../api/rulesApi';
+import { Rule } from '../models/rules';
 
 const rulesService = {
     getAllRules: async () => {
@@ -10,6 +11,33 @@ const rulesService = {
             throw error;
         }
     },
+    newRule: async (data: Rule) => {
+        try {
+            const response = await ruleService.createRule(data);
+            return response;
+        } catch (error) {
+            console.error('Error creating rule:', error);
+            throw error;
+        }
+    },
+    updRule: async (id: number, data: Rule) => {
+        try {
+            const response = await ruleService.updateRule(id, data);
+            return response;
+        } catch (error) {
+            console.error('Error updating rule:', error);
+            throw error;
+        }
+    },
+    delRule: async (id: number) => {
+        try {
+            const response = await ruleService.deleteRule(id);
+            return response;
+        } catch (error) {
+            console.error('Error deleting rule:', error);
+            throw error;
+        }
+    }
 }
 
 export default rulesService;

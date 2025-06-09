@@ -8,22 +8,17 @@ export const getRules = async () => {
   return response.data;
 };
 
-// export const fetchOrganization = async (name: string) => {
-//   const response = await axios.get(`${API_URL}/api/obtener-organizacion-por-nombre/${name}`);
-//   return [response.data];
-// };
+export const createRule = async (data: Rule) => {
+  const response = await axios.post(`${API_URL}/api/crear-rol`, data);
+  return response;
+};
 
-// export const createOrganization = async (data) => {
-//   const response = await axios.post(`${API_URL}/api/crear-organizacion`, data);
-//   return response;
-// };
+export const updateRule = async (id: number, data: Rule) => {
+  const response = await axios.patch(`${API_URL}/api/actualizar-rol/${id}`, data);
+  return response;
+};
 
-// export const updateOrganization = async (id: number, data) => {
-//   const response = await axios.patch(`${API_URL}/api/actualizar-organizacion/${id}`, data);
-//   return response;
-// };
-
-// export const deleteOrganization = async (id: number) => {
-//   const response = await axios.delete(`${API_URL}/api/eliminar-organizacion/${id}`);
-//   return response;
-// };
+export const deleteRule = async (id: number) => {
+  const response = await axios.delete(`${API_URL}/api/eliminar-rol/${id}`);
+  return response;
+};
