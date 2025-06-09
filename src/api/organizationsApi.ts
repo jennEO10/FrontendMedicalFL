@@ -9,7 +9,7 @@ export const getOrganizations = async () => {
 };
 
 export const fetchOrganization = async (name: string) => {
-  const response = await axios.get(`${API_URL}/api/obtener-organizacion-por-nombre/${name}`);
+  const response = await axios.get<Organization>(`${API_URL}/api/obtener-organizacion-por-nombre/${name}`);
   return [response.data];
 };
 

@@ -2,13 +2,18 @@ import { useState, useEffect } from "react";
 import { FaEdit, FaSearch, FaTimes } from "react-icons/fa";
 import organizationService from '../../services/organizationService';
 import { Organization } from "../../models/organization";
+import Organizacion from "../../components/modals/OrganizacionModal";
 
 const OrganizacionesView = () => {
   const [busqueda, setBusqueda] = useState("");
+  const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
 
-  const [nueva, setNueva] = useState({ nombre: "", descripcion: "", contacto: "" });
+  const [org, setNueva] = useState({ id: 0, name: "", descripcion: "", contacto: "" });
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalDelete, setMostrarModalDelete] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
+
 
   const fetchData = async () => {
       try {
@@ -23,16 +28,87 @@ const OrganizacionesView = () => {
     fetchData();
   }, []);
 
-  // const filtrar = organizaciones.filter((org) =>
-  //   org.nombre.toLowerCase().includes(busqueda.toLowerCase())
-  // );
+  const reiniciarFormulario = () => {
+    setNueva({ id: 0, name: "", descripcion: "", contacto: "" });
+    setMostrarModal(false)
+    setModoEdicion(false);
+    setMostrarModalDelete(false);
+  }
 
-  // const guardarOrganizacion = () => {
-  //   if (!nueva.nombre || !nueva.descripcion || !nueva.contacto) return;
-  //   setOrganizaciones([...organizaciones, nueva]);
-  //   setNueva({ nombre: "", descripcion: "", contacto: "" });
-  //   setMostrarModal(false);
-  // };
+  const guardarOrganizacion = async () => {
+    try {
+      console.log("Guardando organización:", org);
+
+      const response = await organizationService.saveOrganization(org)
+      reiniciarFormulario();
+      fetchData();
+      console.log("Organización guardada:", response);
+    } catch (error) {
+      console.error("Error al guardar organización:", error);
+    }
+  }
+
+  const clickEditar = (org: Organization) => {
+    console.log("Obtener datos para editar:", org);
+    setNueva(org);
+    setModoEdicion(true);
+    setMostrarModal(true);
+  }
+
+  const editarOrganizacion = async () => {
+    try {
+      console.log("Editando datos de la organización:", org);
+
+      const response = await organizationService.actualizarOrganization(org.id, org)
+      reiniciarFormulario();
+      fetchData();
+      console.log("Organización editada:", response);
+    } catch (error) {
+      console.error("Error al guardar organización:", error);
+    }
+  }
+
+  const clickEliminar = (org: Organization) => {
+    console.log("Obtener datos para eliminar:", org);
+    setNueva(org);
+    setMostrarModalDelete(true);
+  }
+
+  const eliminarOrganizacion = async () => {
+    try {
+      console.log("Eliminando organización:", org);
+
+      const response = await organizationService.delOrganization(org.id);
+      reiniciarFormulario();
+      fetchData();
+      console.log("Organización eliminada:", response);
+    } catch (error) {
+      console.error("Error al eliminar organización:", error);
+    }
+  }
+
+  const handleSearch = (value: string) => {
+    setBusqueda(value);
+
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+
+    const timeout = setTimeout(async () => {
+      if (value.trim() === "") {
+        await fetchData(); // muestra todo
+        return;
+      }
+
+      try {
+        const result = await organizationService.searchOrganization(value);
+        setOrganizaciones(result);
+      } catch (error) {
+        console.error("Error al buscar organización:", error);
+        setOrganizaciones([]);
+      }
+    }, 600); // 600ms debounce
+
+    setDebounceTimeout(timeout);
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-screen-xl mx-auto">
@@ -50,7 +126,7 @@ const OrganizacionesView = () => {
           type="text"
           placeholder="Buscar organización por nombre..."
           value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="w-full md:w-1/2 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
@@ -79,13 +155,13 @@ const OrganizacionesView = () => {
                 <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.contacto}</td>
                 <td className="px-4 py-2">
                   <div className="flex flex-wrap gap-2 justify-start">
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
+                    <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md flex items-center gap-1" onClick={() => clickEditar(org)}>
                       <FaEdit /> Editar
                     </button>
                     <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
                       <FaSearch /> Ver
                     </button>
-                    <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
+                    <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1" onClick={() => clickEliminar(org)}>
                       <FaTimes /> Eliminar
                     </button>
                   </div>
@@ -96,50 +172,21 @@ const OrganizacionesView = () => {
         </table>
       </div>
 
-      {mostrarModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-[90%] max-w-md space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              Nueva Organización
-            </h3>
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nueva.nombre}
-              onChange={(e) => setNueva({ ...nueva, nombre: e.target.value })}
-              className="w-full border px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-            />
-            <input
-              type="text"
-              placeholder="Descripción"
-              value={nueva.descripcion}
-              onChange={(e) => setNueva({ ...nueva, descripcion: e.target.value })}
-              className="w-full border px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-            />
-            <input
-              type="text"
-              placeholder="Contacto"
-              value={nueva.contacto}
-              onChange={(e) => setNueva({ ...nueva, contacto: e.target.value })}
-              className="w-full border px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setMostrarModal(false)}
-                className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600"
-              >
-                Cancelar
-              </button>
-              <button
-                // onClick={guardarOrganizacion}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Guardar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Organizacion.CrearEditarOrganizacion
+        open={mostrarModal}
+        onClose={reiniciarFormulario}
+        org={org}
+        setNueva={setNueva}
+        onSubmit={modoEdicion? editarOrganizacion: guardarOrganizacion }
+        modoEdicion={modoEdicion}
+      />
+
+      <Organizacion.EliminarOrganizacion
+        open={mostrarModalDelete}
+        nombre={org.name}
+        onClose={reiniciarFormulario}
+        onConfirm={eliminarOrganizacion}
+      />
     </div>
   );
 };
