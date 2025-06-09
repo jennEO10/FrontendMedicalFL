@@ -17,7 +17,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
-import { FaBuilding, FaUsers, FaUserShield } from "react-icons/fa";
+import { FaBuilding, FaRetweet, FaUsers, FaUserShield } from "react-icons/fa";
 
 type NavItem = {
   name: string;
@@ -46,6 +46,11 @@ const navItems: NavItem[] = [
     icon: <FaUserShield />,
     name: "Roles",
     path: "/roles",
+  },
+  {
+    icon: <FaRetweet />,
+    name: "Iteraciones",
+    path: "/iteraciones",
   },
   {
     icon: <CalenderIcon />,

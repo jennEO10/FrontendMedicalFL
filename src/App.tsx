@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/router/ProtectedRoute";
 import Login from "./pages/AuthPages/Login";
 import UsuariosView from "./pages/Usuarios/UsuariosView";
 import RolesView from "./pages/Roles/RolesView";
+import IteracionesView from "./pages/Iteraciones/IteracionesView";
 
 export default function App() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/organizaciones" element={<OrganizacionesView />} />
             <Route path="/usuarios" element={<UsuariosView />} />
             <Route path="/roles" element={<RolesView />} />
+            <Route path="/iteraciones" element={<IteracionesView />} />
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
