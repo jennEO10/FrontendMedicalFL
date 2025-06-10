@@ -7,6 +7,7 @@ import rulesService from '../../services/rulesService';
 import { Rule } from '../../models/rules';
 import organizationService from '../../services/organizationService';
 import { Organization } from '../../models/organization';
+import FiltroDinamico from '../../components/filtros/UsuariosFiltro';
 
 export default function UsuariosView() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
@@ -16,10 +17,11 @@ export default function UsuariosView() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [mostrarModalDelete, setMostrarModalDelete] = useState(false);
   const [mostrarModalAddUpd, setMostrarModalAddUpd] = useState(false);
-
+  const [filtroElegido, setSetFiltroElegido] = useState<string>(''); // Para manejar el filtro seleccionado
   const [filtros, setFiltros] = useState({
     nombre: '',
     email: '',
+    rolName: '',
     estado: 0,
     rol: 0
   });
@@ -48,10 +50,10 @@ export default function UsuariosView() {
     setMostrarModalDelete(false);
   }
 
-  const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
-    setFiltros({ ...filtros, [name]: value });
-  };
+  // const handleInputChange = (e: any) => {
+  //   const { name, value } = e.target;
+  //   setFiltros({ ...filtros, [name]: value });
+  // };
 
   const guardarUsuario = async () => {
     try {
@@ -103,6 +105,84 @@ export default function UsuariosView() {
     }
   }
 
+  const reiniciarCargaDatos = async (dato:any) => {
+    if (dato === '' || Number(dato) === 0) {
+      try {
+        fetchUsuarios();
+      } catch (error) {
+        console.error("Error al reiniciar carga de datos:", error);
+      }
+    }
+  }
+
+  const handleBuscar = async () => {
+    console.log("Filtro elegido:", filtroElegido);
+    console.log("Filtros aplicados:", filtros);
+    // Aquí podrías aplicar los filtros al listado si es necesario
+    try {
+      switch (filtroElegido) {
+        case 'nombre': {
+          if (!filtros.nombre) {
+            reiniciarCargaDatos(filtros.nombre);
+            return;
+          }
+
+          const result = await usersService.buscarNombre(filtros.nombre);
+          setUsuarios(result);
+          break;
+        }
+        case 'email': {
+          if (!filtros.email) {
+            reiniciarCargaDatos(filtros.email);
+            return;
+          }
+
+          const emailResult = await usersService.buscarEmail(filtros.email);
+          setUsuarios(emailResult);
+          break;
+        }
+        case 'rolName': {
+          if (!filtros.rolName) {
+            reiniciarCargaDatos(filtros.rolName);
+            return;
+          }
+
+          const rolNameResult = await usersService.buscarNombreRol(filtros.rolName);
+          setUsuarios(rolNameResult);
+          break;
+        }
+        case 'estado': {
+          if (Number(filtros.estado) === 0) {
+            reiniciarCargaDatos(Number(filtros.estado));
+            return;
+          }
+
+          const estadoResult = await usersService.seleccionarEstado(Number(filtros.estado) === 1? true : false);
+          setUsuarios(estadoResult);
+          break;
+        }
+        case 'rol': {
+          if (Number(filtros.rol) === 0) {
+            reiniciarCargaDatos(filtros.rol);
+            return;
+          }
+
+          const rolResult = await usersService.seleccionarRol(Number(filtros.rol));
+          setUsuarios(rolResult);
+          break;
+        }
+        default:
+          // const allUsers = await usersService.getAllUsers();
+          // setUsuarios(allUsers);
+          break;
+      }
+    } catch (error) {
+      console.error("Error al buscar usuarios:", error);
+      const result: any[] = [];
+      setUsuarios(result);
+    }        
+  };
+
   return (
     <div className="p-6 max-w-screen-xl mx-auto text-gray-800 dark:text-white">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
@@ -121,78 +201,14 @@ export default function UsuariosView() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div>
-          <label htmlFor="nombre" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            id="nombre"
-            placeholder="Buscar por nombre"
-            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-            value={filtros.nombre}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
-            Email
-          </label>
-          <input
-            type="text"
-            name="email"
-            id="email"
-            placeholder="Buscar por email"
-            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-            value={filtros.email}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="estado" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
-            Estado
-          </label>
-          <select
-            name="estado"
-            id="estado"
-            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-            value={filtros.estado}
-            onChange={handleInputChange}
-          >
-            <option value="Todos">Todos</option>
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="rol" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
-            Rol
-          </label>
-          <select
-            name="rol"
-            id="rol"
-            className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-            value={filtros.rol}
-            onChange={handleInputChange}
-          >
-            {[{ id: 0, name: 'Todos' }, ...rules].map((rule) => (
-              <option key={rule.id} value={rule.id}>
-                {rule.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-end">
-          <button
-            // onClick={handleBuscar}
-            className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md"
-          >
-            Buscar
-          </button>
-        </div>
-      </div>
+      <FiltroDinamico
+        filtros={filtros}
+        setFiltros={setFiltros}
+        onBuscar={handleBuscar}
+        rules={rules}
+        setFiltroElegido={setSetFiltroElegido}
+        reiniciarCargaDatos={reiniciarCargaDatos}
+      />
 
       <div className="overflow-x-auto rounded-xl shadow-lg">
         <table className="min-w-full text-sm text-left bg-white dark:bg-gray-900">

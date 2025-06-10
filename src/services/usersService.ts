@@ -42,6 +42,56 @@ const userService = {
       throw error;
     }
   },
+  buscarNombre: async (name: string) => {
+    try {
+      const response = await userApi.searchName(name);
+      console.log("User found by name:", response);
+      return response;
+    } catch (error) {
+      console.error("Error searching user by name:", error);
+      throw error;
+    }
+  },
+  buscarEmail: async (email: string) => {
+    try {
+      const response = await userApi.searchMail(email);
+      console.log("User found by email:", response);
+      return response;
+    } catch (error) {
+      console.error("Error searching user by email:", error);
+      throw error;
+    }
+  },
+  seleccionarRol: async (rol: number) => {
+    try {
+      const response = await userApi.selectedRole(rol);
+      console.log("Users found by role:", response);
+      return response;
+    } catch (error) {
+      console.error("Error searching users by role:", error);
+      throw error;
+    }
+  },
+  seleccionarEstado: async (estado: boolean) => {
+    try {
+      const response = await userApi.selectedEstado(estado);
+      console.log("Users found by status:", response);
+      return response;
+    } catch (error) {
+      console.error("Error searching users by status:", error);
+      throw error;
+    }
+  },
+  buscarNombreRol: async (rolName: string) => {
+    try {
+      const response = await userApi.searchRoleName(rolName);
+      console.log("Users found by role name:", response);
+      return response;
+    } catch (error) {
+      console.error("Error searching users by role name:", error);
+      throw error;
+    }
+  }
 };
 
 export default userService;

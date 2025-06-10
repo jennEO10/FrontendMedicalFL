@@ -25,3 +25,20 @@ export interface EliminarUsuarioModalProps {
   onConfirm: () => void;
   nombreUsuario: string;
 }
+
+interface Filtros {
+  nombre: string;
+  email: string;
+  rolName: string;
+  estado: number;
+  rol: number;
+}
+
+export interface FiltroDinamicoProps {
+  filtros: Filtros;
+  setFiltros: (val: any) => void;
+  onBuscar: () => void;
+  rules: any[];
+  setFiltroElegido: (val: any) => void;
+  reiniciarCargaDatos: (val: string) => void;
+}

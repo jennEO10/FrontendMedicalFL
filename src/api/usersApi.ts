@@ -8,9 +8,29 @@ export const getUsers = async () => {
   return response.data;
 };
 
-export const fetchOrganization = async (name: string) => {
-  const response = await axios.get(`${API_URL}/api/obtener-organizacion-por-nombre/${name}`);
-  return [response.data];
+export const searchName = async (name: string) => {
+  const response = await axios.get<User[]>(`${API_URL}/api/obtener-usuario-por-nombre/${name}`);
+  return response.data;
+};
+
+export const searchMail = async (mail: string) => {
+  const response = await axios.get<User[]>(`${API_URL}/api/obtener-usuario-por-correo/${mail}`);
+  return response.data;
+};
+
+export const selectedRole = async (role: number) => {
+  const response = await axios.get<User[]>(`${API_URL}/api/filtrar-usuarios-por-rol-id/${role}`);
+  return response.data;
+};
+
+export const selectedEstado = async (estado: boolean) => {
+  const response = await axios.get<User[]>(`${API_URL}/api/filtrar-usuarios-por-estado/${estado}`);
+  return response.data;
+};
+
+export const searchRoleName = async (roleName: string) => {
+  const response = await axios.get<User[]>(`${API_URL}/api/filtrar-usuarios-por-nombre-rol/${roleName}`);
+  return response.data;
 };
 
 export const createUser = async (data: User) => {
