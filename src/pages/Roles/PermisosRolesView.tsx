@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
-import { ModuloPermisos, Rule } from '../../models/rules';
+import { ModuloPermisos, Permisos, Rule } from '../../models/rules';
 import { useLocation } from 'react-router';
 import rulesService from '../../services/rulesService';
 
@@ -12,12 +12,15 @@ export default function PermisosView() {
 
   // Ejemplo de estructura de permisos por módulo
   const [modulos, setModulos] = useState<ModuloPermisos[]>([]);
+  const [permisosAsociados, setPermisosAsociados] = useState<Permisos[]>([]);
 
   useEffect(() => {
         const fetchPermisos = async () => {
             try {
                 const permisos = await rulesService.allPermisos()
                 const permisosAsociados = await rulesService.getPermissions(rol.id);
+
+                setPermisosAsociados(permisosAsociados)
 
                 const agrupadoPorModulo: Record<string, any[]> = {};
 
@@ -67,16 +70,48 @@ export default function PermisosView() {
     }, [rol.id]);
 
   const togglePermiso = (moduloIndex: any, permisoIndex: any) => {
-    console.log("Se recibió el objeto de Roles: ", rol)
     const copia = [...modulos];
     copia[moduloIndex].permisos[permisoIndex].checked =
       !copia[moduloIndex].permisos[permisoIndex].checked;
     setModulos(copia);
   };
 
-  const handleGuardar = () => {
-    console.log('Permisos seleccionados:', modulos);
-    navigate(-1); // Vuelve a vista anterior
+  const handleGuardar = async () => {
+    console.log('Módulos obtenidos:', modulos);
+    const permisosSeleccionados = modulos
+    .flatMap((modulo) => modulo.permisos)
+    .filter((permiso) => permiso.checked)
+    .map((permiso) => permiso.id);
+
+    const permisosAsignados = permisosAsociados.map((permiso) => permiso.id);
+
+    const permisosAAgregar = permisosSeleccionados.filter(
+      (id) => !permisosAsignados.includes(id)
+    );
+
+    const permisosAEliminar = permisosAsignados.filter(
+      (id) => !permisosSeleccionados.includes(id)
+    );
+
+    console.log('✔️ Agregar:', permisosAAgregar);
+    console.log('❌ Eliminar:', permisosAEliminar);
+    
+    console.log("Permisos Seleccionados: ", permisosSeleccionados)
+
+    try {
+      // Aquí haces la lógica real de actualizar en backend
+      if (permisosAAgregar.length) {
+        await rulesService.añadirPermisosRol(rol.id, permisosAAgregar);
+      }
+
+      if (permisosAEliminar.length) {
+        await rulesService.eliminarPermisosRol(rol.id, permisosAEliminar);
+      }
+
+      navigate(-1);
+    } catch (error) {
+      console.error('Error actualizando permisos:', error);
+    }
   };
 
   return (

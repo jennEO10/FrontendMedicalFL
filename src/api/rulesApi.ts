@@ -33,3 +33,13 @@ export const getPermisos = async () => {
   const response = await axios.get<Permisos[]>(`${API_URL}/api/listar-permisos`);
   return response.data;
 };
+
+export const addPermisosRole = async (idRole: number, data: any[]) => {
+  const response = await axios.post(`${API_URL}/api/agregar-permisos-a-rol/${idRole}`, data);
+  return response;
+}
+
+export const deletePermisosRole = async (idRole: number, data: any[]) => {
+  const response = await axios.post(`${API_URL}/api/quitar-permisos-a-rol/${idRole}`, data);
+  return response;
+}

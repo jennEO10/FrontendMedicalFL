@@ -56,6 +56,24 @@ const rulesService = {
             throw error;
         }
     },
+    añadirPermisosRol: async (idRole: number, data: any[]) => {
+        try {
+            const response = await ruleService.addPermisosRole(idRole, data);
+            return response;
+        } catch (error) {
+            console.error('Error al añadir permisos al rol', error);
+            throw error;
+        }
+    },
+    eliminarPermisosRol: async (idRole: number, data: any[]) => {
+        try {
+            const response = await ruleService.deletePermisosRole(idRole, data);
+            return response;
+        } catch (error) {
+            console.error('Error al añadir permisos al rol', error);
+            throw error;
+        }
+    },
 }
 
 export default rulesService;

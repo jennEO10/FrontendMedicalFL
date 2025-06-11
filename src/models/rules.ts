@@ -31,7 +31,7 @@ export interface Permisos {
   id: number
   name: string
   description: string
-  checked: boolean
+  checked?: boolean
 }
 
 export interface ModuloPermisos {
