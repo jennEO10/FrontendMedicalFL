@@ -25,6 +25,7 @@ import Login from "./pages/AuthPages/Login";
 import UsuariosView from "./pages/Usuarios/UsuariosView";
 import RolesView from "./pages/Roles/RolesView";
 import IteracionesView from "./pages/Iteraciones/IteracionesView";
+import PermisosView from "./pages/Roles/PermisosRolesView";
 
 export default function App() {
   return (
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/organizaciones" element={<OrganizacionesView />} />
             <Route path="/usuarios" element={<UsuariosView />} />
             <Route path="/roles" element={<RolesView />} />
+            <Route path="/roles/permisos/:id" element={<PermisosView />} />
             <Route path="/iteraciones" element={<IteracionesView />} />
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />

@@ -37,7 +37,25 @@ const rulesService = {
             console.error('Error deleting rule:', error);
             throw error;
         }
-    }
+    },
+    getPermissions: async (id_role: number) => {
+        try {
+            const response = await ruleService.getPermissionRole(id_role);
+            return response;
+        } catch (error) {
+            console.error('Error fetching permissions:', error);
+            throw error;
+        }
+    },
+    allPermisos: async () => {
+        try {
+            const response = await ruleService.getPermisos();
+            return response;
+        } catch (error) {
+            console.error('Error all permissions:', error);
+            throw error;
+        }
+    },
 }
 
 export default rulesService;
