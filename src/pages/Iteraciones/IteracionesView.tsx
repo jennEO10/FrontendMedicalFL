@@ -1,54 +1,109 @@
-import { useState, useEffect } from 'react';
-
-const dataEjemplo = [
-  {
-    id: 1,
-    organizacion: 'Hospital Universitario',
-    estado: 'Procesando',
-    progreso: 85,
-    tiempo: '1h 23m',
-    datos: 8450,
-  },
-  {
-    id: 2,
-    organizacion: 'Clínica San Rafael',
-    estado: 'Procesando',
-    progreso: 70,
-    tiempo: '1h 23m',
-    datos: 5220,
-  },
-  {
-    id: 3,
-    organizacion: 'Hospital Norte',
-    estado: 'Procesando',
-    progreso: 60,
-    tiempo: '1h 23m',
-    datos: 6780,
-  },
-  {
-    id: 4,
-    organizacion: 'Centro Médico Regional',
-    estado: 'Inactivo',
-    progreso: 0,
-    tiempo: '-',
-    datos: 0,
-  },
-  {
-    id: 5,
-    organizacion: 'Clínica Especializada',
-    estado: 'Procesando',
-    progreso: 75,
-    tiempo: '1h 23m',
-    datos: 4120,
-  },
-];
+import { useEffect, useState } from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { Iteracion } from '../../models/iteracion';
+import iteracionService from '../../services/iteracionService';
+import CrearEditarIteracionModal from '../../components/modals/CrearEditarIteracion';
+import EliminarIteracionModal from '../../components/modals/EliminarIteracion';
 
 export default function IteracionesView() {
-  const participantes = dataEjemplo;
+  const [iteraciones, setIteraciones] = useState<Iteracion[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalClose, setModalClose] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [iteracion, setIteracion] = useState<Iteracion>({
+    id: 0,
+    iterationName: '',
+    iterationNumber: '',
+    startDate: '',
+    finishDate: '',
+    duration: '',
+    metrics: '',
+    state: 'Procesando',
+    participantsQuantity: '',
+    userIds: []
+  });
 
-//   useEffect(() => {
-//     setParticipantes(dataEjemplo);
-//   }, []);
+  const obtenerIteraciones = async () => {
+    try {
+      const listIteraciones = await iteracionService.getAllIteraciones();
+      console.log("Lista de iteraciones: ", listIteraciones);
+      setIteraciones(listIteraciones);
+    } catch (error) {
+      console.error('Error al cargar las iteraciones:', error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerIteraciones();
+  }, []);
+
+  const reiniciarFormulario = () => {
+    setModalOpen(false)
+    setModalClose(false)
+    setEditMode(false)
+    setIteracion({
+      id: 0,
+      iterationName: '',
+      iterationNumber: '',
+      startDate: '',
+      finishDate: '',
+      duration: '',
+      metrics: '',
+      state: 'Procesando',
+      participantsQuantity: '',
+      userIds: []
+    })
+  }
+  
+  const handleGuardarIteracion = async () => {
+    console.log("Recibir datos de la iteración a crear:",iteracion)
+    try {
+      const response = await iteracionService.addIteracion(iteracion);
+      reiniciarFormulario()
+      obtenerIteraciones()
+      console.log("Iteración guardada:",response)
+    } catch (error) {
+      console.error('Error al guardar la iteración:', error);
+    }
+  };
+  
+  const clickEditar = (iteracion: Iteracion) => {
+    console.log("Se carga la iteración seleccionada: ", iteracion)
+    setEditMode(true);
+    setIteracion(iteracion);
+    setModalOpen(true);
+  };
+
+  const editarIteracion = async () => {
+    console.log("Recibir datos de la iteración a editar:",iteracion)
+    try {
+      const response = await iteracionService.updIteracion(iteracion.id,iteracion);
+      reiniciarFormulario();
+      obtenerIteraciones();
+      console.log("Iteración editada:",response)
+    } catch (error) {
+      console.error('Error al editar la iteración:', error);
+    }
+  }
+
+  const clickEliminar = (iteracion: Iteracion) => {
+    setModalClose(true);
+    setIteracion(iteracion);
+  }
+
+  const eliminarIteracion = async () => {
+    console.log("Iteración a eliminar:",iteracion);
+
+    try {
+      const response = await iteracionService.delIteracion(iteracion.id);
+      reiniciarFormulario();
+      obtenerIteraciones();
+      console.log("Iteración eliminada:",response)
+    } catch (error: any) {
+      console.error('Error al eliminar la iteración:', error);
+      alert('Error: ' + error.message);
+    }
+  }
 
   return (
     <div className="p-6 text-gray-800 dark:text-white">
@@ -61,44 +116,52 @@ export default function IteracionesView() {
         <table className="w-full table-auto text-sm">
           <thead>
             <tr className="bg-gray-100 dark:bg-gray-800">
-              <th className="px-4 py-3 text-left font-semibold">Organización</th>
+              <th className="px-4 py-3 text-left font-semibold">Iteración</th>
               <th className="px-4 py-3 text-left font-semibold">Estado</th>
               <th className="px-4 py-3 text-left font-semibold">Progreso</th>
-              <th className="px-4 py-3 text-left font-semibold">Tiempo Transcurrido</th>
-              <th className="px-4 py-3 text-left font-semibold">Datos Procesados</th>
+              <th className="px-4 py-3 text-left font-semibold">Duración</th>
+              <th className="px-4 py-3 text-left font-semibold">Participantes</th>
               <th className="px-4 py-3 text-left font-semibold">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {participantes.map((p) => (
-              <tr key={p.id} className="border-b border-gray-200 dark:border-gray-700">
-                <td className="px-4 py-3">{p.organizacion}</td>
+            {iteraciones.map((iteracion) => (
+              <tr key={iteracion.id} className="border-b border-gray-200 dark:border-gray-700">
+                <td className="px-4 py-3">#{iteracion.id}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    p.estado === 'Procesando'
+                    iteracion.state === 'Procesando'
                       ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
-                      : 'bg-orange-100 text-orange-700 dark:bg-orange-800 dark:text-orange-100'
+                      : 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100'
                   }`}>
-                    {p.estado}
+                    {iteracion.state}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                     <div
                       className="bg-blue-500 h-2.5 rounded-full"
-                      style={{ width: `${p.progreso}%` }}
+                      style={{ width: `${iteracion.iterationNumber}%` }}
                     ></div>
                   </div>
-                  <span className="text-xs">{p.progreso}%</span>
+                  <span className="text-xs">{iteracion.iterationNumber}%</span>
                 </td>
-                <td className="px-4 py-3">{p.tiempo}</td>
-                <td className="px-4 py-3">{p.datos.toLocaleString()} registros</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3">{iteracion.duration}</td>
+                <td className="px-4 py-3">{iteracion.participantsQuantity}</td>
+                <td className="px-4 py-3 flex items-center gap-2">
                   <button
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                    title="Ver detalles"
+                    className="p-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white"
+                    title="Editar"
+                    onClick={() => clickEditar(iteracion)}
                   >
-                    🔍
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                    title="Eliminar"
+                    onClick={() => clickEliminar(iteracion)}
+                  >
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -108,13 +171,32 @@ export default function IteracionesView() {
       </div>
 
       <div className="flex justify-end mt-6 gap-4">
-        <button className="px-4 py-2 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800">
+        <button
+          className="px-4 py-2 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800"
+          onClick={() => setModalOpen(true)}
+        >
           Crear Iteración
         </button>
         <button className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700">
           Ver Métricas
         </button>
       </div>
+
+      <CrearEditarIteracionModal
+        open={modalOpen}
+        onClose={reiniciarFormulario}
+        isEditMode={editMode}
+        iteracion={iteracion}
+        setIteracion={setIteracion}
+        onSubmit={editMode ? editarIteracion : handleGuardarIteracion}
+      />
+
+      <EliminarIteracionModal
+        open = {modalClose}
+        iterationName= {iteracion.iterationName}
+        onClose={reiniciarFormulario}
+        onConfirm={eliminarIteracion}
+      />
     </div>
   );
 }
