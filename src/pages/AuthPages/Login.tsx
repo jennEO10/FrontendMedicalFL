@@ -12,7 +12,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/"); // Ya está logueado, redirige
+      navigate("/dash-admin"); // Ya está logueado, redirige
     }
   }, [isAuthenticated, navigate]);
 
@@ -21,7 +21,7 @@ const Login = () => {
     try {
       await loginWithEmail(email, password);
       sessionStorage.setItem("userEmail", email);
-      navigate("/"); // Redirige a la home
+      navigate("/dash-admin"); // Redirige a la home
     } catch (error: any) {
       alert("Error al iniciar sesión con correo: " + error.message);
     }
@@ -34,7 +34,7 @@ const Login = () => {
       if (user?.email) {
         sessionStorage.setItem("userEmail", user.email);
       }
-      navigate("/");
+      navigate("/dash-admin");
     } catch (error: any) {
       alert("Error al iniciar sesión con Google: " + error.message);
     }

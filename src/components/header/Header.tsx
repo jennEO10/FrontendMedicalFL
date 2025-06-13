@@ -78,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             </svg>
           </button>
 
-          <Link to="/" className="flex items-center space-x-2 lg:hidden">
+          <Link to="/dash-admin" className="flex items-center space-x-2 lg:hidden">
             <img
               src="./images/logo/logo-icon.svg"
               alt="Logo"
