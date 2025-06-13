@@ -28,6 +28,7 @@ import IteracionesView from "./pages/Iteraciones/IteracionesView";
 import PermisosView from "./pages/Roles/PermisosRolesView";
 import LogSistemaView from "./pages/logSistema/LogSistemaView";
 import DashboardAdminView from "./pages/Dashboard/DashAdmin";
+import AlertaNotificacionesView from "./pages/AlertaNotificaciones/AlertaNotificacionesView";
 
 export default function App() {
   return (
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/roles/permisos/:id" element={<PermisosView />} />
             <Route path="/iteraciones" element={<IteracionesView />} />
             <Route path="/log-sistema" element={<LogSistemaView />} />
+            <Route path="/alerta-notificaciones" element={<AlertaNotificacionesView />} />
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

@@ -17,7 +17,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
-import { FaBuilding, FaRetweet, FaScroll, FaUsers, FaUserShield } from "react-icons/fa";
+import { FaBell, FaBuilding, FaRetweet, FaScroll, FaUsers, FaUserShield } from "react-icons/fa";
 
 type NavItem = {
   name: string;
@@ -59,6 +59,11 @@ const navItems: NavItem[] = [
     icon: <FaScroll />,
     name: "Log del Sistema",
     path: "/log-sistema",
+  },
+  {
+    icon: <FaBell />,
+    name: "Alerta de Notificaciones",
+    path: "/alerta-notificaciones",
   },
   // {
   //   icon: <CalenderIcon />,
