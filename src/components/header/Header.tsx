@@ -78,17 +78,16 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             </svg>
           </button>
 
-          <Link to="/" className="lg:hidden">
+          <Link to="/" className="flex items-center space-x-2 lg:hidden">
             <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
+              src="./images/logo/logo-icon.svg"
               alt="Logo"
+              width={32}
+              height={32}
             />
-            <img
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+            <span className="text-lg font-bold text-gray-900 dark:text-white">
+              MedicalFL
+            </span>
           </Link>
 
           <button

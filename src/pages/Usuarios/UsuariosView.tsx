@@ -193,7 +193,7 @@ export default function UsuariosView() {
           </p>
         </div>
         <button
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm text-sm"
+          className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-sm text-sm"
           onClick={() => setMostrarModalAddUpd(true)}
         >
           <FaUserPlus className="text-base" />
@@ -219,7 +219,6 @@ export default function UsuariosView() {
               <th className="px-4 py-3">Organización</th>
               <th className="px-4 py-3">Rol</th>
               <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3">Último Acceso</th>
               <th className="px-4 py-3">Acciones</th>
             </tr>
           </thead>
@@ -238,7 +237,6 @@ export default function UsuariosView() {
                     {usuario.enabled? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">--/--/----</td>
                 <td className="px-4 py-3 whitespace-nowrap flex gap-2">
                   <button className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full" onClick={() => clickEditar(usuario)}>
                     <FaEdit />

@@ -131,9 +131,9 @@ const OrganizacionesView = () => {
         />
         <button
           onClick={() => setMostrarModal(true)}
-          className="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow"
+          className="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow"
         >
-          + Nueva Organización
+          Nueva Organización
         </button>
       </div>
 
@@ -153,18 +153,16 @@ const OrganizacionesView = () => {
                 <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.name}</td>
                 <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.descripcion}</td>
                 <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.contacto}</td>
-                <td className="px-4 py-2">
-                  <div className="flex flex-wrap gap-2 justify-start">
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md flex items-center gap-1" onClick={() => clickEditar(org)}>
-                      <FaEdit /> Editar
-                    </button>
-                    <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
-                      <FaSearch /> Ver
-                    </button>
-                    <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1" onClick={() => clickEliminar(org)}>
-                      <FaTimes /> Eliminar
-                    </button>
-                  </div>
+                <td className="px-4 py-2 whitespace-nowrap flex gap-2">
+                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full" onClick={() => clickEditar(org)}>
+                    <FaEdit />
+                  </button>
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full">
+                    <FaSearch />
+                  </button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full" onClick={() => clickEliminar(org)}>
+                    <FaTimes />
+                  </button>
                 </td>
               </tr>
             ))}

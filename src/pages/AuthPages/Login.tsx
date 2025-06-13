@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase/firebase";
 
 const Login = () => {
   const { loginWithEmail, loginWithGoogle, isAuthenticated  } = useAuth();
@@ -19,6 +20,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await loginWithEmail(email, password);
+      sessionStorage.setItem("userEmail", email);
       navigate("/"); // Redirige a la home
     } catch (error: any) {
       alert("Error al iniciar sesión con correo: " + error.message);
@@ -28,6 +30,10 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
+      const user = auth.currentUser;
+      if (user?.email) {
+        sessionStorage.setItem("userEmail", user.email);
+      }
       navigate("/");
     } catch (error: any) {
       alert("Error al iniciar sesión con Google: " + error.message);

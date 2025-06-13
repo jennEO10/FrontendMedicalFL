@@ -110,7 +110,7 @@ export default function RolesView() {
                 className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold px-6 py-2 rounded-md shadow mb-4"
                 onClick={() => setMostrarModal(true)}
             >
-                + Crear Rol
+                Crear Rol
             </button>
 
             <div className="overflow-x-auto rounded-xl shadow-lg">

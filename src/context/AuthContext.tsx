@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    sessionStorage.removeItem("userEmail");
     signOut(auth);
   };
 

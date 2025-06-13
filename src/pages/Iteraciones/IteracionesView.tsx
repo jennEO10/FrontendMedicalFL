@@ -172,7 +172,7 @@ export default function IteracionesView() {
 
       <div className="flex justify-end mt-6 gap-4">
         <button
-          className="px-4 py-2 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800"
+          className="px-4 py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white"
           onClick={() => setModalOpen(true)}
         >
           Crear Iteración
