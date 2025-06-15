@@ -31,6 +31,10 @@ import DashboardAdminView from "./pages/Dashboard/DashAdmin";
 import AlertaNotificacionesView from "./pages/AlertaNotificaciones/AlertaNotificacionesView";
 import OperadorDashboard from "./pages/Operador/dashboard/dashboard";
 import RoleRedirector from "./components/router/RoleRedirector";
+import EntrenarModeloView from "./pages/Operador/EntrenarModeloView";
+import UsarModeloView from "./pages/Operador/UsarModeloView";
+import ReportesView from "./pages/Operador/ReporteView";
+import InformacionAdicional from "./pages/Operador/InformacionAdicionalView";
 
 export default function App() {
   return (
@@ -75,6 +79,10 @@ export default function App() {
 
             {/* Operador */}
             <Route path="/dashboard" element={<OperadorDashboard />} />
+            <Route path="/model-train" element={<EntrenarModeloView />} />
+            <Route path="/use-model" element={<UsarModeloView />} />
+            <Route path="/view-reports" element={<ReportesView />} />
+            <Route path="/additional-information" element={<InformacionAdicional />} />
           </Route>
 
           {/* 404 */}

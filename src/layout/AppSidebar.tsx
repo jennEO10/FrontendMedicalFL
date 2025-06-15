@@ -17,7 +17,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
-import { FaBell, FaBuilding, FaRetweet, FaScroll, FaUsers, FaUserShield } from "react-icons/fa";
+import { FaBell, FaBrain, FaBuilding, FaFileAlt, FaInfoCircle, FaMagic, FaRetweet, FaScroll, FaUsers, FaUserShield } from "react-icons/fa";
 
 type NavItem = {
   name: string;
@@ -100,6 +100,26 @@ const operatorNavItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     path: "/dashboard",
+  },
+  {
+    icon: <FaBrain />,
+    name: "Entrenar Modelo",
+    path: "/model-train",
+  },
+  {
+    icon: <FaMagic />,
+    name: "Usar Modelo",
+    path: "/use-model",
+  },
+  {
+    icon: <FaFileAlt />,
+    name: "Ver Reportes",
+    path: "/view-reports",
+  },
+  {
+    icon: <FaInfoCircle />,
+    name: "Información Adicional",
+    path: "/additional-information",
   },
 ];
 
