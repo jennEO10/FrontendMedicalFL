@@ -47,3 +47,8 @@ export const deleteUser = async (id: number) => {
   const response = await axios.delete(`${API_URL}/api/eliminar-usuario/${id}`);
   return response;
 };
+
+export const getUser = async (id: number) => {
+  const response = await axios.get<User>(`${API_URL}/api/obtener-usuario/${id}`);
+  return response.data;
+};

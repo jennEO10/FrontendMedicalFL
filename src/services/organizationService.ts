@@ -51,6 +51,16 @@ const organizationService = {
       console.error("Error fetching organization:", error);
       throw error;
     }
+  },
+  getUsersForOrganization: async (id: number) => {
+    try {
+      const organization = await org.obtenerUsuariosPorOrganizacion(id);
+      console.log("Users for organization:", organization);
+      return organization;
+    } catch (error) {
+      console.error("Error get users for organization:", error);
+      throw error;
+    }
   }
 };
 

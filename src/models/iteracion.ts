@@ -1,3 +1,5 @@
+import { Organization } from "./organization"
+
 export interface Iteracion {
     id: number
     iterationName: string
@@ -9,6 +11,7 @@ export interface Iteracion {
     state: string
     participantsQuantity: string
     userIds: number[]
+    organizacionId?: number
 }
 
 export interface CrearEditarIteracionProps {
@@ -17,7 +20,8 @@ export interface CrearEditarIteracionProps {
   iteracion: Iteracion;
   setIteracion: (val: any) => void;
   isEditMode: boolean;
-  onSubmit: (val: any) => void;
+  onSubmit: () => void;
+  organizaciones: Organization[]
 }
 
 export interface EliminarIteracionModalProps {

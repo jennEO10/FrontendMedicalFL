@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { Iteracion } from '../../models/iteracion';
 import iteracionService from '../../services/iteracionService';
 import CrearEditarIteracionModal from '../../components/modals/CrearEditarIteracion';
 import EliminarIteracionModal from '../../components/modals/EliminarIteracion';
+import { Organization } from '../../models/organization';
+import organizationService from '../../services/organizationService';
+import userService from '../../services/usersService';
 
 export default function IteracionesView() {
+  const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
   const [iteraciones, setIteraciones] = useState<Iteracion[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalClose, setModalClose] = useState(false);
@@ -20,14 +24,45 @@ export default function IteracionesView() {
     metrics: '',
     state: 'Procesando',
     participantsQuantity: '',
-    userIds: []
+    userIds: [],
+    organizacionId: 0
   });
+
+  const obtenerOrganizaciones = async () => {
+    try {
+      const response = await organizationService.fetchAll();
+      setOrganizaciones(response);
+    } catch (error) {
+      console.error('Error al obtener organizaciones', error);
+    }
+  };
 
   const obtenerIteraciones = async () => {
     try {
       const listIteraciones = await iteracionService.getAllIteraciones();
       console.log("Lista de iteraciones: ", listIteraciones);
-      setIteraciones(listIteraciones);
+
+      const iteracionForOrganization = await Promise.all(
+        listIteraciones.map(async (iteracion) => {
+        if (iteracion.userIds.length === 0) return iteracion;
+
+        try {
+          const primerUserId = iteracion.userIds[0];
+          const usuario = await userService.getUser(primerUserId);
+
+          return {
+            ...iteracion,
+            organizacionId: usuario?.organizationId ?? 0
+          };
+        } catch (error) {
+          console.error(`Error obteniendo usuario ${iteracion.userIds[0]}`, error);
+          return iteracion;
+        }
+      })      
+      );
+
+      console.log("Iteraciones alteradas: ", iteracionForOrganization)
+      setIteraciones(iteracionForOrganization);
     } catch (error) {
       console.error('Error al cargar las iteraciones:', error);
     }
@@ -35,6 +70,7 @@ export default function IteracionesView() {
 
   useEffect(() => {
     obtenerIteraciones();
+    obtenerOrganizaciones();
   }, []);
 
   const reiniciarFormulario = () => {
@@ -51,22 +87,23 @@ export default function IteracionesView() {
       metrics: '',
       state: 'Procesando',
       participantsQuantity: '',
-      userIds: []
+      userIds: [],
+      organizacionId: 0
     })
   }
-  
+
   const handleGuardarIteracion = async () => {
-    console.log("Recibir datos de la iteración a crear:",iteracion)
+    console.log("Recibir datos de la iteración a crear:", iteracion)
     try {
       const response = await iteracionService.addIteracion(iteracion);
       reiniciarFormulario()
       obtenerIteraciones()
-      console.log("Iteración guardada:",response)
+      console.log("Iteración guardada:", response)
     } catch (error) {
       console.error('Error al guardar la iteración:', error);
     }
   };
-  
+
   const clickEditar = (iteracion: Iteracion) => {
     console.log("Se carga la iteración seleccionada: ", iteracion)
     setEditMode(true);
@@ -75,12 +112,12 @@ export default function IteracionesView() {
   };
 
   const editarIteracion = async () => {
-    console.log("Recibir datos de la iteración a editar:",iteracion)
+    console.log("Recibir datos de la iteración a editar:", iteracion)
     try {
-      const response = await iteracionService.updIteracion(iteracion.id,iteracion);
+      const response = await iteracionService.updIteracion(iteracion.id, iteracion);
       reiniciarFormulario();
       obtenerIteraciones();
-      console.log("Iteración editada:",response)
+      console.log("Iteración editada:", response)
     } catch (error) {
       console.error('Error al editar la iteración:', error);
     }
@@ -92,13 +129,13 @@ export default function IteracionesView() {
   }
 
   const eliminarIteracion = async () => {
-    console.log("Iteración a eliminar:",iteracion);
+    console.log("Iteración a eliminar:", iteracion);
 
     try {
       const response = await iteracionService.delIteracion(iteracion.id);
       reiniciarFormulario();
       obtenerIteraciones();
-      console.log("Iteración eliminada:",response)
+      console.log("Iteración eliminada:", response)
     } catch (error: any) {
       console.error('Error al eliminar la iteración:', error);
       alert('Error: ' + error.message);
@@ -150,6 +187,12 @@ export default function IteracionesView() {
                 <td className="px-4 py-3">{iteracion.participantsQuantity}</td>
                 <td className="px-4 py-3 flex items-center gap-2">
                   <button
+                    className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
+                    title="Ver Métricas"
+                  >
+                    <FaEye />
+                  </button>
+                  <button
                     className="p-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white"
                     title="Editar"
                     onClick={() => clickEditar(iteracion)}
@@ -177,9 +220,6 @@ export default function IteracionesView() {
         >
           Crear Iteración
         </button>
-        <button className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700">
-          Ver Métricas
-        </button>
       </div>
 
       <CrearEditarIteracionModal
@@ -189,11 +229,12 @@ export default function IteracionesView() {
         iteracion={iteracion}
         setIteracion={setIteracion}
         onSubmit={editMode ? editarIteracion : handleGuardarIteracion}
+        organizaciones={organizaciones}
       />
 
       <EliminarIteracionModal
-        open = {modalClose}
-        iterationName= {iteracion.iterationName}
+        open={modalClose}
+        iterationName={iteracion.iterationName}
         onClose={reiniciarFormulario}
         onConfirm={eliminarIteracion}
       />

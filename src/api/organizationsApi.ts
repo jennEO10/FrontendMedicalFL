@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Organization } from '../models/organization'
+import { User } from '../models/user';
 
 const API_URL = 'https://graphic-brook-404722.uc.r.appspot.com';
 
@@ -26,4 +27,9 @@ export const updateOrganization = async (id: number, data: Organization) => {
 export const deleteOrganization = async (id: number) => {
   const response = await axios.delete(`${API_URL}/api/eliminar-organizacion/${id}`);
   return response;
+};
+
+export const obtenerUsuariosPorOrganizacion = async (id: number) => {
+  const response = await axios.get<User[]>(`${API_URL}/api/${id}/usuarios-activos`);
+  return response.data;
 };

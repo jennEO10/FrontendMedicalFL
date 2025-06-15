@@ -91,6 +91,16 @@ const userService = {
       console.error("Error searching users by role name:", error);
       throw error;
     }
+  },
+  getUser: async (id: number) => {
+    try {
+      const response = await userApi.getUser(id);
+      console.log("Get user:", response);
+      return response;
+    } catch (error) {
+      console.error("Error get User:", error);
+      throw error;
+    }
   }
 };
 
