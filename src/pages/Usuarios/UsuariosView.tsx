@@ -138,7 +138,7 @@ export default function UsuariosView() {
           }
 
           const emailResult = await usersService.buscarEmail(filtros.email);
-          setUsuarios(emailResult);
+          setUsuarios([emailResult]);
           break;
         }
         case 'rolName': {

@@ -8,6 +8,11 @@ export const getRules = async () => {
   return response.data;
 };
 
+export const getRule = async (id: number) => {
+  const response = await axios.get<Rule>(`${API_URL}/api/obtener-rol/${id}`);
+  return response.data;
+};
+
 export const getPermissionRole = async (id_role: number) => {
   const response = await axios.get<PermissionRole[]>(`${API_URL}/api/ver-permisos-de-rol/${id_role}`);
   return response.data;

@@ -8,6 +8,7 @@ interface AuthContextProps {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => void;
+  setIsAuthenticated: (auth: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -18,10 +19,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("🔍 Firebase User:", user); 
-      setIsAuthenticated(!!user);
+      const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
+
+      if (user || isCustomLogin) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -36,12 +44,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    sessionStorage.removeItem("userEmail");
+    const isCustom = sessionStorage.getItem("customLogin") === "true";
+    sessionStorage.clear();
     signOut(auth);
+
+    if (isCustom) {
+      window.location.href = "/login";
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, loginWithEmail, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, loading, loginWithEmail, loginWithGoogle, logout, setIsAuthenticated  }}>
       {children}
     </AuthContext.Provider>
   );

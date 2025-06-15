@@ -14,7 +14,7 @@ export const searchName = async (name: string) => {
 };
 
 export const searchMail = async (mail: string) => {
-  const response = await axios.get<User[]>(`${API_URL}/api/obtener-usuario-por-correo/${mail}`);
+  const response = await axios.get<User>(`${API_URL}/api/obtener-usuario-por-correo/${mail}`);
   return response.data;
 };
 

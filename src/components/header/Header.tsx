@@ -11,6 +11,11 @@ interface HeaderProps {
 }
 const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const roleId = sessionStorage.getItem("roleID");
+  const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
+  const isAdmin = roleId === "2" || roleName === "admin";
+
+  const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
 
   const toggleApplicationMenu = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
@@ -78,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             </svg>
           </button>
 
-          <Link to="/dash-admin" className="flex items-center space-x-2 lg:hidden">
+          <Link to={homeRoute} className="flex items-center space-x-2 lg:hidden">
             <img
               src="./images/logo/logo-icon.svg"
               alt="Logo"

@@ -1,0 +1,102 @@
+const OperadorDashboard = () => {
+  return (
+    <div className="p-6 sm:p-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">Panel del Operador</h1>
+
+      {/* Estado actual */}
+      <section className="mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <h2 className="text-xl font-semibold mb-2 md:mb-0">Estado actual</h2>
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition">
+            Entrenar modelo
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 border rounded-md dark:border-gray-700">
+            <p className="font-medium">Estado de última ronda:</p>
+            <span className="inline-block mt-1 px-3 py-1 text-sm font-semibold text-white bg-green-600 rounded-full">
+              Finalizado
+            </span>
+          </div>
+
+          <div className="p-4 border rounded-md dark:border-gray-700">
+            <p className="font-medium">Disponibilidad del modelo:</p>
+            <span className="inline-block mt-1 px-3 py-1 text-sm font-semibold text-white bg-green-600 rounded-full">
+              Habilitado
+            </span>
+          </div>
+
+          <div className="p-4 border rounded-md dark:border-gray-700">
+            <p className="font-medium">Versión del modelo publicado:</p>
+            <span className="inline-block mt-1 px-3 py-1 text-sm font-semibold text-white bg-gray-500 rounded-full">
+              1
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Métricas actuales */}
+      <section className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Métricas actuales del modelo</h2>
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition">
+            Ver histórico
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Precision</p>
+            <p className="text-lg font-bold">89.9%</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Recall</p>
+            <p className="text-lg font-bold">80.5%</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">F1 Score</p>
+            <p className="text-lg font-bold">85.2%</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
+            <p className="text-lg font-bold">90.2%</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Historial */}
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Historial de últimas predicciones</h2>
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition">
+            Ver más
+          </button>
+        </div>
+
+        <div className="overflow-auto rounded-md border dark:border-gray-700">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100 dark:bg-gray-800 text-left">
+              <tr>
+                <th className="px-4 py-3 font-semibold">ID</th>
+                <th className="px-4 py-3 font-semibold">Fecha</th>
+                <th className="px-4 py-3 font-semibold">Resultado</th>
+                <th className="px-4 py-3 font-semibold">% de Confiabilidad</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-900">
+              <tr className="border-t dark:border-gray-700">
+                <td className="px-4 py-3">1</td>
+                <td className="px-4 py-3">23/03/2025</td>
+                <td className="px-4 py-3">Riesgo Alto</td>
+                <td className="px-4 py-3">90%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default OperadorDashboard;

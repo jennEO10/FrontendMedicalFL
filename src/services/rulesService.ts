@@ -74,6 +74,15 @@ const rulesService = {
             throw error;
         }
     },
+    obtenerRole: async (id: number) => {
+        try {
+            const response = await ruleService.getRule(id);
+            return response;
+        } catch (error) {
+            console.error('Error al obtener el rol', error);
+            throw error;
+        }
+    }
 }
 
 export default rulesService;

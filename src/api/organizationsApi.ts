@@ -33,3 +33,8 @@ export const obtenerUsuariosPorOrganizacion = async (id: number) => {
   const response = await axios.get<User[]>(`${API_URL}/api/${id}/usuarios-activos`);
   return response.data;
 };
+
+export const getOrganization = async (id: number) => {
+  const response = await axios.get<Organization>(`${API_URL}/api/obtener-organizacion/${id}`);
+  return response.data;
+};

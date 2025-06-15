@@ -8,6 +8,11 @@ import UserDropdown from "../components/header/UserDropdown";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const roleId = sessionStorage.getItem("roleID");
+  const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
+  const isAdmin = roleId === "2" || roleName === "admin";
+
+  const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -83,7 +88,7 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link to="/dash-admin" className="flex items-center space-x-2 lg:hidden">
+          <Link to={homeRoute} className="flex items-center space-x-2 lg:hidden">
             <img
               src="./images/logo/logo-icon.svg"
               alt="Logo"

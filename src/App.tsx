@@ -29,6 +29,8 @@ import PermisosView from "./pages/Roles/PermisosRolesView";
 import LogSistemaView from "./pages/logSistema/LogSistemaView";
 import DashboardAdminView from "./pages/Dashboard/DashAdmin";
 import AlertaNotificacionesView from "./pages/AlertaNotificaciones/AlertaNotificacionesView";
+import OperadorDashboard from "./pages/Operador/dashboard/dashboard";
+import RoleRedirector from "./components/router/RoleRedirector";
 
 export default function App() {
   return (
@@ -48,8 +50,8 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route index path="/" element={<Home />} />
-            <Route index path="/dash-admin" element={<DashboardAdminView />} />
+            <Route index path="/" element={<RoleRedirector />} />
+            <Route path="/dash-admin" element={<DashboardAdminView />} />
             <Route path="/organizaciones" element={<OrganizacionesView />} />
             <Route path="/usuarios" element={<UsuariosView />} />
             <Route path="/roles" element={<RolesView />} />
@@ -70,6 +72,9 @@ export default function App() {
             <Route path="/videos" element={<Videos />} />
             <Route path="/line-chart" element={<LineChart />} />
             <Route path="/bar-chart" element={<BarChart />} />
+
+            {/* Operador */}
+            <Route path="/dashboard" element={<OperadorDashboard />} />
           </Route>
 
           {/* 404 */}

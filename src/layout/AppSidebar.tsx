@@ -95,6 +95,14 @@ const navItems: NavItem[] = [
   // },
 ];
 
+const operatorNavItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Dashboard",
+    path: "/dashboard",
+  },
+];
+
 const othersItems: NavItem[] = [
   // {
   //   icon: <PieChartIcon />,
@@ -129,6 +137,14 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const roleId = sessionStorage.getItem("roleId");
+  const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
+  const isAdmin = roleId === "2" || roleName === "admin";
+  const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
+
+  const filteredNavItems = isAdmin
+  ? navItems
+  : operatorNavItems;
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -338,7 +354,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/dash-admin">
+        <Link to={homeRoute}>
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <div className="flex items-center space-x-2">
@@ -380,7 +396,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(filteredNavItems, "main")}
             </div>
             {/* <div className="">
               <h2
