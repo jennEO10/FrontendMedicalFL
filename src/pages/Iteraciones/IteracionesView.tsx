@@ -64,41 +64,41 @@ export default function IteracionesView() {
       const listIteraciones = await iteracionService.getAllIteraciones();
       console.log("Lista de iteraciones: ", listIteraciones);
 
-      const iteracionForOrganization = await Promise.all(
-        listIteraciones.map(async (iteracion) => {
-        if (iteracion.userIds.length === 0) return iteracion;
+      // const iteracionForOrganization = await Promise.all(
+      //   listIteraciones.map(async (iteracion) => {
+      //   if (iteracion.userIds.length === 0) return iteracion;
 
-        try {
-          const primerUserId = iteracion.userIds[0];
-          const usuario = await userService.getUser(primerUserId);
+      //   try {
+      //     const primerUserId = iteracion.userIds[0];
+      //     const usuario = await userService.getUser(primerUserId);
 
-          return {
-            ...iteracion,
-            organizacionId: usuario?.organizationId ?? 0
-          };
-        } catch (error) {
-          console.error(`Error obteniendo usuario ${iteracion.userIds[0]}`, error);
-          return iteracion;
-        }
-      })      
-      );
+      //     return {
+      //       ...iteracion,
+      //       organizacionId: usuario?.organizationId ?? 0
+      //     };
+      //   } catch (error) {
+      //     console.error(`Error obteniendo usuario ${iteracion.userIds[0]}`, error);
+      //     return iteracion;
+      //   }
+      // })      
+      // );
 
       const iterationForHyper = await Promise.all(
-        iteracionForOrganization.map(async (iteOrg) => {
+        listIteraciones.map(async (ite) => {
           try {
-            const hyper = await iteracionService.obtenerHyperIteracion(iteOrg.id);
+            const hyper = await iteracionService.obtenerHyperIteracion(ite.id);
             const hyperExists = Array.isArray(hyper) ? hyper[0] : null
 
             return {
-              ...iteOrg,
+              ...ite,
               idHyper: hyperExists?.id ?? 0,
               minUsuarios: hyperExists?.minAvailableClients ?? 0,
               rondas: hyperExists?.rounds ?? 0,
               tiempoLocal: hyperExists?.localEpochs ?? 0
             }
           } catch (error) {
-            console.error(`Error al obtener el hyperparametro ${iteOrg.id}`, error)
-            return iteOrg;
+            console.error(`Error al obtener el hyperparametro ${ite.id}`, error)
+            return ite;
           }
         })
       )
