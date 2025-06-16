@@ -157,7 +157,7 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-  const roleId = sessionStorage.getItem("roleId");
+  const roleId = sessionStorage?.getItem("roleId") ?? "2";
   const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
   const isAdmin = roleId === "2" || roleName === "admin";
   const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
