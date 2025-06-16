@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { CrearEditarIteracionProps } from '../../models/iteracion';
-import organizationService from '../../services/organizationService';
 import { User } from '../../models/user';
+import ConfirmarIteracionModal from './ConfirmarEditarIteacion';
 
 const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
   open,
@@ -10,27 +10,24 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
   setIteracion,
   isEditMode,
   onSubmit,
-  organizaciones,
+  usuarios,
+  openConfirmacion,
+  setOpenConfirmacion
 }) => {
-  const [usuarios, setUsuarios] = useState<User[]>([]);
+  const [idIteracion, setIdIteracion] = useState<number | void>(0);
 
   useEffect(() => {
-    if (!open) {
-      setUsuarios([])
-      return
-    };
+    if (!open) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
+
     document.addEventListener('keydown', handleKeyDown);
-    
+
     if (!iteracion.startDate) {
       const fecha = getLocalDateTime();
       setIteracion((prev: any) => ({ ...prev, startDate: fecha }));
-    }
-
-    if (iteracion.organizacionId) {
-      obtenerUsuariosPorOrganizacion(iteracion.organizacionId);
     }
 
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -44,17 +41,6 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
     return localDate.toISOString().slice(0, 16);
   };
 
-  const obtenerUsuariosPorOrganizacion = async (orgId: number) => {
-    try {
-      const response = await organizationService.getUsersForOrganization(orgId);
-      setUsuarios(response);
-    } catch (error) {
-      console.error('Error al obtener usuarios por organización', error);
-    }
-  };
-
-  if (!open) return null;
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setIteracion({ ...iteracion, [name]: value });
@@ -65,17 +51,17 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
     setIteracion({ ...iteracion, userIds: selectedOptions });
   };
 
-  const handleOrganizacionChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const orgId = Number(e.target.value);
-    setIteracion({ ...iteracion, organizacionId: orgId });
-    await obtenerUsuariosPorOrganizacion(orgId);
+  const preGrabado = async () => {
+    const fecha = getLocalDateTime();
+    setIteracion({ ...iteracion, startDate: fecha });
+
+    const id= await onSubmit()
+
+    setIdIteracion(id);
+    setOpenConfirmacion(true)
   };
 
-  const preGrabado = () => {
-    const fecha = getLocalDateTime()
-    setIteracion({...iteracion, startDate: fecha})
-    onSubmit()
-  }
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -108,19 +94,26 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
             <input value="Procesando" disabled className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white cursor-not-allowed" />
           </div>
-          <div className="col-span-full">
-            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Organización</label>
-            <select value={iteracion.organizacionId || ""} onChange={handleOrganizacionChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white">
-              <option value="">Seleccione una organización</option>
-              {organizaciones.map((org: any) => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
-            </select>
+
+          {/* Inputs nuevos */}
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Mínimo de Usuarios</label>
+            <input type="number" name="minUsuarios" value={iteracion.minUsuarios || ''} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
           </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Rondas</label>
+            <input type="number" name="rondas" value={iteracion.rondas || ''} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Tiempo Local</label>
+            <input type="number" name="tiempoLocal" value={iteracion.tiempoLocal || ''} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
+          </div>
+
+          {/* Usuarios */}
           <div className="col-span-full">
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Usuarios Participantes</label>
-            <select multiple value={iteracion.userIds.map(String)} onChange={handleSelectUsuarios} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white">
-              {usuarios.map((user: any) => (
+            <select multiple value={iteracion.userIds?.map(String) || []} onChange={handleSelectUsuarios} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white">
+              {usuarios.map((user: User) => (
                 <option key={user.id} value={user.id}>{user.username}</option>
               ))}
             </select>
@@ -132,10 +125,18 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
             Cancelar
           </button>
           <button onClick={preGrabado} className="px-5 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">
-            Guardar
+            {isEditMode ? 'Editar' : 'Iniciar'}
           </button>
         </div>
       </div>
+
+      {open && openConfirmacion && (
+        <ConfirmarIteracionModal
+        isEditMode={isEditMode}
+        idIteracion={idIteracion}
+        onClose={onClose}
+        />
+      )}
     </div>
   );
 };

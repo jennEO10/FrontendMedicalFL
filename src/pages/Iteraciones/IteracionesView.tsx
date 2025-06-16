@@ -7,12 +7,16 @@ import EliminarIteracionModal from '../../components/modals/EliminarIteracion';
 import { Organization } from '../../models/organization';
 import organizationService from '../../services/organizationService';
 import userService from '../../services/usersService';
+import { User } from '../../models/user';
+import { buildHyperparameterPayload } from '../../utils/formatters';
 
 export default function IteracionesView() {
+  const [usuarios, setUsuarios] = useState<User[]>([]);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
   const [iteraciones, setIteraciones] = useState<Iteracion[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalClose, setModalClose] = useState(false);
+  const [openConfirmacion, setOpenConfirmacion] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [iteracion, setIteracion] = useState<Iteracion>({
     id: 0,
@@ -25,8 +29,21 @@ export default function IteracionesView() {
     state: 'Procesando',
     participantsQuantity: '',
     userIds: [],
-    organizacionId: 0
+    organizacionId: 0,
+    idHyper:0,
+    minUsuarios: 0,
+    rondas: 0,
+    tiempoLocal: 0
   });
+
+  const obtenerUsuarios = async () => {
+    try {
+      const response = await userService.getAllUsers();
+      setUsuarios(response);
+    } catch (error) {
+      console.error('Error al obtener organizaciones', error);
+    }
+  };
 
   const obtenerOrganizaciones = async () => {
     try {
@@ -61,8 +78,28 @@ export default function IteracionesView() {
       })      
       );
 
-      console.log("Iteraciones alteradas: ", iteracionForOrganization)
-      setIteraciones(iteracionForOrganization);
+      const iterationForHyper = await Promise.all(
+        iteracionForOrganization.map(async (iteOrg) => {
+          try {
+            const hyper = await iteracionService.obtenerHyperIteracion(iteOrg.id);
+            const hyperExists = Array.isArray(hyper) ? hyper[0] : null
+
+            return {
+              ...iteOrg,
+              idHyper: hyperExists?.id ?? 0,
+              minUsuarios: hyperExists?.minAvailableClients ?? 0,
+              rondas: hyperExists?.rounds ?? 0,
+              tiempoLocal: hyperExists?.localEpochs ?? 0
+            }
+          } catch (error) {
+            console.error(`Error al obtener el hyperparametro ${iteOrg.id}`, error)
+            return iteOrg;
+          }
+        })
+      )
+
+      console.log("Iteraciones alteradas: ", iterationForHyper)
+      setIteraciones(iterationForHyper);
     } catch (error) {
       console.error('Error al cargar las iteraciones:', error);
     }
@@ -71,9 +108,11 @@ export default function IteracionesView() {
   useEffect(() => {
     obtenerIteraciones();
     obtenerOrganizaciones();
+    obtenerUsuarios()
   }, []);
 
   const reiniciarFormulario = () => {
+    setOpenConfirmacion(false)
     setModalOpen(false)
     setModalClose(false)
     setEditMode(false)
@@ -88,7 +127,11 @@ export default function IteracionesView() {
       state: 'Procesando',
       participantsQuantity: '',
       userIds: [],
-      organizacionId: 0
+      organizacionId: 0,
+      idHyper:0,
+      minUsuarios: 0,
+      rondas: 0,
+      tiempoLocal: 0
     })
   }
 
@@ -96,9 +139,20 @@ export default function IteracionesView() {
     console.log("Recibir datos de la iteración a crear:", iteracion)
     try {
       const response = await iteracionService.addIteracion(iteracion);
-      reiniciarFormulario()
-      obtenerIteraciones()
+      
       console.log("Iteración guardada:", response)
+
+      const iterationId = response.data?.id;
+
+      if (typeof iterationId === 'number') {
+        const hyperParams = buildHyperparameterPayload(editMode, iteracion, iterationId);
+        const response1 = await iteracionService.creatHyper(hyperParams);
+
+        console.log("Hyperparameter guardada:", response1)
+      }
+
+      obtenerIteraciones()
+      return iterationId;
     } catch (error) {
       console.error('Error al guardar la iteración:', error);
     }
@@ -115,9 +169,24 @@ export default function IteracionesView() {
     console.log("Recibir datos de la iteración a editar:", iteracion)
     try {
       const response = await iteracionService.updIteracion(iteracion.id, iteracion);
-      reiniciarFormulario();
-      obtenerIteraciones();
       console.log("Iteración editada:", response)
+
+      const iterationId = response.data?.id;
+
+      const hyperParams = buildHyperparameterPayload(editMode, iteracion, iterationId);
+      let response1;
+
+      if (hyperParams.id === 0) {
+        response1 = await iteracionService.creatHyper(hyperParams);
+      } else {
+        response1 = await iteracionService.actualizarHyper(hyperParams.id, hyperParams);
+      }
+
+      console.log("Hyperparameter editada:", response1)
+
+      obtenerIteraciones();
+
+      return iterationId;
     } catch (error) {
       console.error('Error al editar la iteración:', error);
     }
@@ -143,21 +212,21 @@ export default function IteracionesView() {
   }
 
   return (
-    <div className="p-6 text-gray-800 dark:text-white">
+    <div className="p-6 text-gray-800 dark:text-white h-full flex flex-col">
       <h1 className="text-2xl font-bold mb-2">Gestión de Iteraciones</h1>
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
         Administra las iteraciones del modelo de aprendizaje federado
       </p>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-x-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-x-auto max-h-[400px] overflow-y-auto relative">
         <table className="w-full table-auto text-sm">
           <thead>
-            <tr className="bg-gray-100 dark:bg-gray-800">
+            <tr className="sticky top-0 bg-gray-100 dark:bg-gray-800 z-10">
               <th className="px-4 py-3 text-left font-semibold">Iteración</th>
               <th className="px-4 py-3 text-left font-semibold">Estado</th>
-              <th className="px-4 py-3 text-left font-semibold">Progreso</th>
-              <th className="px-4 py-3 text-left font-semibold">Duración</th>
-              <th className="px-4 py-3 text-left font-semibold">Participantes</th>
+              <th className="px-4 py-3 text-left font-semibold">Minímo de Usuarios</th>
+              <th className="px-4 py-3 text-left font-semibold">Rondas</th>
+              <th className="px-4 py-3 text-left font-semibold">Tiempo Local</th>
               <th className="px-4 py-3 text-left font-semibold">Acciones</th>
             </tr>
           </thead>
@@ -174,7 +243,7 @@ export default function IteracionesView() {
                     {iteracion.state}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                {/* <td className="px-4 py-3">
                   <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                     <div
                       className="bg-blue-500 h-2.5 rounded-full"
@@ -182,9 +251,10 @@ export default function IteracionesView() {
                     ></div>
                   </div>
                   <span className="text-xs">{iteracion.iterationNumber}%</span>
-                </td>
-                <td className="px-4 py-3">{iteracion.duration}</td>
-                <td className="px-4 py-3">{iteracion.participantsQuantity}</td>
+                </td> */}
+                <td className="px-4 py-3">{iteracion.minUsuarios}</td>
+                <td className="px-4 py-3">{iteracion.rondas}</td>
+                <td className="px-4 py-3">{iteracion.tiempoLocal}</td>
                 <td className="px-4 py-3 flex items-center gap-2">
                   <button
                     className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
@@ -230,6 +300,9 @@ export default function IteracionesView() {
         setIteracion={setIteracion}
         onSubmit={editMode ? editarIteracion : handleGuardarIteracion}
         organizaciones={organizaciones}
+        usuarios={usuarios}
+        openConfirmacion={openConfirmacion}
+        setOpenConfirmacion={setOpenConfirmacion}
       />
 
       <EliminarIteracionModal

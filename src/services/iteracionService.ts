@@ -1,5 +1,5 @@
 import * as ite from '../api/iteracionesApi';
-import { Iteracion } from '../models/iteracion';
+import { HyperParameter, Iteracion } from '../models/iteracion';
 
 const iteracionService = {
   getAllIteraciones: async () => {
@@ -41,7 +41,37 @@ const iteracionService = {
       console.error("Error al eliminar la iteración:", error);
       throw error;
     }
-  }
+  },
+  creatHyper: async (data: HyperParameter) =>  {
+    try {
+      const hyper = await ite.createHyper(data);
+      console.log("Crear Hyper:", hyper);
+      return hyper;
+    } catch (error) {
+      console.error("Error al crear el hyper:", error);
+      throw error;
+    }
+  },
+  actualizarHyper: async (id: number, data: HyperParameter) =>  {
+    try {
+      const hyper = await ite.updateHyper(id, data);
+      console.log("Actualizar Hyper:", hyper);
+      return hyper;
+    } catch (error) {
+      console.error("Error al actualizar el hyper:", error);
+      throw error;
+    }
+  },
+  obtenerHyperIteracion: async (idIteracion: number) =>  {
+    try {
+      const hyper = await ite.getHyperIteracion(idIteracion);
+      console.log("Obtener Hyper por Iteración:", hyper);
+      return hyper;
+    } catch (error) {
+      console.error("Error al obtener Hyper por Iteración:", error);
+      throw error;
+    }
+  },
 };
 
 export default iteracionService;
