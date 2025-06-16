@@ -72,6 +72,16 @@ const iteracionService = {
       throw error;
     }
   },
+  obtenerRondasIteracion: async (idIteracion: number) =>  {
+    try {
+      const rondas = await ite.getRondasIteration(idIteracion);
+      console.log("Obtener Rondas por Iteración:", rondas);
+      return rondas;
+    } catch (error) {
+      console.error("Error al obtener Rondas por Iteración:", error);
+      throw error;
+    }
+  },
 };
 
 export default iteracionService;

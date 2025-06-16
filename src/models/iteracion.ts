@@ -17,6 +17,10 @@ export interface Iteracion {
     minUsuarios: number
     rondas: number
     tiempoLocal: number
+    idInvitation: number
+    codeInvitation: string
+    stateInvitation: string
+
 }
 
 export interface CrearEditarIteracionProps {
@@ -51,4 +55,16 @@ export interface HyperParameter {
   minAvailableClients: number,
   rounds: number,
   iterationId: number,
+}
+
+export interface RondasForIteracion {
+  id: 0,
+  roundNum: 0,
+  auc: 0,
+  accuracy: 0,
+  precision: 0,
+  recall: 0,
+  f1Score: 0,
+  iterationId: 0,
+  userId: 0
 }

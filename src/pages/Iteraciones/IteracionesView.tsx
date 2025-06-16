@@ -9,8 +9,11 @@ import organizationService from '../../services/organizationService';
 import userService from '../../services/usersService';
 import { User } from '../../models/user';
 import { buildHyperparameterPayload } from '../../utils/formatters';
+import { useNavigate } from 'react-router-dom';
+import invitacionService from '../../services/invitacionService';
 
 export default function IteracionesView() {
+  const navigate = useNavigate();
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
   const [iteraciones, setIteraciones] = useState<Iteracion[]>([]);
@@ -33,7 +36,10 @@ export default function IteracionesView() {
     idHyper:0,
     minUsuarios: 0,
     rondas: 0,
-    tiempoLocal: 0
+    tiempoLocal: 0,
+    idInvitation: 0,
+    codeInvitation: '',
+    stateInvitation: 'ACTIVE'
   });
 
   const obtenerUsuarios = async () => {
@@ -131,8 +137,20 @@ export default function IteracionesView() {
       idHyper:0,
       minUsuarios: 0,
       rondas: 0,
-      tiempoLocal: 0
+      tiempoLocal: 0,
+      idInvitation: 0,
+      codeInvitation: '',
+      stateInvitation: 'ACTIVE'
     })
+  }
+
+  function generarCodigoAleatorio(longitud: number = 10): string {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}<>?';
+    let resultado = '';
+    for (let i = 0; i < longitud; i++) {
+      resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    return resultado;
   }
 
   const handleGuardarIteracion = async () => {
@@ -143,12 +161,37 @@ export default function IteracionesView() {
       console.log("Iteración guardada:", response)
 
       const iterationId = response.data?.id;
+      const userIds = response.data?.userIds ?? [];
 
       if (typeof iterationId === 'number') {
         const hyperParams = buildHyperparameterPayload(editMode, iteracion, iterationId);
         const response1 = await iteracionService.creatHyper(hyperParams);
 
         console.log("Hyperparameter guardada:", response1)
+
+        
+        if (userIds.length > 0) {
+          await Promise.all(
+            userIds.map(async (userId: number) => {
+              const nuevoCodigo = generarCodigoAleatorio();
+              const invitacionParams = {
+                id: 0,
+                code: nuevoCodigo,
+                state: 'ACTIVE',
+                iterationId: iterationId,
+                userId: userId,
+              };
+              try {
+                const response2 = await invitacionService.newInvitation(invitacionParams);
+                console.log(`Invitación creada para el usuario ${userId}:`, response2);
+              } catch (error) {
+                console.error(`Error al crear invitación para el usuario ${userId}:`, error);
+              }
+            })
+          );
+        } else {
+          console.log('La iteración no contiene usuarios para invitar.');
+        }
       }
 
       obtenerIteraciones()
@@ -211,6 +254,10 @@ export default function IteracionesView() {
     }
   }
 
+  const irVistaRondas = (iteracion: Iteracion) => {
+    navigate(`/iteraciones/rondas/${iteracion.id}`, { state: { iteracion } })
+  }
+
   return (
     <div className="p-6 text-gray-800 dark:text-white h-full flex flex-col">
       <h1 className="text-2xl font-bold mb-2">Gestión de Iteraciones</h1>
@@ -259,6 +306,7 @@ export default function IteracionesView() {
                   <button
                     className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
                     title="Ver Métricas"
+                    onClick={ () => irVistaRondas(iteracion) }
                   >
                     <FaEye />
                   </button>

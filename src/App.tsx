@@ -35,6 +35,7 @@ import EntrenarModeloView from "./pages/Operador/EntrenarModeloView";
 import UsarModeloView from "./pages/Operador/UsarModeloView";
 import ReportesView from "./pages/Operador/ReporteView";
 import InformacionAdicional from "./pages/Operador/InformacionAdicionalView";
+import IteracionForRondas from "./pages/Iteraciones/IteracionRondasView";
 
 export default function App() {
   return (
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/roles" element={<RolesView />} />
             <Route path="/roles/permisos/:id" element={<PermisosView />} />
             <Route path="/iteraciones" element={<IteracionesView />} />
+            <Route path="/iteraciones/rondas/:id" element={<IteracionForRondas />} />
             <Route path="/log-sistema" element={<LogSistemaView />} />
             <Route path="/alerta-notificaciones" element={<AlertaNotificacionesView />} />
             <Route path="/profile" element={<UserProfiles />} />
