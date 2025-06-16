@@ -18,6 +18,7 @@ import {
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { FaBell, FaBrain, FaBuilding, FaFileAlt, FaInfoCircle, FaMagic, FaRetweet, FaScroll, FaUsers, FaUserShield } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 type NavItem = {
   name: string;
@@ -155,6 +156,7 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
+  const { logout } = useAuth()
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
   const roleId = sessionStorage?.getItem("roleID") ?? "2";
@@ -219,6 +221,37 @@ const AppSidebar: React.FC = () => {
       }
     }
   }, [openSubmenu]);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const tokenExpira = localStorage.getItem("token_expira");
+
+    if (!token || !tokenExpira) {
+      const nuevoToken = crypto.randomUUID(); // puedes usar Math.random también
+      const vencimiento = Date.now() + 24 * 60 * 60 * 1000; // 24h
+      // const vencimiento = Date.now() + 1 * 60 * 1000; // 1 minuto
+
+      localStorage.setItem("token", nuevoToken);
+      localStorage.setItem("token_expira", vencimiento.toString());
+    }
+  }, []);
+
+  useEffect(() => {
+    const validarToken = () => {
+      const expira = localStorage.getItem("token_expira");
+      if (!expira) return;
+
+      const ahora = Date.now();
+      if (ahora > parseInt(expira)) {
+        localStorage.clear();
+        console.warn("Token expirado. Cerrando sesión.");
+        logout();
+      }
+    };
+
+    validarToken();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]); // cada vez que se navega
 
   const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
     setOpenSubmenu((prevOpenSubmenu) => {
