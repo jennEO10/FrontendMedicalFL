@@ -159,8 +159,10 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const roleId = sessionStorage?.getItem("roleID") ?? "2";
   const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
-  const isAdmin = roleId === "2" || roleName === "admin";
+  const isAdmin = roleId === "2" || roleId === "0" || roleName === "admin";
   const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
+
+  // console.log("Datos: ", roleId, roleName)
 
   const filteredNavItems = isAdmin
   ? navItems
