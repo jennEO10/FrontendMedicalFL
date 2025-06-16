@@ -1,17 +1,42 @@
 import { useState } from "react";
 import { Sparkles, Activity } from "lucide-react";
 
+const campos = [
+  { label: "EDAD", type: "int" },
+  { label: "ABORTOS", type: "int" },
+  { label: "INFECCIONES DURANTE EL EMBARAZO", type: "select", options: ["ITU", "ITU SFV", "NO", "PIELONEFRITIS", "SFV", "SIFILIS URINARIA", "URINARIA", "URINARIA SFV"] },
+  { label: "DIABETES", type: "select", options: ["SI", "NO"] },
+  { label: "HIPERTENSION", type: "select", options: ["SI", "NO"] },
+  { label: "EG", type: "string" },
+  { label: "EMB MULTIPLES", type: "int" },
+  { label: "PESO EN EL EMBARAZO", type: "float" },
+  { label: "IMC PRE GESTACIONAL", type: "select", options: ["Bajo", "Elevado", "Normal"] },
+  { label: "CPN", type: "int" },
+  { label: "SANGRADO DEL I,II,III TRIMESTRE", type: "string" },
+  { label: "TABAQUISMO", type: "select", options: ["SI", "NO"] },
+  { label: "ALCOHOLISMO", type: "select", options: ["SI", "NO"] },
+  {
+    label: "NIV EDUCATIVO",
+    type: "select",
+    options: [
+      "1 sec", "2 sec", "3sec", "4 sec", "5 sec", "6 prim", "inst comp",
+      "inst incomp", "no", "prim comp", "sup comp", "sup univ",
+      "univ comp", "univ imcomp", "univ incomp"
+    ]
+  },
+  { label: "FORMULA OBSTETRICA", type: "string" }
+];
+
 export default function UsarModeloView() {
-  const [form, setForm] = useState({
-    feature1: "",
-    feature2: "",
-    feature3: "",
-    feature4: "",
-  });
+  const [form, setForm] = useState<Record<string, string>>(
+    campos.reduce((acc, { label }) => ({ ...acc, [label]: "" }), {})
+  );
+
   const [resultado, setResultado] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
@@ -21,7 +46,7 @@ export default function UsarModeloView() {
   };
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-10 text-gray-900 dark:text-white">
+    <main className="max-w-7xl mx-auto px-4 py-10 text-gray-900 dark:text-white">
       <header className="mb-8">
         <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
           <Sparkles className="text-indigo-500" /> Usar Modelo
@@ -33,28 +58,48 @@ export default function UsarModeloView() {
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-          <form className="space-y-4">
-            {Object.entries(form).map(([name, value], i) => (
-              <div key={name}>
-                <label htmlFor={name} className="block text-sm font-medium mb-1">
-                  Característica {i + 1}
+          <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {campos.map(({ label, type, options }) => (
+              <div key={label} className="flex flex-col">
+                <label htmlFor={label} className="text-sm font-medium mb-1 truncate">
+                  {label}
                 </label>
-                <input
-                  name={name}
-                  value={value}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Ingresa valor"
-                />
+
+                {type === "select" && options ? (
+                  <select
+                    name={label}
+                    value={form[label]}
+                    onChange={handleChange}
+                    className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  >
+                    <option value="">Selecciona una opción</option>
+                    {options.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={type === "int" ? "number" : type === "float" ? "number" : "text"}
+                    step={type === "float" ? "any" : undefined}
+                    name={label}
+                    value={form[label]}
+                    onChange={handleChange}
+                    className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    placeholder="Ingresa valor"
+                  />
+                )}
               </div>
             ))}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md flex items-center justify-center gap-2"
-            >
-              <Activity className="w-4 h-4" /> Realizar predicción
-            </button>
+
+            <div className="col-span-1 sm:col-span-2 mt-4">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md flex items-center justify-center gap-2 transition"
+              >
+                <Activity className="w-4 h-4" /> Realizar predicción
+              </button>
+            </div>
           </form>
         </div>
 
@@ -68,7 +113,7 @@ export default function UsarModeloView() {
         )}
       </div>
 
-      <footer className="mt-10 text-sm text-gray-500 dark:text-gray-400">
+      <footer className="mt-10 text-sm text-gray-500 dark:text-gray-400 text-center">
         Los datos ingresados no se almacenan en la nube. Las predicciones se realizan localmente. El modelo de IA no
         reemplaza el criterio humano para evaluar pacientes.
       </footer>

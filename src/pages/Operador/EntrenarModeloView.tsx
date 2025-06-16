@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileDown, RefreshCcw } from "lucide-react";
+import { FileDown, Clipboard, ClipboardCheck } from "lucide-react";
 
 type ConsentKey = "datos" | "docker" | "consentimiento";
 
@@ -11,18 +11,32 @@ const consentLabels: Record<ConsentKey, string> = {
 };
 
 export default function EntrenarModeloView() {
-  const [codigoGenerado, setCodigoGenerado] = useState("ABC-XX-2xjkL8");
+  const [codigoGenerado, setCodigoGenerado] = useState("");
   const [checked, setChecked] = useState<Record<ConsentKey, boolean>>({
     datos: true,
     docker: true,
     consentimiento: true,
   });
 
+  const allChecked = Object.values(checked).every(Boolean);
+
+  const [copiedDocker, setCopiedDocker] = useState(false);
+
+  const handleDockerCopy = async () => {
+    const dockerCommand =
+      "docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest";
+    try {
+      await navigator.clipboard.writeText(dockerCommand);
+      setCopiedDocker(true);
+      setTimeout(() => setCopiedDocker(false), 1500);
+    } catch (error) {
+      console.error("Error al copiar docker run:", error);
+    }
+  };
+
   const handleCheckboxChange = (key: ConsentKey) => {
     setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
-  const allChecked = Object.values(checked).every(Boolean);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 text-gray-800 dark:text-white">
@@ -37,36 +51,59 @@ export default function EntrenarModeloView() {
         <h2 className="text-xl font-semibold mb-4">Pasos para iniciar el entrenamiento</h2>
         <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
           <li>
-            Instala Docker desde: <a href="https://www.docker.com/" target="_blank" className="text-blue-600 underline dark:text-blue-400">docker.com</a>
+            Instala Docker desde:{" "}
+            <a
+              href="https://www.docker.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline dark:text-blue-400"
+            >
+              docker.com
+            </a>
           </li>
           <li>Descarga el contenedor de entrenamiento desde el sistema.</li>
           <li>
-            Genera tu código de entrenamiento:
-            <div className="flex items-center gap-2 mt-2">
+            Ingrese su código de invitación:
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <input
                 value={codigoGenerado}
-                readOnly
-                className="w-1/2 px-3 py-2 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm"
+                onChange={(e) => setCodigoGenerado(e.target.value)}
+                placeholder="Ej: ABC-XX-2xjkL8"
+                className="w-full sm:w-1/2 px-3 py-2 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm"
               />
-              <button
-                onClick={() => setCodigoGenerado("ABC-XX-" + Math.random().toString(36).slice(-6))}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded flex items-center gap-2"
-              >
-                <RefreshCcw className="w-4 h-4" /> Generar nuevo
-              </button>
             </div>
           </li>
           <li>
             Inicia el contenedor:
-            <pre className="bg-black text-white p-3 rounded mt-2 text-sm overflow-x-auto">
-              docker run -p 8080:8080 nombre-del-contenedor
-            </pre>
+            <div className="relative mt-2">
+              <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
+                docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
+              </pre>
+              <button
+                onClick={handleDockerCopy}
+                className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
+                title="Copiar comando Docker"
+              >
+                {copiedDocker ? (
+                  <ClipboardCheck className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Clipboard className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </li>
           <li>
-            Accede a: <span className="text-blue-600 dark:text-blue-400">http://localhost:8080</span>
+            Accede a:{" "}
+            <span className="text-blue-600 dark:text-blue-400">
+              http://localhost:3000
+            </span>
           </li>
-          <li>El modelo base se descargará automáticamente tras ingresar el código.</li>
-          <li>Sube tu dataset (.csv/.xlsx) y haz clic en "Iniciar entrenamiento".</li>
+          <li>
+            El modelo base se descargará automáticamente tras ingresar el código.
+          </li>
+          <li>
+            Sube tu dataset (.csv/.xlsx) y haz clic en "Iniciar entrenamiento".
+          </li>
         </ol>
       </section>
 
