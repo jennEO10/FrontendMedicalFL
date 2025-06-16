@@ -10,7 +10,6 @@ import userService from '../../services/usersService';
 import { User } from '../../models/user';
 import { buildHyperparameterPayload } from '../../utils/formatters';
 import { useNavigate } from 'react-router-dom';
-import invitacionService from '../../services/invitacionService';
 
 export default function IteracionesView() {
   const navigate = useNavigate();
@@ -144,14 +143,14 @@ export default function IteracionesView() {
     })
   }
 
-  function generarCodigoAleatorio(longitud: number = 10): string {
-    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}<>?';
-    let resultado = '';
-    for (let i = 0; i < longitud; i++) {
-      resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-    }
-    return resultado;
-  }
+  // function generarCodigoAleatorio(longitud: number = 10): string {
+  //   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}<>?';
+  //   let resultado = '';
+  //   for (let i = 0; i < longitud; i++) {
+  //     resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+  //   }
+  //   return resultado;
+  // }
 
   const handleGuardarIteracion = async () => {
     console.log("Recibir datos de la iteración a crear:", iteracion)
@@ -161,7 +160,7 @@ export default function IteracionesView() {
       console.log("Iteración guardada:", response)
 
       const iterationId = response.data?.id;
-      const userIds = response.data?.userIds ?? [];
+      // const userIds = response.data?.userIds ?? [];
 
       if (typeof iterationId === 'number') {
         const hyperParams = buildHyperparameterPayload(editMode, iteracion, iterationId);
@@ -170,28 +169,28 @@ export default function IteracionesView() {
         console.log("Hyperparameter guardada:", response1)
 
         
-        if (userIds.length > 0) {
-          await Promise.all(
-            userIds.map(async (userId: number) => {
-              const nuevoCodigo = generarCodigoAleatorio();
-              const invitacionParams = {
-                id: 0,
-                code: nuevoCodigo,
-                state: 'ACTIVE',
-                iterationId: iterationId,
-                userId: userId,
-              };
-              try {
-                const response2 = await invitacionService.newInvitation(invitacionParams);
-                console.log(`Invitación creada para el usuario ${userId}:`, response2);
-              } catch (error) {
-                console.error(`Error al crear invitación para el usuario ${userId}:`, error);
-              }
-            })
-          );
-        } else {
-          console.log('La iteración no contiene usuarios para invitar.');
-        }
+        // if (userIds.length > 0) {
+        //   await Promise.all(
+        //     userIds.map(async (userId: number) => {
+        //       const nuevoCodigo = generarCodigoAleatorio();
+        //       const invitacionParams = {
+        //         id: 0,
+        //         code: nuevoCodigo,
+        //         state: 'ACTIVE',
+        //         iterationId: iterationId,
+        //         userId: userId,
+        //       };
+        //       try {
+        //         const response2 = await invitacionService.newInvitation(invitacionParams);
+        //         console.log(`Invitación creada para el usuario ${userId}:`, response2);
+        //       } catch (error) {
+        //         console.error(`Error al crear invitación para el usuario ${userId}:`, error);
+        //       }
+        //     })
+        //   );
+        // } else {
+        //   console.log('La iteración no contiene usuarios para invitar.');
+        // }
       }
 
       obtenerIteraciones()
