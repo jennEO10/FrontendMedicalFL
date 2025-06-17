@@ -202,7 +202,7 @@ export default function IteracionesView() {
       }
       const lanzarVM = await iteracionService.lanzarVM(VM)
 
-      console.log("VM iniciado correctamente: ", lanzarVM);
+      console.log("VM lanzado correctamente: ", lanzarVM);
 
       obtenerIteraciones()
       return iterationId;
