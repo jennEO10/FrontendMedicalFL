@@ -105,7 +105,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
             <input type="number" name="rondas" value={iteracion.rondas || ''} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Tiempo Local</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Iteraciones Locales</label>
             <input type="number" name="tiempoLocal" value={iteracion.tiempoLocal || ''} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
           </div>
 

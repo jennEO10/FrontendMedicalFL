@@ -1,5 +1,5 @@
 import * as ite from '../api/iteracionesApi';
-import { HyperParameter, Iteracion } from '../models/iteracion';
+import { HyperParameter, Iteracion, VM } from '../models/iteracion';
 
 const iteracionService = {
   getAllIteraciones: async () => {
@@ -79,6 +79,16 @@ const iteracionService = {
       return rondas;
     } catch (error) {
       console.error("Error al obtener Rondas por Iteración:", error);
+      throw error;
+    }
+  },
+  lanzarVM: async (vm: VM) =>  {
+    try {
+      const rondas = await ite.launchVM(vm);
+      console.log("VM Lanzada:", rondas);
+      return rondas;
+    } catch (error) {
+      console.error("Error al lanzar el VM:", error);
       throw error;
     }
   },

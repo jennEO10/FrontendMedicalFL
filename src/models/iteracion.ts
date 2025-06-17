@@ -68,3 +68,11 @@ export interface RondasForIteracion {
   iterationId: 0,
   userId: 0
 }
+
+export interface VM {
+  rounds: string,
+  fractionFit: string,
+  fractionEval: string,
+  minAvailableClients: string,
+  localEpochs: string,
+}

@@ -193,6 +193,17 @@ export default function IteracionesView() {
         // }
       }
 
+      const VM = {
+        rounds: iteracion.rondas.toString(),
+        fractionFit: "1.0",
+        fractionEval: "1.0",
+        minAvailableClients: iteracion.minUsuarios.toString(),
+        localEpochs: iteracion.tiempoLocal.toString()
+      }
+      const lanzarVM = await iteracionService.lanzarVM(VM)
+
+      console.log("VM iniciado correctamente: ", lanzarVM);
+
       obtenerIteraciones()
       return iterationId;
     } catch (error) {

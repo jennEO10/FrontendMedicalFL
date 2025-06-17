@@ -1,4 +1,7 @@
+import { useNavigate } from 'react-router-dom';
+
 const OperadorDashboard = () => {
+   const navigate = useNavigate();
   return (
     <div className="p-6 sm:p-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Panel del Operador</h1>
@@ -7,7 +10,10 @@ const OperadorDashboard = () => {
       <section className="mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
           <h2 className="text-xl font-semibold mb-2 md:mb-0">Estado actual</h2>
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition">
+          <button 
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition"
+            onClick={() => navigate("/model-train")}
+          >
             Entrenar modelo
           </button>
         </div>

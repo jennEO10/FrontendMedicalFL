@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HyperParameter, Iteracion, RondasForIteracion } from '../models/iteracion';
+import { HyperParameter, Iteracion, RondasForIteracion, VM } from '../models/iteracion';
 
 const API_URL = 'https://graphic-brook-404722.uc.r.appspot.com';
 
@@ -43,4 +43,10 @@ export const updateHyper = async (id: number, data: HyperParameter) => {
 export const getRondasIteration = async (idIteracion: number) => {
   const response = await axios.get<RondasForIteracion[]>(`${API_URL}/api/listar-rondas-por-iteracion/${idIteracion}`);
   return response.data;
+};
+
+// Activar VM
+export const launchVM = async (vm: VM) => {
+  const response = await axios.post(`${API_URL}/api/vm/launch`, null, { params: vm });
+  return response;
 };

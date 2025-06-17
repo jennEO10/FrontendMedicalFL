@@ -14,11 +14,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    const roleId = sessionStorage.getItem("roleID");
+    const roleId = sessionStorage?.getItem("roleID") ?? "2";
     const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
 
     if (isAuthenticated) {
-      const isAdmin = roleId === "2" || roleName === "admin";
+      const isAdmin = roleId === "2" || roleId === "0" || roleName === "admin";
       const redirectPath = isAdmin ? "/dash-admin" : "/dashboard";
       navigate(redirectPath); // Ya está logueado, redirige
     }
