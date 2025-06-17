@@ -51,17 +51,8 @@ export default function EntrenarModeloView() {
         <h2 className="text-xl font-semibold mb-4">Pasos para iniciar el entrenamiento</h2>
         <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
           <li>
-            Instala Docker desde:{" "}
-            <a
-              href="https://www.docker.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline dark:text-blue-400"
-            >
-              docker.com
-            </a>
+            Abril terminal CMD o PowerShell
           </li>
-          <li>Descarga el contenedor de entrenamiento desde el sistema.</li>
           <li>
             Ingrese su código de invitación:
             <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -74,7 +65,7 @@ export default function EntrenarModeloView() {
             </div>
           </li>
           <li>
-            Inicia el contenedor:
+            Contenedor de entrenamiento:
             <div className="relative mt-2">
               <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
                 docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
@@ -98,12 +89,12 @@ export default function EntrenarModeloView() {
               http://localhost:3000
             </span>
           </li>
-          <li>
+          {/* <li>
             El modelo base se descargará automáticamente tras ingresar el código.
           </li>
           <li>
             Sube tu dataset (.csv/.xlsx) y haz clic en "Iniciar entrenamiento".
-          </li>
+          </li> */}
         </ol>
       </section>
 
