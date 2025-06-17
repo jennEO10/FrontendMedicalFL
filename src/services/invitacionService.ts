@@ -7,7 +7,16 @@ const invitacionService = {
             const response = await invitacion.getInvitations()
             return response;
         } catch (error) {
-            console.error('Error fetching invitacions:', error);
+            console.error('Error fetching invitations:', error);
+            throw error;
+        }
+    },
+    getInvitationForUser: async (id: number) => {
+        try {
+            const response = await invitacion.getInvitationForUser(id)
+            return response;
+        } catch (error) {
+            console.error('Error fetch invitation for user:', error);
             throw error;
         }
     },

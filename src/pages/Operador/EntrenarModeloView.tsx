@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileDown, Clipboard, ClipboardCheck } from "lucide-react";
+import invitacionService from "../../services/invitacionService";
+import { Invitacion } from "../../models/invitacion";
 
 type ConsentKey = "datos" | "docker" | "consentimiento";
 
@@ -11,7 +13,17 @@ const consentLabels: Record<ConsentKey, string> = {
 };
 
 export default function EntrenarModeloView() {
+  const [codigoInvitacion, setCodigoInvitacion] = useState<Invitacion>({
+    id: 0,
+    code: "",
+    state: "",
+    iterationId: 0,
+    userId: 0
+  });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [codigoGenerado, setCodigoGenerado] = useState("");
+  const [copiedDocker, setCopiedDocker] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const [checked, setChecked] = useState<Record<ConsentKey, boolean>>({
     datos: true,
     docker: true,
@@ -19,8 +31,6 @@ export default function EntrenarModeloView() {
   });
 
   const allChecked = Object.values(checked).every(Boolean);
-
-  const [copiedDocker, setCopiedDocker] = useState(false);
 
   const handleDockerCopy = async () => {
     const dockerCommand =
@@ -34,9 +44,34 @@ export default function EntrenarModeloView() {
     }
   };
 
+  const handleCodeCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(codigoInvitacion.code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 1500);
+    } catch (error) {
+      console.error("Error al copiar código:", error);
+    }
+  };
+
   const handleCheckboxChange = (key: ConsentKey) => {
     setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const obtenerInvitacionUser = async () => {
+    const id = parseInt(sessionStorage.getItem("userId") ?? "0");
+    try {
+      const response = await invitacionService.getInvitationForUser(id);
+      const ultimoRegistro = Array.isArray(response) ? response.at(-1) : null;
+      if (ultimoRegistro) setCodigoInvitacion(ultimoRegistro);
+    } catch (error) {
+      console.error("Error al obtener la invitación por usuario: ", error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerInvitacionUser();
+  }, []);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 text-gray-800 dark:text-white">
@@ -50,18 +85,30 @@ export default function EntrenarModeloView() {
       <section className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-semibold mb-4">Pasos para iniciar el entrenamiento</h2>
         <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+          <li>Abrir terminal CMD o PowerShell</li>
           <li>
-            Abril terminal CMD o PowerShell
-          </li>
-          <li>
-            Ingrese su código de invitación:
+            Su código de invitación es:
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <input
-                value={codigoGenerado}
-                onChange={(e) => setCodigoGenerado(e.target.value)}
-                placeholder="Ej: ABC-XX-2xjkL8"
-                className="w-full sm:w-1/2 px-3 py-2 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm"
-              />
+              <div className="relative w-full sm:w-1/2">
+                <input
+                  value={codigoInvitacion.code}
+                  onChange={(e) => setCodigoGenerado(e.target.value)}
+                  // placeholder="Ej: ABC-XX-2xjkL8"
+                  className="w-full px-3 py-2 pr-10 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm cursor-not-allowed"
+                  disabled
+                />
+                <button
+                  onClick={handleCodeCopy}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                  title="Copiar código"
+                >
+                  {copiedCode ? (
+                    <ClipboardCheck className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <Clipboard className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
           </li>
           <li>
@@ -89,12 +136,8 @@ export default function EntrenarModeloView() {
               http://localhost:3000
             </span>
           </li>
-          {/* <li>
-            El modelo base se descargará automáticamente tras ingresar el código.
-          </li>
-          <li>
-            Sube tu dataset (.csv/.xlsx) y haz clic en "Iniciar entrenamiento".
-          </li> */}
+          <li>El modelo base se descargará automáticamente.</li>
+          <li>Sube tu dataset (.csv/.xlsx) y haz clic en "Iniciar entrenamiento".</li>
         </ol>
       </section>
 

@@ -8,10 +8,10 @@ export const getInvitations = async () => {
   return response.data;
 };
 
-// export const getUser = async (id: number) => {
-//   const response = await axios.get<User>(`${API_URL}/api/obtener-usuario/${id}`);
-//   return response.data;
-// };
+export const getInvitationForUser = async (id: number) => {
+  const response = await axios.get<Invitacion[]>(`${API_URL}/api/listar-codigos-invitacion-por-usuario/${id}`);
+  return response.data;
+};
 
 export const createInvitation = async (data: Invitacion) => {
   const response = await axios.post(`${API_URL}/api/crear-codigo-invitacion`, data);
