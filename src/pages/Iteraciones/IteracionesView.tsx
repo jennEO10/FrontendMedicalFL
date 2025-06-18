@@ -324,7 +324,7 @@ export default function IteracionesView() {
 
       console.log("Indices: ", columnaIndices)
 
-      datosNormalizados.forEach((fila, rowIndex) => {
+      datosNormalizados.forEach((_, rowIndex) => {
         columnaIndices.forEach((colIndex) => {
           const cellAddress = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex + 1 }); // +1 por el header
           if (worksheet[cellAddress]) {
