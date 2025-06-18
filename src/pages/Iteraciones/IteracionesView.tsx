@@ -10,9 +10,13 @@ import userService from '../../services/usersService';
 import { User } from '../../models/user';
 import { buildHyperparameterPayload } from '../../utils/formatters';
 import { useNavigate } from 'react-router-dom';
+import { FaFileExport } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 export default function IteracionesView() {
   const navigate = useNavigate();
+  const [ultimaIteracion, setUltimaIteracion] = useState("");
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
   const [iteraciones, setIteraciones] = useState<Iteracion[]>([]);
@@ -103,17 +107,29 @@ export default function IteracionesView() {
         })
       )
 
-      console.log("Iteraciones alteradas: ", iterationForHyper)
-      setIteraciones(iterationForHyper);
+      const iteracionesOrdenadas = iterationForHyper.sort((a, b) => a.id - b.id);
+
+      console.log("Iteraciones alteradas: ", iteracionesOrdenadas)
+      setIteraciones(iteracionesOrdenadas);
     } catch (error) {
       console.error('Error al cargar las iteraciones:', error);
     }
   };
 
+  const obtenerUltimaInteracion = async () => {
+    try {
+      const ultimaIteracion = await iteracionService.obtenerUltimaIteracion()
+      setUltimaIteracion((ultimaIteracion.id+1).toString());
+    } catch (error) {
+      console.error('Error al obtener la última iteración:', error);
+    }
+  }
+
   useEffect(() => {
     obtenerIteraciones();
     obtenerOrganizaciones();
     obtenerUsuarios()
+    obtenerUltimaInteracion()
   }, []);
 
   const reiniciarFormulario = () => {
@@ -141,6 +157,7 @@ export default function IteracionesView() {
       codeInvitation: '',
       stateInvitation: 'ACTIVE'
     })
+    obtenerUltimaInteracion()
   }
 
   // function generarCodigoAleatorio(longitud: number = 10): string {
@@ -268,22 +285,99 @@ export default function IteracionesView() {
     navigate(`/iteraciones/rondas/${iteracion.id}`, { state: { iteracion } })
   }
 
+  const exportarRondasAExcel = async (iteracionId: number) => {
+    try {
+      const data = await iteracionService.exportarMetricasPorIteracion(iteracionId);
+
+      if (!Array.isArray(data) || data.length === 0) {
+        alert('No hay datos para exportar.')
+        console.error('No hay datos para exportar.');
+        return;
+      }
+
+      const cabeceras = [
+        "iterationId",
+        "round",
+        "accuracy",
+        "precision",
+        "recall",
+        "f1_score",
+        "auc",
+        "loss"
+      ];
+
+      const datosNormalizados = data.map((item: any) => {
+        const fila: Record<string, any> = {};
+        cabeceras.forEach((clave) => {
+          fila[clave] = item[clave] ?? 0;
+        });
+        return fila;
+      });
+
+      console.log("Datos normalizados: ", datosNormalizados)
+
+      const worksheet = XLSX.utils.json_to_sheet(datosNormalizados, { header: cabeceras });
+
+      // Aplicar formato de porcentaje a ciertas columnas
+      const columnasPorcentaje = ["accuracy", "precision", "recall", "f1_score", "auc", "loss"];
+      const columnaIndices = columnasPorcentaje.map(c => cabeceras.indexOf(c));
+
+      console.log("Indices: ", columnaIndices)
+
+      datosNormalizados.forEach((fila, rowIndex) => {
+        columnaIndices.forEach((colIndex) => {
+          const cellAddress = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex + 1 }); // +1 por el header
+          if (worksheet[cellAddress]) {
+            worksheet[cellAddress].z = '0.00%'; // Formato porcentaje con 2 decimales
+          }
+        });
+      });
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Rondas');
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+
+      const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      saveAs(blob, `rondas_iteracion_${iteracionId}.xlsx`);
+    } catch (error) {
+      console.error('Error al exportar las rondas:', error);
+    }
+  };
+
+
   return (
     <div className="p-6 text-gray-800 dark:text-white h-full flex flex-col">
-      <h1 className="text-2xl font-bold mb-2">Gestión de Iteraciones</h1>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        Administra las iteraciones del modelo de aprendizaje federado
-      </p>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Gestión de Iteraciones</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Administra las iteraciones del modelo de aprendizaje federado
+          </p>
+        </div>
+        <button
+          className="px-4 py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white"
+          onClick={() => setModalOpen(true)}
+        >
+          Crear Iteración
+        </button>
+      </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-x-auto max-h-[400px] overflow-y-auto relative">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-x-auto max-h-[600px] overflow-y-auto relative">
         <table className="w-full table-auto text-sm">
           <thead>
             <tr className="sticky top-0 bg-gray-100 dark:bg-gray-800 z-10">
               <th className="px-4 py-3 text-left font-semibold">Iteración</th>
               <th className="px-4 py-3 text-left font-semibold">Estado</th>
-              <th className="px-4 py-3 text-left font-semibold">Minímo de Usuarios</th>
-              <th className="px-4 py-3 text-left font-semibold">Rondas</th>
-              <th className="px-4 py-3 text-left font-semibold">Tiempo Local</th>
+              <th className="px-4 py-3 text-left font-semibold">Fecha Inicio</th>
+              <th className="px-4 py-3 text-left font-semibold">Fecha Fin</th>
+              <th className="px-4 py-3 text-left font-semibold">Cantidad de participantes</th>
               <th className="px-4 py-3 text-left font-semibold">Acciones</th>
             </tr>
           </thead>
@@ -309,9 +403,9 @@ export default function IteracionesView() {
                   </div>
                   <span className="text-xs">{iteracion.iterationNumber}%</span>
                 </td> */}
-                <td className="px-4 py-3">{iteracion.minUsuarios}</td>
-                <td className="px-4 py-3">{iteracion.rondas}</td>
-                <td className="px-4 py-3">{iteracion.tiempoLocal}</td>
+                <td className="px-4 py-3">{iteracion.startDate? iteracion.startDate.replace('T', ' ') : '-'}</td>
+                <td className="px-4 py-3">{iteracion.finishDate? iteracion.finishDate.replace('T', ' ') : '-'}</td>
+                <td className="px-4 py-3">{iteracion.participantsQuantity}</td>
                 <td className="px-4 py-3 flex items-center gap-2">
                   <button
                     className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
@@ -321,12 +415,19 @@ export default function IteracionesView() {
                     <FaEye />
                   </button>
                   <button
+                    className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                    title="Exportar Excel"
+                    onClick={() => exportarRondasAExcel(iteracion.id)}
+                  >
+                    <FaFileExport />
+                  </button>
+                  {/* <button
                     className="p-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white"
                     title="Editar"
                     onClick={() => clickEditar(iteracion)}
                   >
                     <FaEdit />
-                  </button>
+                  </button> */}
                   <button
                     className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
                     title="Eliminar"
@@ -341,15 +442,6 @@ export default function IteracionesView() {
         </table>
       </div>
 
-      <div className="flex justify-end mt-6 gap-4">
-        <button
-          className="px-4 py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white"
-          onClick={() => setModalOpen(true)}
-        >
-          Crear Iteración
-        </button>
-      </div>
-
       <CrearEditarIteracionModal
         open={modalOpen}
         onClose={reiniciarFormulario}
@@ -361,6 +453,7 @@ export default function IteracionesView() {
         usuarios={usuarios}
         openConfirmacion={openConfirmacion}
         setOpenConfirmacion={setOpenConfirmacion}
+        ultimaIteracion={ultimaIteracion}
       />
 
       <EliminarIteracionModal

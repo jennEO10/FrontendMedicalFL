@@ -34,6 +34,7 @@ export interface CrearEditarIteracionProps {
   usuarios: User[];
   openConfirmacion: any;
   setOpenConfirmacion: (val: any) => void;
+  ultimaIteracion: any
 }
 
 export interface EliminarIteracionModalProps {
@@ -67,6 +68,17 @@ export interface RondasForIteracion {
   f1Score: 0,
   iterationId: 0,
   userId: 0
+}
+
+export interface MetricasByIteracion {
+  iterationId: 0,
+  round: 0,
+  accuracy: 0,
+  precision: 0,
+  recall: 0,
+  f1Score: 0,
+  auc: 0,
+  loss: 0
 }
 
 export interface VM {

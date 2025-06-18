@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HyperParameter, Iteracion, RondasForIteracion, VM } from '../models/iteracion';
+import { HyperParameter, Iteracion, MetricasByIteracion, RondasForIteracion, VM } from '../models/iteracion';
 
 const API_URL = 'https://graphic-brook-404722.uc.r.appspot.com';
 
@@ -23,6 +23,11 @@ export const deleteIteracion = async (id: number) => {
   return response;
 };
 
+export const getLastInteraction = async () => {
+  const response = await axios.get<Iteracion>(`${API_URL}/api/obtener-ultima-iteracion`);
+  return response.data;
+}
+
 // Hyperparameters
 export const getHyperIteracion = async (idIteracion: number) => {
   const response = await axios.get<HyperParameter>(`${API_URL}/api/listar-hyperparametros-por-iteracion/${idIteracion}`);
@@ -42,6 +47,11 @@ export const updateHyper = async (id: number, data: HyperParameter) => {
 // Rondas
 export const getRondasIteration = async (idIteracion: number) => {
   const response = await axios.get<RondasForIteracion[]>(`${API_URL}/api/listar-rondas-por-iteracion/${idIteracion}`);
+  return response.data;
+};
+
+export const exportMetricsByIteration = async (idIteracion: number) => {
+  const response = await axios.get<MetricasByIteracion[]>(`${API_URL}/api/metrics/iteration/${idIteracion}`);
   return response.data;
 };
 

@@ -12,7 +12,8 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
   onSubmit,
   usuarios,
   openConfirmacion,
-  setOpenConfirmacion
+  setOpenConfirmacion,
+  ultimaIteracion
 }) => {
   const [idIteracion, setIdIteracion] = useState<number | void>(0);
 
@@ -25,10 +26,14 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
 
+    console.log("Iteracion desde el modal crear: ", iteracion)
+
     if (!iteracion.startDate) {
       const fecha = getLocalDateTime();
       setIteracion((prev: any) => ({ ...prev, startDate: fecha }));
+      setIteracion((prev: any) => ({ ...prev, iterationNumber: ultimaIteracion }));
     }
+
 
     return () => document.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,7 +89,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Número de la Iteración</label>
-            <input name="iterationNumber" value={iteracion.iterationNumber} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
+            <input disabled={true} name="iterationNumber" value={iteracion.iterationNumber} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white cursor-not-allowed" />
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Inicio de la Iteración</label>

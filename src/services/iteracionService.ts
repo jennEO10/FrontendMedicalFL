@@ -82,6 +82,16 @@ const iteracionService = {
       throw error;
     }
   },
+  exportarMetricasPorIteracion: async (idIteracion: number) =>  {
+    try {
+      const rondas = await ite.exportMetricsByIteration(idIteracion);
+      console.log("Obtener Métricas por Iteración:", rondas);
+      return rondas;
+    } catch (error) {
+      console.error("Error al obtener Métricas por Iteración:", error);
+      throw error;
+    }
+  },
   lanzarVM: async (vm: VM) =>  {
     try {
       const rondas = await ite.launchVM(vm);
@@ -92,6 +102,16 @@ const iteracionService = {
       throw error;
     }
   },
+  obtenerUltimaIteracion: async () => {
+    try {
+      const response = await ite.getLastInteraction();
+      console.log("Última iteracción:", response);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener la última interaccion:", error);
+      throw error;
+    }
+  }
 };
 
 export default iteracionService;
