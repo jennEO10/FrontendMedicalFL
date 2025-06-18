@@ -76,7 +76,7 @@ export interface MetricasByIteracion {
   accuracy: 0,
   precision: 0,
   recall: 0,
-  f1Score: 0,
+  f1score: 0,
   auc: 0,
   loss: 0
 }

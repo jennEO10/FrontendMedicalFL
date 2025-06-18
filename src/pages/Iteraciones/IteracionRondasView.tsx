@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import iteracionService from '../../services/iteracionService';
-import { RondasForIteracion } from '../../models/iteracion';
+import { MetricasByIteracion, RondasForIteracion } from '../../models/iteracion';
 import { FaArrowLeft } from 'react-icons/fa';
 
 export default function IteracionForRondas() {
@@ -9,14 +9,28 @@ export default function IteracionForRondas() {
   const navigate = useNavigate();
   const iteracion = location.state?.iteracion;
 
-  const [metrics, setMetrics] = useState<RondasForIteracion[]>([]);
+  const [metrics, setMetrics] = useState<MetricasByIteracion[]>([]);
 
   useEffect(() => {
     if (!iteracion) return;
     const fetchMetrics = async () => {
       try {
-        const data = await iteracionService.obtenerRondasIteracion(iteracion.id);
-        setMetrics(data);
+        // const data = await iteracionService.obtenerRondasIteracion(iteracion.id);
+        const data = await iteracionService.exportarMetricasPorIteracion(iteracion.id);
+
+        const dataFormateada = data.map((item: any) => ({
+          ...item,
+          accuracy: (item.accuracy * 100).toFixed(2),
+          precision: (item.precision * 100).toFixed(2),
+          recall: (item.recall * 100).toFixed(2),
+          f1score: (item.f1_score * 100).toFixed(2),
+          auc: (item.auc * 100).toFixed(2),
+          loss: (item.loss * 100).toFixed(2),
+        }));
+
+        console.log("Data formateada: ", dataFormateada)
+
+        setMetrics(dataFormateada);
       } catch (error) {
         console.error('Error al obtener las métricas de la iteración:', error);
       }
@@ -60,7 +74,7 @@ export default function IteracionForRondas() {
           <thead className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800">
             <tr>
               <th className="px-4 py-3">Ronda</th>
-              <th className="px-4 py-3"># Ronda</th>
+              {/* <th className="px-4 py-3"># Ronda</th> */}
               <th className="px-4 py-3">AUC</th>
               <th className="px-4 py-3">Accuracy</th>
               <th className="px-4 py-3">Precision</th>
@@ -71,11 +85,11 @@ export default function IteracionForRondas() {
           <tbody>
             {metrics.map((m) => (
               <tr
-                key={m.id}
+                key={m.round}
                 className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
               >
-                <td className="px-4 py-3">#{m.id}</td>
-                <td className="px-4 py-3">{m.roundNum}</td>
+                <td className="px-4 py-3">#{m.round}</td>
+                {/* <td className="px-4 py-3">{m.roundNum}</td> */}
                 <td className="px-4 py-3">
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-1">
                     <div
@@ -105,9 +119,9 @@ export default function IteracionForRondas() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-1">
-                    <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${m.f1Score}%` }}></div>
+                    <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${m.f1score}%` }}></div>
                   </div>
-                  <span className="text-xs">{m.f1Score}%</span>
+                  <span className="text-xs">{m.f1score}%</span>
                 </td>
               </tr>
             ))}
