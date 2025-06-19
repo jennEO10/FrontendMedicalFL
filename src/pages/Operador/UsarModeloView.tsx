@@ -27,10 +27,31 @@ const campos = [
   { label: "FORMULA OBSTETRICA", type: "string" }
 ];
 
+const datosPrecargados: Record<string, string> = {
+  "EDAD": "39",
+  "ABORTOS": "0",
+  "INFECCIONES DURANTE EL EMBARAZO": "URINARIA",
+  "DIABETES": "NO",
+  "HIPERTENSION": "NO",
+  "EG": "39SMS",
+  "EMB MULTIPLES": "0",
+  "PESO EN EL EMBARAZO": "67",
+  "IMC PRE GESTACIONAL": "Elevado",
+  "CPN": "7",
+  "SANGRADO DEL I,II,III TRIMESTRE": "NO",
+  "TABAQUISMO": "NO",
+  "ALCOHOLISMO": "NO",
+  "NIV EDUCATIVO": "5 sec",
+  "FORMULA OBSTETRICA": "G6P5015"
+};
+
 export default function UsarModeloView() {
-  const [form, setForm] = useState<Record<string, string>>(
-    campos.reduce((acc, { label }) => ({ ...acc, [label]: "" }), {})
-  );
+  const [form, setForm] = useState<Record<string, string>>(() => {
+    return campos.reduce((acc, { label }) => {
+      acc[label] = datosPrecargados[label] ?? "";
+      return acc;
+    }, {} as Record<string, string>);
+  });
 
   const [resultado, setResultado] = useState<string | null>(null);
 
