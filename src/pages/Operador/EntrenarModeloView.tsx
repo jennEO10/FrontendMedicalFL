@@ -60,12 +60,45 @@ export default function EntrenarModeloView() {
 
   const obtenerInvitacionUser = async () => {
     const id = parseInt(sessionStorage.getItem("userId") ?? "0");
+
     try {
       const response = await invitacionService.getInvitationForUser(id);
-      const ultimoRegistro = Array.isArray(response) ? response.at(-1) : null;
-      if (ultimoRegistro) setCodigoInvitacion(ultimoRegistro);
+      console.log("Lista de invitaciones del usuario: ", response);
+
+      if (Array.isArray(response) && response.length > 0) {
+          // 1. Ordenar por id de forma ascendente
+          const ordenado = [...response].sort((a, b) => a.id - b.id);
+
+          // 2. Obtener el último (mayor id)
+          const ultimoRegistro = ordenado.at(-1); // o ordenado[ordenado.length - 1]
+
+          // 3. Verificar estadoxx
+          if (ultimoRegistro?.state === "ACTIVE") {
+            setCodigoInvitacion(ultimoRegistro);
+          } else {
+            setCodigoInvitacion({
+              id: 0,
+              code: "",
+              state: "",
+              iterationId: 0,
+              userId: 0});
+          }
+      } else {
+        setCodigoInvitacion({
+          id: 0,
+          code: "",
+          state: "",
+          iterationId: 0,
+          userId: 0});
+      }
     } catch (error) {
       console.error("Error al obtener la invitación por usuario: ", error);
+      setCodigoInvitacion({
+        id: 0,
+        code: "",
+        state: "",
+        iterationId: 0,
+        userId: 0});
     }
   };
 
@@ -93,11 +126,11 @@ export default function EntrenarModeloView() {
                 <input
                   value={codigoInvitacion.code}
                   onChange={(e) => setCodigoGenerado(e.target.value)}
-                  // placeholder="Ej: ABC-XX-2xjkL8"
+                  placeholder={!codigoInvitacion.code ? "No cuenta con código de invitación o está expirado" : undefined}
                   className="w-full px-3 py-2 pr-10 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm cursor-not-allowed"
                   disabled
                 />
-                <button
+                {codigoInvitacion.code !== "" && (<button
                   onClick={handleCodeCopy}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
                   title="Copiar código"
@@ -107,7 +140,7 @@ export default function EntrenarModeloView() {
                   ) : (
                     <Clipboard className="w-4 h-4" />
                   )}
-                </button>
+                </button>)}
               </div>
             </div>
           </li>
@@ -158,7 +191,7 @@ export default function EntrenarModeloView() {
         </div>
       </section>
 
-      <div className="flex justify-end mt-6">
+      {/* <div className="flex justify-end mt-6">
         <button
           disabled={!allChecked}
           className={`px-6 py-2 text-white rounded flex items-center gap-2 transition-colors ${
@@ -169,7 +202,7 @@ export default function EntrenarModeloView() {
         >
           <FileDown className="w-4 h-4" /> Descargar Docker
         </button>
-      </div>
+      </div> */}
     </main>
   );
 }
