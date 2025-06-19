@@ -170,7 +170,7 @@ export default function EntrenarModeloView() {
             </span>
           </li>
           <li>El modelo base se descargará automáticamente.</li>
-          <li>Sube tu dataset (.csv/.xlsx) y haz clic en "Iniciar entrenamiento".</li>
+          <li>Sube tu dataset (.xlsx) y haz clic en "Iniciar entrenamiento".</li>
         </ol>
       </section>
 
