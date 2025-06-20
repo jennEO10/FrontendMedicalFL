@@ -42,7 +42,8 @@ const Login = () => {
           }
 
           if (!user.enabled) {
-            throw new Error("Usuario deshabilitado");
+            alert("Usuario inactivo.");
+            return;
           }
 
           const role = await rulesService.obtenerRole(user.rolesId[0])
