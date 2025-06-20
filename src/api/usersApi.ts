@@ -52,3 +52,13 @@ export const getUser = async (id: number) => {
   const response = await axios.get<User>(`${API_URL}/api/obtener-usuario/${id}`);
   return response.data;
 };
+
+export const activateUser = async (id: number) => {
+  const response = await axios.patch<User>(`${API_URL}/api/activar-usuario/${id}`);
+  return response.data;
+};
+
+export const deactivateUser = async (id: number) => {
+  const response = await axios.patch<User>(`${API_URL}/api/desactivar-usuario/${id}`);
+  return response.data;
+};

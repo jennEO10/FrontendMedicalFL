@@ -101,7 +101,27 @@ const userService = {
       console.error("Error get User:", error);
       throw error;
     }
-  }
+  },
+  activarUsuario: async (id: number) => {
+    try {
+      const response = await userApi.activateUser(id);
+      console.log("Activate user:", response);
+      return response;
+    } catch (error) {
+      console.error("Error activating user:", error);
+      throw error;
+    }
+  },
+  desactivarUsuario: async (id: number) => {
+    try {
+      const response = await userApi.deactivateUser(id);
+      console.log("Deactivate user:", response);
+      return response;
+    } catch (error) {
+      console.error("Error deactivating user:", error);
+      throw error;
+    }
+  },
 };
 
 export default userService;

@@ -48,7 +48,9 @@ export default function UsuariosView() {
           console.warn(`Error al obtener organización para ID ${usuario.organizationId}:`, error);
           return usuario
         }
-      }))
+      })).then((usuarios) =>
+        usuarios.sort((a, b) => a.id - b.id)
+      );
 
       const organizaciones = await organizationService.fetchAll(); // Asumiendo que tienes un método para obtener organizaciones
       const rules = await rulesService.getAllRules();
@@ -204,6 +206,19 @@ export default function UsuariosView() {
     }        
   };
 
+  const toggleUsuarioActivo = async (usuario: User) => {
+    try {
+      if (usuario.enabled) {
+        await usersService.desactivarUsuario(usuario.id);
+      } else {
+        await usersService.activarUsuario(usuario.id);
+      }
+      fetchUsuarios();
+    } catch (error) {
+      console.error("Error al cambiar estado del usuario:", error);
+    }
+  };
+
   return (
     <div className="p-6 max-w-screen-xl mx-auto text-gray-800 dark:text-white">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
@@ -254,19 +269,34 @@ export default function UsuariosView() {
                 <td className="px-4 py-3 whitespace-nowrap">{usuario.nameOrganization}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{usuario.roleName}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      usuario.enabled
+                        ? 'bg-green-200 text-green-800'
+                        : 'bg-red-200 text-red-800' // rojo suave de fondo y texto oscuro
+                    }`}
+                  >
                     {usuario.enabled? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap flex gap-2">
-                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full" onClick={() => clickEditar(usuario)}>
+                  <button className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center" onClick={() => clickEditar(usuario)}>
                     <FaEdit />
                   </button>
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full">
+                  <button className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center">
                     <FaSearch />
                   </button>
-                  <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full" onClick={() => clickEliminar(usuario)}>
+                  <button className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center" onClick={() => clickEliminar(usuario)}>
                     <FaTimes />
+                  </button>
+                  <button
+                    className={`w-8 h-8 ${
+                      usuario.enabled ? "bg-gray-500 hover:bg-gray-600" : "bg-green-500 hover:bg-green-600"
+                    } text-white rounded-full flex items-center justify-center`}
+                    title={usuario.enabled ? "Desactivar usuario" : "Activar usuario"}
+                    onClick={() => toggleUsuarioActivo(usuario)}
+                  >
+                    {usuario.enabled ? "🔒" : "🔓"}
                   </button>
                 </td>
               </tr>
