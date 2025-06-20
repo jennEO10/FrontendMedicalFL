@@ -107,7 +107,7 @@ export default function IteracionesView() {
         })
       )
 
-      const iteracionesOrdenadas = iterationForHyper.sort((a, b) => a.id - b.id);
+      const iteracionesOrdenadas = iterationForHyper.sort((a, b) => b.id - a.id);
 
       console.log("Iteraciones alteradas: ", iteracionesOrdenadas)
       setIteraciones(iteracionesOrdenadas);

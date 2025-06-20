@@ -2,9 +2,9 @@ export default function InformacionAdicional() {
   return (
     <main className="p-6 md:p-10 max-w-5xl mx-auto text-gray-900 dark:text-white">
       <section className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4">Información adicional</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6">Información adicional</h1>
 
-        <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300 text-justify">
+        <div className="space-y-5 text-base md:text-lg text-gray-700 dark:text-gray-300 text-justify">
           <p>
             Esta plataforma ha sido diseñada con el objetivo de preservar la privacidad de los datos clínicos sensibles mediante el uso de aprendizaje federado. Todos los modelos de inteligencia artificial se entrenan localmente en cada institución médica, evitando la transferencia de datos personales hacia servidores externos.
           </p>
@@ -23,7 +23,7 @@ export default function InformacionAdicional() {
           <p>
             Para soporte técnico o consultas relacionadas con el uso de la plataforma, comuníquese con el administrador designado en su institución.
           </p>
-          <p className="text-sm italic text-gray-500 dark:text-gray-400">
+          <p className="text-base italic text-gray-500 dark:text-gray-400">
             Última actualización del modelo federado: 17/08/2025
           </p>
         </div>
