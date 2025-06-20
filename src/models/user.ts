@@ -6,6 +6,8 @@ export interface User {
   mail: string;
   organizationId: number;
   rolesId: number[];
+  nameOrganization?: string;
+  roleName?: string;
 }
 
 export interface ModalUsuarioProps {

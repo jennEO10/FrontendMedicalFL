@@ -29,9 +29,30 @@ export default function UsuariosView() {
   const fetchUsuarios = async () => {
     try {
       const response = await usersService.getAllUsers();
+      const usuarioFormateado = await Promise.all(
+      response.map(async (usuario) => {
+        try {
+          const [org, rol] = await Promise.all([
+            organizationService.getOrganization(usuario.organizationId),
+            usuario.rolesId?.[0] !== undefined
+              ? rulesService.obtenerRole(usuario.rolesId[0])
+              : Promise.resolve(undefined)
+          ]);
+
+          return {
+            ...usuario,
+            nameOrganization: org?.name || "Organización no encontrada",
+            roleName: rol?.name || "Rol no encontrado",
+          };
+        } catch (error) {
+          console.warn(`Error al obtener organización para ID ${usuario.organizationId}:`, error);
+          return usuario
+        }
+      }))
+
       const organizaciones = await organizationService.fetchAll(); // Asumiendo que tienes un método para obtener organizaciones
       const rules = await rulesService.getAllRules();
-      setUsuarios(response);
+      setUsuarios(usuarioFormateado);
       setOrganizaciones(organizaciones);
       setRules(rules);
     } catch (error) {
@@ -230,8 +251,8 @@ export default function UsuariosView() {
               >
                 <td className="px-4 py-3 whitespace-nowrap">{usuario.username}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{usuario.mail}</td>
-                <td className="px-4 py-3 whitespace-nowrap">Org #{usuario.organizationId}</td>
-                <td className="px-4 py-3 whitespace-nowrap">Rol #{usuario.rolesId}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{usuario.nameOrganization}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{usuario.roleName}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span className="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">
                     {usuario.enabled? 'Activo' : 'Inactivo'}
