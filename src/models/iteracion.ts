@@ -20,7 +20,7 @@ export interface Iteracion {
     idInvitation: number
     codeInvitation: string
     stateInvitation: string
-
+    trainingMode?: string
 }
 
 export interface CrearEditarIteracionProps {

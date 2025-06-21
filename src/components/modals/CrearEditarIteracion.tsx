@@ -70,7 +70,8 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
 
   return (
     <div className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="relative z-10 w-[95%] max-w-3xl bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl animate-fade-in transition-all">
+      <div className="relative z-10 w-full max-w-3xl max-h-[95vh] overflow-y-auto m-4 bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-2xl animate-fade-in transition-all">
+
         <button
           onClick={onClose}
           className="absolute top-4 right-5 text-xl text-gray-500 dark:text-gray-300 hover:text-red-500"
@@ -113,7 +114,19 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Iteraciones Locales</label>
             <input type="number" name="tiempoLocal" value={iteracion.tiempoLocal || ''} onChange={handleChange} className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white" />
           </div>
-
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Modo de Entrenamiento</label>
+            <select
+              name="trainingMode"
+              value={iteracion.trainingMode || ''}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
+            >
+              <option value="">Seleccione</option>
+              <option value="FRESH">FRESH</option>
+              <option value="RETRAIN">RETRAIN</option>
+            </select>
+          </div>
           {/* Usuarios */}
           <div className="col-span-full">
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Usuarios Participantes</label>
