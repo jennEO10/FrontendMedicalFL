@@ -1,7 +1,57 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Iteracion } from '../../../models/iteracion';
+import iteracionService from '../../../services/iteracionService';
 
 const OperadorDashboard = () => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [iteracion, setIteracion] = useState<Iteracion>({
+       id: 0,
+       iterationName: '',
+       iterationNumber: '',
+       startDate: '',
+       finishDate: '',
+       duration: '',
+       metrics: '',
+       state: 'Procesando',
+       participantsQuantity: '',
+       userIds: [],
+       organizacionId: 0,
+       idHyper:0,
+       minUsuarios: 0,
+       rondas: 0,
+       tiempoLocal: 0,
+       idInvitation: 0,
+       codeInvitation: '',
+       stateInvitation: 'ACTIVE'
+     });
+  
+  const obtenerUltimaIteracion = async () => {
+    const userId = sessionStorage.getItem("userId");
+    if (!userId) return;
+
+    try {
+      const ultimaIteracion = await iteracionService.obtenerUltimaIteracionPorUsuario(parseInt(userId));
+
+      if (Array.isArray(ultimaIteracion) && ultimaIteracion.length > 0) {
+        const ultima = ultimaIteracion.sort((a, b) => b.id - a.id)[0]; // ordena por id desc y toma la primera
+        setIteracion(ultima)
+      }      
+    } catch (error) {
+      console.error('Error al obtener la última ronda', error);
+    }
+  }
+
+  useEffect(() => {
+    obtenerUltimaIteracion();
+  }, [])
+
+  const getEstadoColor = () => {
+    if (iteracion.state === "Procesando") return "bg-green-600";
+    if (iteracion.state === "Finalizado") return "bg-red-600";
+    return "bg-gray-500";
+  };
+     
   return (
     <div className="p-6 sm:p-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Panel del Operador</h1>
@@ -21,8 +71,8 @@ const OperadorDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 border rounded-md dark:border-gray-700">
             <p className="font-medium">Estado de última ronda:</p>
-            <span className="inline-block mt-1 px-3 py-1 text-sm font-semibold text-white bg-green-600 rounded-full">
-              Finalizado
+            <span className={`inline-block mt-1 px-3 py-1 text-sm font-semibold text-white rounded-full ${getEstadoColor()}`}>
+              { iteracion.state === "Procesando" || iteracion.state === "Finalizado" ? iteracion.state : "Cargando..." }
             </span>
           </div>
 

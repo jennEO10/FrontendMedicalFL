@@ -28,6 +28,11 @@ export const getLastInteraction = async () => {
   return response.data;
 }
 
+export const getLastInteractionByUser = async (userId: number) => {
+  const response = await axios.get<Iteracion[]>(`${API_URL}/api/listar-iteraciones-por-usuario/${userId}`);
+  return response.data;
+}
+
 // Hyperparameters
 export const getHyperIteracion = async (idIteracion: number) => {
   const response = await axios.get<HyperParameter>(`${API_URL}/api/listar-hyperparametros-por-iteracion/${idIteracion}`);

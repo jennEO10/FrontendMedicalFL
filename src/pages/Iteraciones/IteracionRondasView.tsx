@@ -4,7 +4,14 @@ import iteracionService from '../../services/iteracionService';
 import { MetricasByIteracion, RondasForIteracion } from '../../models/iteracion';
 import { FaArrowLeft } from 'react-icons/fa';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from 'recharts';
 
 export default function IteracionForRondas() {
@@ -143,14 +150,21 @@ export default function IteracionForRondas() {
           <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
             <h2 className="text-lg font-semibold mb-4">{metricas.find(m => m.key === tab)?.label} por Ronda</h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={metrics}>
+              <LineChart data={metrics}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="round" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
+                <YAxis domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
+                <Tooltip formatter={(value) => `${value}%`} />
                 <Legend />
-                <Bar dataKey={tab} fill="#6366F1" radius={[8, 8, 0, 0]} />
-              </BarChart>
+                <Line
+                  type="monotone"
+                  dataKey={tab}
+                  stroke="#6366F1"
+                  strokeWidth={3}
+                  activeDot={{ r: 6 }}
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </>

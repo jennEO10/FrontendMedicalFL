@@ -108,10 +108,20 @@ const iteracionService = {
       console.log("Última iteracción:", response);
       return response;
     } catch (error) {
-      console.error("Error al obtener la última interaccion:", error);
+      console.error("Error al obtener la última interacion:", error);
       throw error;
     }
-  }
+  },
+  obtenerUltimaIteracionPorUsuario: async (userId: number) => {
+    try {
+      const response = await ite.getLastInteractionByUser(userId);
+      console.log("Última iteración por usuario:", response);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener la última interacion por usuario:", error);
+      throw error;
+    }
+  },
 };
 
 export default iteracionService;
