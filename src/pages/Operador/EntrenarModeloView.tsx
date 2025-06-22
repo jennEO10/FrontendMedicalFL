@@ -145,64 +145,68 @@ export default function EntrenarModeloView() {
             </div>
           </li>
           <li>
-  Contenedor de entrenamiento:
-  <div className="mt-2 space-y-4">
+            Contenedor de entrenamiento:
+            <div className="mt-2 space-y-4">
 
-    {/* Comando #2 */}
-    <div className="relative">
-      <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
-        docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2
-      </pre>
-      <button
-        onClick={async () => {
-          await navigator.clipboard.writeText(
-            "docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2"
-          );
-          setCopiedDocker(true);
-          setTimeout(() => setCopiedDocker(false), 1500);
-        }}
-        className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
-        title="Copiar comando Docker pull"
-      >
-        {copiedDocker ? (
-          <ClipboardCheck className="w-4 h-4 text-green-600" />
-        ) : (
-          <Clipboard className="w-4 h-4" />
-        )}
-      </button>
-    </div>
-    
-    {/* Comando #1 */}
-    <div className="relative">
-      <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
-        docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
-      </pre>
-      <button
-        onClick={async () => {
-          await navigator.clipboard.writeText(
-            "docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest"
-          );
-          setCopiedDocker(true);
-          setTimeout(() => setCopiedDocker(false), 1500);
-        }}
-        className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
-        title="Copiar comando Docker run"
-      >
-        {copiedDocker ? (
-          <ClipboardCheck className="w-4 h-4 text-green-600" />
-        ) : (
-          <Clipboard className="w-4 h-4" />
-        )}
-      </button>
-    </div>
-  </div>
-</li>
+              {/* Comando #2 */}
+              <div className="relative">
+                <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
+                  docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2
+                </pre>
+                <button
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(
+                      "docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2"
+                    );
+                    setCopiedDocker(true);
+                    setTimeout(() => setCopiedDocker(false), 1500);
+                  }}
+                  className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
+                  title="Copiar comando Docker pull"
+                >
+                  {copiedDocker ? (
+                    <ClipboardCheck className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Clipboard className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              
+              {/* Comando #1 */}
+              <div className="relative">
+                <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
+                  docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
+                </pre>
+                <button
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(
+                      "docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest"
+                    );
+                    setCopiedDocker(true);
+                    setTimeout(() => setCopiedDocker(false), 1500);
+                  }}
+                  className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
+                  title="Copiar comando Docker run"
+                >
+                  {copiedDocker ? (
+                    <ClipboardCheck className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Clipboard className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </li>
 
           <li>
             Accede a:{" "}
-            <span className="text-blue-600 dark:text-blue-400">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-blue-600 dark:text-blue-400 underline cursor-pointer"
+              title="Mantener en esta página"
+            >
               http://localhost:3000
-            </span>
+            </button>
           </li>
           <li>El modelo base se descargará automáticamente.</li>
           <li>Sube tu dataset (.xlsx) y haz clic en "Iniciar entrenamiento".</li>

@@ -372,31 +372,35 @@ export default function IteracionesView() {
                   {iteracion.state}
                 </span>
               </td>
-              <td className="px-4 py-3">{iteracion.startDate ? iteracion.startDate.replace('T', ' ') : '-'}</td>
-              <td className="px-4 py-3">{iteracion.finishDate ? iteracion.finishDate.replace('T', ' ') : '-'}</td>
+              <td className="px-4 py-3 whitespace-nowrap">{iteracion.startDate ? iteracion.startDate.replace('T', ' ') : '-'}</td>
+              <td className="px-4 py-3 whitespace-nowrap">{iteracion.finishDate ? iteracion.finishDate.replace('T', ' ') : '-'}</td>
               <td className="px-4 py-3">{iteracion.participantsQuantity}</td>
-              <td className="px-4 py-3 flex flex-wrap gap-2">
-                <button
-                  className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
-                  title="Ver Métricas"
-                  onClick={() => irVistaRondas(iteracion)}
-                >
-                  <FaEye />
-                </button>
-                <button
-                  className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
-                  title="Exportar Excel"
-                  onClick={() => exportarRondasAExcel(iteracion.id)}
-                >
-                  <FaFileExport />
-                </button>
-                <button
-                  className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
-                  title="Eliminar"
-                  onClick={() => clickEliminar(iteracion)}
-                >
-                  <FaTrash />
-                </button>
+              <td className="px-4 py-3">
+                <div className="flex flex-nowrap gap-2 justify-center sm:justify-start overflow-x-auto">
+                  <button
+                    className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
+                    title="Ver Métricas"
+                    onClick={() => irVistaRondas(iteracion)}
+                  >
+                    <FaEye />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                    title="Exportar Excel"
+                    onClick={() => exportarRondasAExcel(iteracion.id)}
+                  >
+                    <FaFileExport />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                    title="Eliminar"
+                    onClick={() => clickEliminar(iteracion)}
+                  >
+                    <FaTrash />
+                  </button>
+
+                </div>
+
               </td>
             </tr>
           ))}

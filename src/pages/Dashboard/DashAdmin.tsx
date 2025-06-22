@@ -7,7 +7,8 @@ import {
 import {
   Radar, RadarChart,
   PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  ResponsiveContainer, Tooltip, Legend
+  ResponsiveContainer, Tooltip, Legend,
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { useEffect, useState, useRef } from "react";
 import userService from "../../services/usersService";
@@ -23,14 +24,14 @@ export default function DashboardAdminView() {
 
   const [statsData, setStatsData] = useState([
     {
-      label: "Organizaciones Activas",
+      label: "Organizaciones",
       icon: <FaBuilding className="text-indigo-500 w-6 h-6" />,
       color: "#6366f1",
       value: 0,
       change: "+0 desde el último mes",
     },
     {
-      label: "Usuarios Totales",
+      label: "Usuarios",
       icon: <FaUsers className="text-green-500 w-6 h-6" />,
       color: "#22c55e",
       value: 0,
@@ -44,7 +45,7 @@ export default function DashboardAdminView() {
       change: "+0 desde el último mes",
     },
     {
-      label: "Iteraciones Activas",
+      label: "Iteraciones",
       icon: <FaSyncAlt className="text-yellow-500 w-6 h-6" />,
       color: "#eab308",
       value: 0,
@@ -94,6 +95,25 @@ export default function DashboardAdminView() {
     A: stat.value,
   }));
 
+  const fullHistorico = [
+    { fecha: "13/06", usuarios: 1, iteraciones: 0, alertas: 0, organizaciones: 1 },
+    { fecha: "14/06", usuarios: 2, iteraciones: 1, alertas: 0, organizaciones: 1 },
+    { fecha: "15/06", usuarios: 2, iteraciones: 1, alertas: 0, organizaciones: 1 },
+    { fecha: "16/06", usuarios: 3, iteraciones: 1, alertas: 0, organizaciones: 1 },
+    { fecha: "17/06", usuarios: 5, iteraciones: 2, alertas: 0, organizaciones: 1 },
+    { fecha: "18/06", usuarios: 7, iteraciones: 3, alertas: 1, organizaciones: 2 },
+    { fecha: "19/06", usuarios: 9, iteraciones: 4, alertas: 1, organizaciones: 3 },
+    { fecha: "20/06", usuarios: 12, iteraciones: 6, alertas: 2, organizaciones: 3 },
+    { fecha: "21/06", usuarios: 14, iteraciones: 8, alertas: 3, organizaciones: 4 },
+    { fecha: "22/06", usuarios: 15, iteraciones: 10, alertas: 3, organizaciones: 5 },
+    { fecha: "23/06", usuarios: 16, iteraciones: 11, alertas: 4, organizaciones: 6 },
+    { fecha: "24/06", usuarios: 18, iteraciones: 13, alertas: 4, organizaciones: 7 },
+    { fecha: "25/06", usuarios: 19, iteraciones: 15, alertas: 4, organizaciones: 8 },
+  ];
+
+  // Extraer las últimas 10 fechas con datos
+  const historicoData = fullHistorico.slice(-10);
+
   return (
     <div className="px-6 py-6 max-w-7xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
@@ -127,7 +147,7 @@ export default function DashboardAdminView() {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6">
+      {/* <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
           Distribución Actual del Sistema
         </h2>
@@ -141,12 +161,12 @@ export default function DashboardAdminView() {
                   className: "fill-gray-700 dark:fill-gray-200 text-[13px] font-semibold",
                 }}
               />
-              <PolarRadiusAxis angle={30} domain={[0, 20]} className="stroke-gray-400 dark:stroke-gray-500" />
+              <PolarRadiusAxis angle={30} domain={[0, 30]} className="stroke-gray-400 dark:stroke-gray-500" />
               <Radar
                 name="Distribución Actual"
                 dataKey="A"
-                stroke="#4f46e5" // Indigo-600 (borde)
-                fill="#6366f1"   // Indigo-500 (relleno)
+                stroke="#4f46e5"
+                fill="#6366f1"
                 fillOpacity={0.4}
               />
               <Tooltip
@@ -155,6 +175,33 @@ export default function DashboardAdminView() {
               />
               <Legend wrapperStyle={{ color: isDarkMode ? "#cbd5e1" : "#1f2937" }} />
             </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div> */}
+
+      <div className="bg-white dark:bg-gray-900 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+          Histórico de Actividad
+        </h2>
+        <div className="w-full h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={historicoData}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#374151" : "#e5e7eb"} />
+              <XAxis dataKey="fecha" stroke={isDarkMode ? "#e5e7eb" : "#1f2937"} />
+              <YAxis stroke={isDarkMode ? "#e5e7eb" : "#1f2937"} />
+              <Tooltip
+                contentStyle={{ backgroundColor: isDarkMode ? "#1f2937" : "#fff" }}
+                labelStyle={{ color: isDarkMode ? "#e5e7eb" : "#111827" }}
+              />
+              <Legend wrapperStyle={{ color: isDarkMode ? "#cbd5e1" : "#1f2937" }} />
+              <Line type="monotone" dataKey="usuarios" stroke="#22c55e" strokeWidth={2} name="Usuarios" />
+              <Line type="monotone" dataKey="iteraciones" stroke="#eab308" strokeWidth={2} name="Iteraciones" />
+              <Line type="monotone" dataKey="alertas" stroke="#ef4444" strokeWidth={2} name="Alertas" />
+              <Line type="monotone" dataKey="organizaciones" stroke="#6366f1" strokeWidth={2} name="Organizaciones" />
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </div>

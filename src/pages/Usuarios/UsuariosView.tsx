@@ -283,9 +283,6 @@ export default function UsuariosView() {
                   <button className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center" onClick={() => clickEditar(usuario)}>
                     <FaEdit />
                   </button>
-                  <button className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center">
-                    <FaSearch />
-                  </button>
                   <button className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center" onClick={() => clickEliminar(usuario)}>
                     <FaTimes />
                   </button>
