@@ -20,14 +20,13 @@ export default function EntrenarModeloView() {
     iterationId: 0,
     userId: 0
   });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [copiedDocker, setCopiedDocker] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [checked, setChecked] = useState<Record<ConsentKey, boolean>>({
-    datos: true,
-    docker: true,
-    consentimiento: true,
+    datos: false,
+    docker: false,
+    consentimiento: false,
   });
 
   const allChecked = Object.values(checked).every(Boolean);
@@ -63,48 +62,27 @@ export default function EntrenarModeloView() {
 
     try {
       const response = await invitacionService.getInvitationForUser(id);
-      console.log("Lista de invitaciones del usuario: ", response);
-
       if (Array.isArray(response) && response.length > 0) {
-          // 1. Ordenar por id de forma ascendente
-          const ordenado = [...response].sort((a, b) => a.id - b.id);
+        const ordenado = [...response].sort((a, b) => a.id - b.id);
+        const ultimoRegistro = ordenado.at(-1);
 
-          // 2. Obtener el último (mayor id)
-          const ultimoRegistro = ordenado.at(-1); // o ordenado[ordenado.length - 1]
-
-          // 3. Verificar estadoxx
-          if (ultimoRegistro?.state === "ACTIVE") {
-            setCodigoInvitacion(ultimoRegistro);
-          } else {
-            setCodigoInvitacion({
-              id: 0,
-              code: "",
-              state: "",
-              iterationId: 0,
-              userId: 0});
-          }
+        if (ultimoRegistro?.state === "ACTIVE") {
+          setCodigoInvitacion(ultimoRegistro);
+        } else {
+          setCodigoInvitacion({ id: 0, code: "", state: "", iterationId: 0, userId: 0 });
+        }
       } else {
-        setCodigoInvitacion({
-          id: 0,
-          code: "",
-          state: "",
-          iterationId: 0,
-          userId: 0});
+        setCodigoInvitacion({ id: 0, code: "", state: "", iterationId: 0, userId: 0 });
       }
     } catch (error) {
       console.error("Error al obtener la invitación por usuario: ", error);
-      setCodigoInvitacion({
-        id: 0,
-        code: "",
-        state: "",
-        iterationId: 0,
-        userId: 0});
+      setCodigoInvitacion({ id: 0, code: "", state: "", iterationId: 0, userId: 0 });
     }
   };
 
   useEffect(() => {
-    obtenerInvitacionUser();
-  }, []);
+    if (allChecked) obtenerInvitacionUser();
+  }, [allChecked]);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 text-gray-800 dark:text-white">
@@ -117,131 +95,140 @@ export default function EntrenarModeloView() {
 
       <section className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-semibold mb-4">Pasos para iniciar el entrenamiento</h2>
-        <ol className="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+        <ol className="list-decimal list-inside space-y-6 text-gray-700 dark:text-gray-300">
           <li>Abrir terminal CMD o PowerShell</li>
+
           <li>
-            Su código de invitación es:
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <div className="relative w-full sm:w-1/2">
-                <input
-                  value={codigoInvitacion.code}
-                  onChange={(e) => setCodigoGenerado(e.target.value)}
-                  placeholder={!codigoInvitacion.code ? "No cuenta con código de invitación o está expirado" : undefined}
-                  className="w-full px-3 py-2 pr-10 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm cursor-not-allowed"
-                  disabled
-                />
-                {codigoInvitacion.code !== "" && (<button
-                  onClick={handleCodeCopy}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
-                  title="Copiar código"
-                >
-                  {copiedCode ? (
-                    <ClipboardCheck className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Clipboard className="w-4 h-4" />
-                  )}
-                </button>)}
-              </div>
+            Consentimientos requeridos:
+            <div className="mt-4 space-y-4">
+              {(Object.entries(checked) as [ConsentKey, boolean][]).map(([key]) => (
+                <label key={key} className="flex gap-3 items-start">
+                  <input
+                    type="checkbox"
+                    checked={checked[key]}
+                    onChange={() => handleCheckboxChange(key)}
+                    className="accent-indigo-600 w-5 h-5 mt-1 shrink-0"
+                  />
+                  <span className="leading-snug">{consentLabels[key]}</span>
+                </label>
+              ))}
             </div>
           </li>
+
+          <li>
+            Su código de invitación:
+            {allChecked ? (
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <div className="relative w-full sm:w-1/2">
+                  <input
+                    value={codigoInvitacion.code}
+                    onChange={(e) => setCodigoGenerado(e.target.value)}
+                    placeholder={!codigoInvitacion.code ? "No cuenta con código de invitación o está expirado" : undefined}
+                    className="w-full px-3 py-2 pr-10 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm cursor-not-allowed"
+                    disabled
+                  />
+                  {codigoInvitacion.code !== "" && (
+                    <button
+                      onClick={handleCodeCopy}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                      title="Copiar código"
+                    >
+                      {copiedCode ? (
+                        <ClipboardCheck className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Clipboard className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 mt-2 italic">Completa los consentimientos para ver tu código.</p>
+            )}
+          </li>
+
           <li>
             Contenedor de entrenamiento:
-            <div className="mt-2 space-y-4">
+            {allChecked ? (
+              <div className="mt-2 space-y-4">
+                <div className="relative">
+                  <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
+                    docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2
+                  </pre>
+                  <button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(
+                        "docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2"
+                      );
+                      setCopiedDocker(true);
+                      setTimeout(() => setCopiedDocker(false), 1500);
+                    }}
+                    className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
+                    title="Copiar comando Docker pull"
+                  >
+                    {copiedDocker ? (
+                      <ClipboardCheck className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Clipboard className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
 
-              {/* Comando #2 */}
-              <div className="relative">
-                <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
-                  docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2
-                </pre>
-                <button
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(
-                      "docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2"
-                    );
-                    setCopiedDocker(true);
-                    setTimeout(() => setCopiedDocker(false), 1500);
-                  }}
-                  className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
-                  title="Copiar comando Docker pull"
-                >
-                  {copiedDocker ? (
-                    <ClipboardCheck className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <Clipboard className="w-4 h-4" />
-                  )}
-                </button>
+                <div className="relative">
+                  <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
+                    docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
+                  </pre>
+                  <button
+                    onClick={handleDockerCopy}
+                    className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
+                    title="Copiar comando Docker run"
+                  >
+                    {copiedDocker ? (
+                      <ClipboardCheck className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Clipboard className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
-              
-              {/* Comando #1 */}
-              <div className="relative">
-                <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
-                  docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
-                </pre>
-                <button
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(
-                      "docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest"
-                    );
-                    setCopiedDocker(true);
-                    setTimeout(() => setCopiedDocker(false), 1500);
-                  }}
-                  className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-1 rounded"
-                  title="Copiar comando Docker run"
-                >
-                  {copiedDocker ? (
-                    <ClipboardCheck className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <Clipboard className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-            </div>
+            ) : (
+              <p className="text-sm text-gray-500 mt-2 italic">Se mostrará una vez aceptes los términos.</p>
+            )}
           </li>
 
           <li>
             Accede a:{" "}
-            <button
-              onClick={() => window.location.reload()}
-              className="text-blue-600 dark:text-blue-400 underline cursor-pointer"
-              title="Mantener en esta página"
-            >
-              http://localhost:3000
-            </button>
+            {allChecked ? (
+              <button
+                onClick={() => window.location.reload()}
+                className="text-blue-600 dark:text-blue-400 underline cursor-pointer"
+                title="Mantener en esta página"
+              >
+                http://localhost:3000
+              </button>
+            ) : (
+              <span className="text-sm text-gray-500 italic">Visible tras aceptar los consentimientos.</span>
+            )}
           </li>
-          <li>El modelo base se descargará automáticamente.</li>
-          <li>Sube tu dataset (.xlsx) y haz clic en "Iniciar entrenamiento".</li>
+
+          <li>
+            {allChecked ? (
+              "El modelo base se descargará automáticamente."
+            ) : (
+              <span className="text-sm text-gray-500 italic">Paso disponible tras aceptar términos.</span>
+            )}
+          </li>
+
+          <li>
+            {allChecked ? (
+              'Sube tu dataset (.xlsx) y haz clic en "Iniciar entrenamiento".'
+            ) : (
+              <span className="text-sm text-gray-500 italic">Este paso será visible después de aceptar.</span>
+            )}
+          </li>
         </ol>
-      </section>
 
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mt-8">
-        <h2 className="text-lg font-semibold mb-4">Consentimientos requeridos</h2>
-        <div className="space-y-4">
-          {(Object.entries(checked) as [ConsentKey, boolean][]).map(([key]) => (
-            <label key={key} className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={checked[key]}
-                onChange={() => handleCheckboxChange(key)}
-                className="accent-indigo-600 w-5 h-5"
-              />
-              <span>{consentLabels[key]}</span>
-            </label>
-          ))}
-        </div>
       </section>
-
-      {/* <div className="flex justify-end mt-6">
-        <button
-          disabled={!allChecked}
-          className={`px-6 py-2 text-white rounded flex items-center gap-2 transition-colors ${
-            allChecked
-              ? "bg-indigo-600 hover:bg-indigo-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          <FileDown className="w-4 h-4" /> Descargar Docker
-        </button>
-      </div> */}
     </main>
   );
 }
