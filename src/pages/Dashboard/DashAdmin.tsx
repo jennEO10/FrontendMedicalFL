@@ -5,8 +5,6 @@ import {
   FaSyncAlt,
 } from "react-icons/fa";
 import {
-  Radar, RadarChart,
-  PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, Tooltip, Legend,
   LineChart, Line, XAxis, YAxis, CartesianGrid,
 } from "recharts";
@@ -18,9 +16,7 @@ import iteracionService from "../../services/iteracionService";
 export default function DashboardAdminView() {
   const initialized = useRef(false);
 
-  const [isDarkMode, setIsDarkMode] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const [statsData, setStatsData] = useState([
     {
@@ -85,7 +81,14 @@ export default function DashboardAdminView() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: any) => setIsDarkMode(e.matches);
+
+    // Set on mount
+    setIsDarkMode(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
@@ -190,8 +193,31 @@ export default function DashboardAdminView() {
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#374151" : "#e5e7eb"} />
-              <XAxis dataKey="fecha" stroke={isDarkMode ? "#e5e7eb" : "#1f2937"} />
-              <YAxis stroke={isDarkMode ? "#e5e7eb" : "#1f2937"} />
+              <XAxis
+                dataKey="fecha"
+                tick={({ x, y, payload }) => (
+                  <text
+                    x={x}
+                    y={y + 10}
+                    textAnchor="middle"
+                    className="fill-black dark:fill-white text-sm"
+                  >
+                    {payload.value}
+                  </text>
+                )}
+              />
+              <YAxis
+                tick={({ x, y, payload }) => (
+                  <text
+                    x={x}
+                    y={y + 4}
+                    textAnchor="end"
+                    className="fill-black dark:fill-white text-sm"
+                  >
+                    {payload.value}
+                  </text>
+                )}
+              />
               <Tooltip
                 contentStyle={{ backgroundColor: isDarkMode ? "#1f2937" : "#fff" }}
                 labelStyle={{ color: isDarkMode ? "#e5e7eb" : "#111827" }}
