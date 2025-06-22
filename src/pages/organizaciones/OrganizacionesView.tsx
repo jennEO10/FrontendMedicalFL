@@ -111,7 +111,7 @@ const OrganizacionesView = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-screen-xl mx-auto">
+    <div className="p-6 space-y-6 max-w-screen-xl mx-auto dark:text-white">
       <div>
         <h2 className="text-2xl font-bold mb-1 text-gray-800 dark:text-white">
           Gestión de Organizaciones
@@ -138,8 +138,8 @@ const OrganizacionesView = () => {
       </div>
 
       <div className="overflow-x-auto rounded-lg">
-        <table className="min-w-full bg-white dark:bg-gray-800 text-sm table-fixed">
-          <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+        <table className="min-w-full text-sm text-left bg-white dark:bg-gray-900">
+          <thead className="bg-gray-100 dark:bg-gray-800">
             <tr>
               <th className="w-1/4 px-4 py-3 text-left">Nombre</th>
               <th className="w-1/3 px-4 py-3 text-left">Descripción</th>
