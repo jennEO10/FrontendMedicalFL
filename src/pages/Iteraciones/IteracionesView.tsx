@@ -378,7 +378,7 @@ export default function IteracionesView() {
               </td>
               <td className="px-4 py-3 whitespace-nowrap">{iteracion.startDate ? iteracion.startDate.replace('T', ' ') : '-'}</td>
               <td className="px-4 py-3 whitespace-nowrap">{iteracion.finishDate ? iteracion.finishDate.replace('T', ' ') : '-'}</td>
-              <td className="px-4 py-3">{iteracion.participantsQuantity}</td>
+              <td className="px-4 py-3">{iteracion.userIds.length}</td>
               <td className="px-4 py-3">
                 <div className="flex flex-nowrap gap-2 justify-center sm:justify-start overflow-x-auto">
                   <button

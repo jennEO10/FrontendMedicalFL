@@ -213,7 +213,7 @@ export default function EntrenarModeloView() {
 
           <li>
             {allChecked ? (
-              "El modelo base se descargará automáticamente."
+              "Ingresar código de verificación generado."
             ) : (
               <span className="text-sm text-gray-500 italic">Paso disponible tras aceptar términos.</span>
             )}

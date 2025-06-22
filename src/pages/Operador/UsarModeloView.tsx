@@ -7,12 +7,12 @@ const campos = [
   { label: "INFECCIONES DURANTE EL EMBARAZO", type: "select", options: ["ITU", "ITU SFV", "NO", "PIELONEFRITIS", "SFV", "SIFILIS URINARIA", "URINARIA", "URINARIA SFV"] },
   { label: "DIABETES", type: "select", options: ["SI", "NO"] },
   { label: "HIPERTENSION", type: "select", options: ["SI", "NO"] },
-  { label: "EG", type: "string" },
-  { label: "EMB MULTIPLES", type: "int" },
+  { label: "EDAD GESTACIONAL", type: "string" },
+  { label: "EMB MÚLTIPLES", type: "int" },
   { label: "PESO EN EL EMBARAZO", type: "float" },
   { label: "IMC PRE GESTACIONAL", type: "select", options: ["Bajo", "Elevado", "Normal"] },
   { label: "CPN", type: "int" },
-  { label: "SANGRADO DEL I,II,III TRIMESTRE", type: "string" },
+  { label: "SANGRADO DEL I,II,III TRIMESTRE", type: "select", options: ["I T", "II T", "III T", "I,II T", "I,III T"] },
   { label: "TABAQUISMO", type: "select", options: ["SI", "NO"] },
   { label: "ALCOHOLISMO", type: "select", options: ["SI", "NO"] },
   {
@@ -33,12 +33,12 @@ const datosPrecargados: Record<string, string> = {
   "INFECCIONES DURANTE EL EMBARAZO": "URINARIA",
   "DIABETES": "NO",
   "HIPERTENSION": "NO",
-  "EG": "39SMS",
-  "EMB MULTIPLES": "0",
+  "EDAD GESTACIONAL": "39SMS",
+  "EMB MÚLTIPLES": "0",
   "PESO EN EL EMBARAZO": "67",
   "IMC PRE GESTACIONAL": "Elevado",
   "CPN": "7",
-  "SANGRADO DEL I,II,III TRIMESTRE": "NO",
+  "SANGRADO DEL I,II,III TRIMESTRE": "II T",
   "TABAQUISMO": "NO",
   "ALCOHOLISMO": "NO",
   "NIV EDUCATIVO": "5 sec",
@@ -104,7 +104,7 @@ export default function UsarModeloView() {
                     className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                   >
                     <option value="" disabled>
-                      {datosPrecargados[label] ?? "Selecciona una opción"}
+                      Selecciona una opción
                     </option>
                     {options.map((opt) => (
                       <option key={opt} value={opt}>{opt}</option>

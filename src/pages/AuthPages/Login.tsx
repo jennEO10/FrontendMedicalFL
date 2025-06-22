@@ -7,11 +7,12 @@ import userService from "../../services/usersService";
 import rulesService from "../../services/rulesService";
 
 const Login = () => {
-  const { loginWithEmail, loginWithGoogle, isAuthenticated, setIsAuthenticated  } = useAuth();
+  const { loginWithEmail, loginWithGoogle, isAuthenticated, setIsAuthenticated, logout  } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const allowedEmails = ["jennyespinoza618@gmail.com", "jorgefernando614@gmail.com", "sebyon69@gmail.com"];
 
   useEffect(() => {
     const roleId = sessionStorage?.getItem("roleID") ?? "2";
@@ -70,11 +71,18 @@ const Login = () => {
     try {
       await loginWithGoogle();
       const user = auth.currentUser;
-      if (user?.email) {
-        sessionStorage.setItem("userEmail", user.email);
-        sessionStorage.setItem("roleID", "0");
-        sessionStorage.setItem("rolName", "Admin"); 
+
+       // 🚨 Validación por correo
+      if (!user?.email || !allowedEmails.includes(user.email)) {
+        alert("🚫 Correo no autorizado");
+        logout(); // Cerrar sesión en Firebase
+        return;
       }
+
+      sessionStorage.setItem("userEmail", user.email);
+      sessionStorage.setItem("roleID", "0");
+      sessionStorage.setItem("rolName", "Admin"); 
+
       navigate("/dash-admin");
     } catch (error: any) {
       alert("Error al iniciar sesión con Google: " + error.message);

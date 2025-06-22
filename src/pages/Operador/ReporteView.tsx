@@ -29,7 +29,7 @@ export default function ReportesView() {
   return (
     <main className="p-6 md:p-10 max-w-6xl mx-auto text-gray-900 dark:text-white">
       <header className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Ver reportes</h1>
+        <h1 className="text-3xl font-bold">Reporte de Predicciones</h1>
         <button
           onClick={handleDownload}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md"
