@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import { CrearEditarIteracionProps } from '../../models/iteracion';
 import { User } from '../../models/user';
 import ConfirmarIteracionModal from './ConfirmarEditarIteacion';
+import ModalError from './ErrorGeneral';
 
 const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
   open,
@@ -16,6 +17,44 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
   ultimaIteracion
 }) => {
   const [idIteracion, setIdIteracion] = useState<number | void>(0);
+  const [camposValidos, setCamposValidos] = useState(true);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [mensajeError, setMensajeError] = useState('');
+  const [mensajeCamposInvalidos, setMensajeCamposInvalidos] = useState('');
+
+  const validarCampos = () => {
+    const { minUsuarios, rondas, tiempoLocal, userIds } = iteracion;
+    const esValido =
+      minUsuarios > 0 &&
+      rondas > 0 &&
+      tiempoLocal > 0 &&
+      userIds &&
+      Array.isArray(userIds) &&
+      userIds.length >= 2;
+
+    setCamposValidos(esValido);
+  };
+
+  useEffect(() => {
+    validarCampos();
+
+    const errores = [];
+
+    if (!iteracion.minUsuarios || iteracion.minUsuarios <= 0) {
+      errores.push('Mínimo de usuarios debe ser mayor a 0');
+    }
+    if (!iteracion.rondas || iteracion.rondas <= 0) {
+      errores.push('Debe haber al menos 1 ronda');
+    }
+    if (!iteracion.tiempoLocal || iteracion.tiempoLocal <= 0) {
+      errores.push('Tiempo local debe ser mayor a 0');
+    }
+    if (!iteracion.userIds || iteracion.userIds.length < 2) {
+      errores.push('Se requieren al menos 2 usuarios participantes');
+    }
+
+    setMensajeCamposInvalidos(errores.join('. ') + '.');
+  }, [iteracion]);
 
   useEffect(() => {
     if (!open) return;
@@ -33,7 +72,6 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
       setIteracion((prev: any) => ({ ...prev, startDate: fecha }));
       setIteracion((prev: any) => ({ ...prev, iterationNumber: ultimaIteracion }));
     }
-
 
     return () => document.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,13 +95,39 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
   };
 
   const preGrabado = async () => {
+    const { minUsuarios, rondas, tiempoLocal, userIds } = iteracion;
+
+    if (!minUsuarios || minUsuarios <= 0) {
+      setMensajeError('El mínimo de usuarios debe ser mayor que 0.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!rondas || rondas <= 0) {
+      setMensajeError('Las rondas deben ser mayores que 0.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!tiempoLocal || tiempoLocal <= 0) {
+      setMensajeError('El tiempo local debe ser mayor que 0.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!userIds || userIds.length < 2) {
+      setMensajeError('Se requieren al menos 2 usuarios participantes.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    // ✅ Si pasa todas las validaciones
     const fecha = getLocalDateTime();
     setIteracion({ ...iteracion, startDate: fecha });
 
-    const id= await onSubmit()
-
+    const id = await onSubmit();
     setIdIteracion(id);
-    setOpenConfirmacion(true)
+    setOpenConfirmacion(true);
   };
 
   if (!open) return null;
@@ -123,8 +187,8 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
               className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
             >
               <option value="">Seleccione</option>
-              <option value="FRESH">FRESH</option>
-              <option value="RETRAIN">RETRAIN</option>
+              <option value="FRESH">Entrenamiento desde cero</option>
+              <option value="RETRAIN">Re-Entrenamiento</option>
             </select>
           </div>
           {/* Usuarios */}
@@ -142,7 +206,16 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
           <button onClick={onClose} className="px-5 py-2 rounded-md bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-400 dark:hover:bg-gray-600">
             Cancelar
           </button>
-          <button onClick={preGrabado} className="px-5 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">
+          <button
+            onClick={preGrabado}
+            disabled={!camposValidos}
+            title={!camposValidos ? mensajeCamposInvalidos : ''}
+            className={`px-5 py-2 rounded-md text-white
+              ${camposValidos
+                ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'
+                : 'bg-indigo-400 cursor-not-allowed'}
+            `}
+          >
             {isEditMode ? 'Editar' : 'Iniciar'}
           </button>
         </div>
@@ -153,6 +226,13 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
         isEditMode={isEditMode}
         idIteracion={idIteracion}
         onClose={onClose}
+        />
+      )}
+
+      {showErrorModal && (
+        <ModalError
+          mensaje={mensajeError}
+          onClose={() => setShowErrorModal(false)}
         />
       )}
     </div>
