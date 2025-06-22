@@ -90,44 +90,53 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-xl shadow-md max-w-md w-full space-y-6">
-        <h2 className="text-2xl font-bold text-center">Iniciar sesión</h2>
-        <form onSubmit={handleEmailLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:ring focus:ring-indigo-400"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:ring focus:ring-indigo-400"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition"
-          >
-            Iniciar sesión
-          </button>
-        </form>
-
-        <div className="text-center text-gray-500">o</div>
-
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-100"
-        >
-          <img src="/assets/google.svg" alt="Google" className="w-5 h-5" />
-          Ingresar con Google
-        </button>
+  <div
+    className="min-h-screen w-full bg-no-repeat bg-[length:100%_100%] sm:bg-cover bg-center flex items-center justify-center"
+  style={{ backgroundImage: "url('/assets/fondoLoginMedicalFL.png')" }}
+  >
+    <div className="bg-white p-8 rounded-xl shadow-md max-w-md w-full space-y-6">
+      <div className="flex justify-center">
+        <img
+          src="/assets/logoLoginMedicalFL.svg"
+          alt="Logo MedicalFL"
+          className="h-10 sm:h-12 w-auto"
+        />
       </div>
+      <form onSubmit={handleEmailLogin} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Correo electrónico"
+          className="w-full px-4 py-2 rounded-md border border-gray-300 focus:ring focus:ring-indigo-400"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          className="w-full px-4 py-2 rounded-md border border-gray-300 focus:ring focus:ring-indigo-400"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button
+          type="submit"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition"
+        >
+          Iniciar sesión
+        </button>
+      </form>
+
+      <div className="text-center text-gray-500">o</div>
+
+      <button
+        onClick={handleGoogleLogin}
+        className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-100"
+      >
+        <img src="/assets/google.svg" alt="Google" className="w-5 h-5" />
+        Ingresar con Google
+      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default Login;
