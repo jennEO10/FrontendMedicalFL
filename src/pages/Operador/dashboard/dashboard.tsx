@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Iteracion } from '../../../models/iteracion';
+import { Iteracion, MetricasByIteracion } from '../../../models/iteracion';
 import iteracionService from '../../../services/iteracionService';
 
 const OperadorDashboard = () => {
@@ -25,6 +25,16 @@ const OperadorDashboard = () => {
        codeInvitation: '',
        stateInvitation: 'ACTIVE'
      });
+  const [metrica, setMetrica] = useState<MetricasByIteracion>({
+       iterationId: 0,
+       round: 0,
+       accuracy: 0,
+       precision: 0,
+       recall: 0,
+       f1score: 0,
+       auc: 0,
+       loss: 0
+     });
   
   const obtenerUltimaIteracion = async () => {
     const userId = sessionStorage.getItem("userId");
@@ -35,7 +45,9 @@ const OperadorDashboard = () => {
 
       if (Array.isArray(ultimaIteracion) && ultimaIteracion.length > 0) {
         const ultima = ultimaIteracion.sort((a, b) => b.id - a.id)[0]; // ordena por id desc y toma la primera
+        const ultimaIteracionByMetrica = await iteracionService.obtenerUltimaMetricaPorIteracion(ultima.id);
         setIteracion(ultima)
+        setMetrica(ultimaIteracionByMetrica)
       }      
     } catch (error) {
       console.error('Error al obtener la última ronda', error);
@@ -104,19 +116,19 @@ const OperadorDashboard = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Precision</p>
-            <p className="text-lg font-bold">89.9%</p>
+            <p className="text-lg font-bold">{ metrica.precision ?? 0 }%</p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Recall</p>
-            <p className="text-lg font-bold">80.5%</p>
+            <p className="text-lg font-bold">{ metrica.recall ?? 0 }%</p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">F1 Score</p>
-            <p className="text-lg font-bold">85.2%</p>
+            <p className="text-lg font-bold">{ metrica.f1score ?? 0 }%</p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
-            <p className="text-lg font-bold">90.2%</p>
+            <p className="text-lg font-bold">{ metrica.accuracy ?? 0 }%</p>
           </div>
         </div>
       </section>

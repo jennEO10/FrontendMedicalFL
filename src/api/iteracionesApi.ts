@@ -65,3 +65,9 @@ export const launchVM = async (vm: VM) => {
   const response = await axios.post(`${API_URL}/api/vm/launch`, null, { params: vm });
   return response;
 };
+
+//Métricas
+export const getLastMetricByIteration = async (idIteracion: number) => {
+  const response = await axios.get<MetricasByIteracion>(`${API_URL}/api/metrics/latest/iteration/${idIteracion}`);
+  return response.data;
+};

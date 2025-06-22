@@ -92,6 +92,16 @@ const iteracionService = {
       throw error;
     }
   },
+  obtenerUltimaMetricaPorIteracion: async (idIteracion: number) =>  {
+    try {
+      const rondas = await ite.getLastMetricByIteration(idIteracion);
+      console.log("Obtener última Métrica por Iteración:", rondas);
+      return rondas;
+    } catch (error) {
+      console.error("Error al obtener última Métrica por Iteración:", error);
+      throw error;
+    }
+  },
   lanzarVM: async (vm: VM) =>  {
     try {
       const rondas = await ite.launchVM(vm);

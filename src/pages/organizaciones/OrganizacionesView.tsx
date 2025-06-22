@@ -157,9 +157,6 @@ const OrganizacionesView = () => {
                   <button className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full" onClick={() => clickEditar(org)}>
                     <FaEdit />
                   </button>
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full">
-                    <FaSearch />
-                  </button>
                   <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full" onClick={() => clickEliminar(org)}>
                     <FaTimes />
                   </button>
