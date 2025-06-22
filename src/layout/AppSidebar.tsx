@@ -114,7 +114,7 @@ const operatorNavItems: NavItem[] = [
   },
   {
     icon: <FaFileAlt />,
-    name: "Ver Reportes",
+    name: "Reporte de Predicciones",
     path: "/view-reports",
   },
   {

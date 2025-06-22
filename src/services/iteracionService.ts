@@ -132,6 +132,16 @@ const iteracionService = {
       throw error;
     }
   },
+  obtenerUltimasMetricas: async () => {
+    try {
+      const response = await ite.getLastMetrics();
+      console.log("Obtener últimas métricas:", response);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las últimas métricas:", error);
+      throw error;
+    }
+  },
 };
 
 export default iteracionService;

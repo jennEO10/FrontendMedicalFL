@@ -63,6 +63,19 @@ const OperadorDashboard = () => {
     if (iteracion.state === "Finalizado") return "bg-red-600";
     return "bg-gray-500";
   };
+
+  const irAHistorico = () => {
+    const ultimaIteracion = {
+      id: 28,
+      iterationName: "Iteración #28",
+    };
+    localStorage.setItem("iteracionSeleccionada", JSON.stringify(ultimaIteracion));
+    navigate("/historico");
+  };
+  
+  const irAReporte = () => {
+    navigate("/view-reports");
+  };
      
   return (
     <div className="p-6 sm:p-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
@@ -108,7 +121,10 @@ const OperadorDashboard = () => {
       <section className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Métricas actuales del modelo</h2>
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition">
+          <button 
+            onClick={irAHistorico}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition"
+          >
             Ver histórico
           </button>
         </div>
@@ -137,7 +153,10 @@ const OperadorDashboard = () => {
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Historial de últimas predicciones</h2>
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition">
+          <button 
+            onClick={irAReporte}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-md shadow transition"
+          >
             Ver más
           </button>
         </div>

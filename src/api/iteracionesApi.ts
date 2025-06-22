@@ -71,3 +71,8 @@ export const getLastMetricByIteration = async (idIteracion: number) => {
   const response = await axios.get<MetricasByIteracion>(`${API_URL}/api/metrics/latest/iteration/${idIteracion}`);
   return response.data;
 };
+
+export const getLastMetrics = async () => {
+  const response = await axios.get<MetricasByIteracion[]>(`${API_URL}/api/metrics/latest`);
+  return response.data;
+};
