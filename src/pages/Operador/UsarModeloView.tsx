@@ -48,7 +48,7 @@ const datosPrecargados: Record<string, string> = {
 export default function UsarModeloView() {
   const [form, setForm] = useState<Record<string, string>>(() => {
     return campos.reduce((acc, { label }) => {
-      acc[label] = datosPrecargados[label] ?? "";
+      acc[label] = "";
       return acc;
     }, {} as Record<string, string>);
   });
@@ -60,7 +60,17 @@ export default function UsarModeloView() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "-") {
+      e.preventDefault();
+    }
+  };
+
   const handleSubmit = () => {
+    const completado = Object.fromEntries(
+      Object.entries(form).map(([key, value]) => [key, value || datosPrecargados[key] || ""])
+    );
+
     setResultado(
       "Se tiene un 90% de confiabilidad de que el paciente tiene un riesgo alto.\nFactores más influyentes: Edad, Tensión, Glucosa.\nRecomendación: Se sugiere revisar al paciente."
     );
@@ -93,20 +103,24 @@ export default function UsarModeloView() {
                     onChange={handleChange}
                     className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                   >
-                    <option value="">Selecciona una opción</option>
+                    <option value="" disabled>
+                      {datosPrecargados[label] ?? "Selecciona una opción"}
+                    </option>
                     {options.map((opt) => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
                   </select>
                 ) : (
                   <input
-                    type={type === "int" ? "number" : type === "float" ? "number" : "text"}
+                    type={type === "int" || type === "float" ? "number" : "text"}
                     step={type === "float" ? "any" : undefined}
+                    min={type === "int" || type === "float" ? "0" : undefined}
                     name={label}
                     value={form[label]}
                     onChange={handleChange}
+                    onKeyDown={type === "int" || type === "float" ? handleKeyDown : undefined}
+                    placeholder={`Ej. ${datosPrecargados[label] ?? "Ingresa valor"}`}
                     className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                    placeholder="Ingresa valor"
                   />
                 )}
               </div>
