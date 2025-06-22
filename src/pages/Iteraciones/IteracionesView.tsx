@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { FaTrash, FaEye, FaUsers } from 'react-icons/fa';
 import { Iteracion } from '../../models/iteracion';
 import iteracionService from '../../services/iteracionService';
 import CrearEditarIteracionModal from '../../components/modals/CrearEditarIteracion';
@@ -206,6 +206,7 @@ export default function IteracionesView() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const clickEditar = (iteracion: Iteracion) => {
     console.log("Se carga la iteración seleccionada: ", iteracion)
     setEditMode(true);
@@ -329,7 +330,10 @@ export default function IteracionesView() {
     }
   };
 
-
+  const irAMetricasPorUsuario = (iteracion: Iteracion) => {
+    navigate('/metricas-usuario', { state: { iteracion } })
+  }
+  
   return (
   <div className="p-4 sm:p-6 text-gray-800 dark:text-white h-full flex flex-col">
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -383,6 +387,13 @@ export default function IteracionesView() {
                     onClick={() => irVistaRondas(iteracion)}
                   >
                     <FaEye />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600"
+                    title="Métricas por Usuario"
+                    onClick={() => irAMetricasPorUsuario(iteracion)}
+                  >
+                    <FaUsers />
                   </button>
                   <button
                     className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"

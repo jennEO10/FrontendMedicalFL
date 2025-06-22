@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
@@ -37,6 +38,7 @@ import ReportesView from "./pages/Operador/ReporteView";
 import InformacionAdicional from "./pages/Operador/InformacionAdicionalView";
 import IteracionForRondas from "./pages/Iteraciones/IteracionRondasView";
 import HistoricoIteracion from "./pages/Operador/HistoricoIteracion";
+import MetricasPorUsuario from "./pages/Iteraciones/MetricasPorUsuario";
 
 export default function App() {
   return (
@@ -64,6 +66,7 @@ export default function App() {
             <Route path="/roles/permisos/:id" element={<PermisosView />} />
             <Route path="/iteraciones" element={<IteracionesView />} />
             <Route path="/iteraciones/rondas/:id" element={<IteracionForRondas />} />
+            <Route path="/metricas-usuario" element={<MetricasPorUsuario />} />
             <Route path="/log-sistema" element={<LogSistemaView />} />
             <Route path="/alerta-notificaciones" element={<AlertaNotificacionesView />} />
             <Route path="/profile" element={<UserProfiles />} />

@@ -142,6 +142,16 @@ const iteracionService = {
       throw error;
     }
   },
+  obtenerMetricasPorUsuario: async (userId: number, iterationId: number) => {
+    try {
+      const response = await ite.getMetricsByUser(userId, iterationId);
+      console.log("Obtener métricas por usuario:", response);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las métricas por usuario:", error);
+      throw error;
+    }
+  },
 };
 
 export default iteracionService;

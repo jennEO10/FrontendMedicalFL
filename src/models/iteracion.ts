@@ -71,14 +71,16 @@ export interface RondasForIteracion {
 }
 
 export interface MetricasByIteracion {
-  iterationId: 0,
-  round: 0,
-  accuracy: 0,
-  precision: 0,
-  recall: 0,
-  f1score: 0,
-  auc: 0,
-  loss: 0
+  iterationId: number,
+  round: number,
+  accuracy: number,
+  precision: number,
+  recall: number,
+  f1score: number,
+  auc: number,
+  loss: number,
+  userCode?: string
+  userId?: number
 }
 
 export interface VM {
