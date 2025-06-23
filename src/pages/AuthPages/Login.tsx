@@ -5,14 +5,39 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase/firebase";
 import userService from "../../services/usersService";
 import rulesService from "../../services/rulesService";
+import loginService from "../../services/loginService";
+import { LoginSchema } from "../../models/login";
+import { comparePassword } from "../../utils/hash";
 
 const Login = () => {
   const { loginWithEmail, loginWithGoogle, isAuthenticated, setIsAuthenticated, logout  } = useAuth();
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  
+  const [login, setLogin] = useState<LoginSchema>({email: "", password: ""})
   const allowedEmails = ["jennyespinoza618@gmail.com", "jorgefernando614@gmail.com", "sebyon69@gmail.com"];
+
+  const authLogin = async (login: LoginSchema) => {
+    try {
+      const response = await loginService.authLogin(login)
+      return response
+    } catch(error) {
+      console.error("Error al loguearse: ", error)
+    }
+  }
+
+  const authLoginOAuth = async (idToken: string) => {
+    try {
+      const response = await loginService.authLoginFirebase(idToken)
+      return response
+    } catch(error) {
+      console.error("Error al loguearse por firebase: ", error)
+    }
+  }
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setLogin({ ...login, [name]: value });
+  };
 
   useEffect(() => {
     const roleId = sessionStorage?.getItem("roleID") ?? "2";
@@ -26,50 +51,54 @@ const Login = () => {
   }, [isAuthenticated, navigate]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
+    const email = login.email
+    const password = login.password
     e.preventDefault();
     try {
-      await loginWithEmail(email, password);
-      sessionStorage.setItem("userEmail", email);
-      sessionStorage.setItem("roleID", "0");
-      sessionStorage.setItem("roleName", "Admin");
-      navigate("/dash-admin"); // Redirige a la home
-    } catch (error: any) {
-        // Si falla Firebase, intentamos contra el servicio propio
-        try {
-          const user = await userService.buscarEmail(email);
+      const response = await authLogin(login) as any
+      console.log("Respuesta del logueo", response)
 
-          if (!user || user.password !== password) {
-            throw new Error("Credenciales inválidas");
-          }
+      sessionStorage.setItem("token", response.token);
 
-          if (!user.enabled) {
-            alert("Usuario inactivo.");
-            return;
-          }
+      const user = await userService.buscarEmail(email);
 
-          const role = await rulesService.obtenerRole(user.rolesId[0])
+      const isMatch = await comparePassword(password, user.password);
 
-          // Sesión local válida hasta que se cierre pestaña
-          sessionStorage.setItem("username", user.username);
-          sessionStorage.setItem("userEmail", user.mail);
-          sessionStorage.setItem("roleID", role.id.toString());
-          sessionStorage.setItem("roleName", role.name);
-          sessionStorage.setItem("customLogin", "true");
-          sessionStorage.setItem("userId", user.id.toString()); // opcional
+      console.log("isMatch:", isMatch)
 
-          setIsAuthenticated(true)
-          const isAdmin = user.rolesId[0]===2 || role.name?.toLocaleLowerCase() === "admin";
-          const redirectPath = isAdmin ? "/dash-admin" : "/dashboard"
-          navigate(redirectPath);
-        } catch (customError: any) {
-          alert("Correo y/o contraseña incorrectos");
-        }
-    };
+      if (!user || !isMatch) {
+        throw new Error("Credenciales inválidas");
+      }
+
+      if (!user.enabled) {
+        alert("Usuario inactivo.");
+        return;
+      }
+          
+      const role = await rulesService.obtenerRole(user.rolesId[0])
+
+      // Sesión local válida hasta que se cierre pestaña
+      sessionStorage.setItem("username", user.username);
+      sessionStorage.setItem("userEmail", user.mail);
+      sessionStorage.setItem("roleID", role.id.toString());
+      sessionStorage.setItem("roleName", role.name);
+      sessionStorage.setItem("customLogin", "true");
+      sessionStorage.setItem("userId", user.id.toString()); // opcional
+
+      setIsAuthenticated(true)
+      const isAdmin = user.rolesId[0]===2 || role.name?.toLocaleLowerCase() === "admin";
+      const redirectPath = isAdmin ? "/dash-admin" : "/dashboard"
+      navigate(redirectPath);
+    } catch (customError: any) {
+      alert("Correo y/o contraseña incorrectos");
+    }
   }
 
   const handleGoogleLogin = async () => {
     try {
-      await loginWithGoogle();
+      const idToken = await (await loginWithGoogle()).user.getIdToken();
+      const response = await authLoginOAuth(idToken) as any
+      console.log("Respuesta del logueo", response)
       const user = auth.currentUser;
 
        // 🚨 Validación por correo
@@ -104,18 +133,20 @@ const Login = () => {
       </div>
       <form onSubmit={handleEmailLogin} className="space-y-4">
         <input
+          name="email"
           type="email"
           placeholder="Correo electrónico"
           className="w-full px-4 py-2 rounded-md border border-gray-300 focus:ring focus:ring-indigo-400"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={login.email}
+          onChange={handleChange}
         />
         <input
+          name="password"
           type="password"
           placeholder="Contraseña"
           className="w-full px-4 py-2 rounded-md border border-gray-300 focus:ring focus:ring-indigo-400"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={login.password}
+          onChange={handleChange}
         />
         <button
           type="submit"

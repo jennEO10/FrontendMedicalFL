@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, signInWithPopup, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { onAuthStateChanged, signOut, signInWithEmailAndPassword, signInWithPopup, setPersistence, browserSessionPersistence, UserCredential } from "firebase/auth";
 import { auth, provider } from "../firebase/firebase";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
   loading: boolean;
-  loginWithEmail: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<UserCredential>;
+  loginWithGoogle: () => Promise<UserCredential>;
   logout: () => void;
   setIsAuthenticated: (auth: boolean) => void;
 }
@@ -35,12 +35,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithEmail = async (email: string, password: string) => {
     await setPersistence(auth, browserSessionPersistence);
-    await signInWithEmailAndPassword(auth, email, password);
+    const response = await signInWithEmailAndPassword(auth, email, password);
+
+    return response;
   };
 
   const loginWithGoogle = async () => {
     await setPersistence(auth, browserSessionPersistence);
-    await signInWithPopup(auth, provider);
+    const response = await signInWithPopup(auth, provider);
+
+    console.log("Respuesta desde oAuth", await response.user.getIdToken())
+
+    return response;
   };
 
   const logout = () => {

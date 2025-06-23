@@ -1,83 +1,81 @@
-import axios from 'axios';
+import api from './axiosConfig'
 import { HyperParameter, Iteracion, MetricasByIteracion, RondasForIteracion, VM } from '../models/iteracion';
 
-const API_URL = 'https://graphic-brook-404722.uc.r.appspot.com';
-
 export const getIteraciones = async () => {
-  const response = await axios.get<Iteracion[]>(`${API_URL}/api/listar-iteraciones`);
+  const response = await api.get<Iteracion[]>(`/api/listar-iteraciones`);
   return response.data;
 };
 
 export const createIteracion = async (data: Iteracion) => {
-  const response = await axios.post<Iteracion>(`${API_URL}/api/crear-iteracion`, data);
+  const response = await api.post<Iteracion>(`/api/crear-iteracion`, data);
   return response;
 };
 
 export const updateIteracion = async (id: number, data: Iteracion) => {
-  const response = await axios.patch<Iteracion>(`${API_URL}/api/actualizar-iteracion/${id}`, data);
+  const response = await api.patch<Iteracion>(`/api/actualizar-iteracion/${id}`, data);
   return response;
 };
 
 export const deleteIteracion = async (id: number) => {
-  const response = await axios.delete(`${API_URL}/api/eliminar-iteracion/${id}`);
+  const response = await api.delete(`/api/eliminar-iteracion/${id}`);
   return response;
 };
 
 export const getLastInteraction = async () => {
-  const response = await axios.get<Iteracion>(`${API_URL}/api/obtener-ultima-iteracion`);
+  const response = await api.get<Iteracion>(`/api/obtener-ultima-iteracion`);
   return response.data;
 }
 
 export const getLastInteractionByUser = async (userId: number) => {
-  const response = await axios.get<Iteracion[]>(`${API_URL}/api/listar-iteraciones-por-usuario/${userId}`);
+  const response = await api.get<Iteracion[]>(`/api/listar-iteraciones-por-usuario/${userId}`);
   return response.data;
 }
 
 // Hyperparameters
 export const getHyperIteracion = async (idIteracion: number) => {
-  const response = await axios.get<HyperParameter>(`${API_URL}/api/listar-hyperparametros-por-iteracion/${idIteracion}`);
+  const response = await api.get<HyperParameter>(`/api/listar-hyperparametros-por-iteracion/${idIteracion}`);
   return response.data;
 };
 
 export const createHyper = async (data: HyperParameter) => {
-  const response = await axios.post(`${API_URL}/api/crear-hyperparametro`, data);
+  const response = await api.post(`/api/crear-hyperparametro`, data);
   return response;
 };
 
 export const updateHyper = async (id: number, data: HyperParameter) => {
-  const response = await axios.patch(`${API_URL}/api/actualizar-hyperparametro/${id}`, data);
+  const response = await api.patch(`/api/actualizar-hyperparametro/${id}`, data);
   return response;
 };
 
 // Rondas
 export const getRondasIteration = async (idIteracion: number) => {
-  const response = await axios.get<RondasForIteracion[]>(`${API_URL}/api/listar-rondas-por-iteracion/${idIteracion}`);
+  const response = await api.get<RondasForIteracion[]>(`/api/listar-rondas-por-iteracion/${idIteracion}`);
   return response.data;
 };
 
 export const exportMetricsByIteration = async (idIteracion: number) => {
-  const response = await axios.get<MetricasByIteracion[]>(`${API_URL}/api/metrics/iteration/${idIteracion}`);
+  const response = await api.get<MetricasByIteracion[]>(`/api/metrics/iteration/${idIteracion}`);
   return response.data;
 };
 
 // Activar VM
 export const launchVM = async (vm: VM) => {
-  const response = await axios.post(`${API_URL}/api/vm/launch`, null, { params: vm });
+  const response = await api.post(`/api/vm/launch`, null, { params: vm });
   return response;
 };
 
 //Métricas
 export const getLastMetricByIteration = async (idIteracion: number) => {
-  const response = await axios.get<MetricasByIteracion>(`${API_URL}/api/metrics/latest/iteration/${idIteracion}`);
+  const response = await api.get<MetricasByIteracion>(`/api/metrics/latest/iteration/${idIteracion}`);
   return response.data;
 };
 
 export const getLastMetrics = async () => {
-  const response = await axios.get<MetricasByIteracion[]>(`${API_URL}/api/metrics/latest`);
+  const response = await api.get<MetricasByIteracion[]>(`/api/metrics/latest`);
   return response.data;
 };
 
 export const getMetricsByUser = async (userId: number, iterationId: number) => {
-  const response = await axios.get<MetricasByIteracion[]>(`${API_URL}/api/usermetrics/user/${userId}/iteration/${iterationId}`);
+  const response = await api.get<MetricasByIteracion[]>(`/api/usermetrics/user/${userId}/iteration/${iterationId}`);
   return response.data;
 };
