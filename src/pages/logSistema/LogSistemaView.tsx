@@ -1,18 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiDownload, HiEye } from "react-icons/hi";
-
-const logsMock = Array.from({ length: 53 }, (_, i) => ({
-  timestamp: `13/05/2025 0${Math.floor(8 + i % 3)}:${10 + (i % 50)}:33`,
-  type: i % 3 === 0 ? "Info" : i % 3 === 1 ? "Warning" : "Error",
-  module: ["Autenticación", "Iteración", "API"][i % 3],
-  message: [
-    "Inicio de sesión exitoso",
-    "Tiempo de respuesta alto del nodo",
-    "Error de conexión con el servidor",
-  ][i % 3],
-  user: i % 2 === 0 ? "jperez@hospital-universitario.org" : "sistema",
-  ip: `10.0.0.${i % 10}`,
-}));
+import { Log } from "../../models/log";
+import logService from "../../services/logService";
 
 const typeColor: Record<string, string> = {
   Info: "bg-blue-100 text-blue-800",
@@ -20,7 +9,10 @@ const typeColor: Record<string, string> = {
   Error: "bg-red-100 text-red-700",
 };
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+
 export default function LogDelSistema() {
+  const [logs, setLogs] = useState<Log[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Todos");
   const [startDate, setStartDate] = useState("");
@@ -28,29 +20,88 @@ export default function LogDelSistema() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
 
-  const filteredLogs = logsMock.filter((log) => {
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await logService.getAllLogs();
+        const formattedLogs = response.map((log: any) => {
+          const date = new Date(log.timestamp);
+          const timestamp = date.toLocaleString("es-PE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          });
+
+          return {
+            id: log.id,
+            message: log.message,
+            type: log.type,
+            module: log.module,
+            userName: log.userName,
+            timestamp,
+            ipaddress: log.ipaddress,
+          };
+        }).sort((a, b) => b.id - a.id);
+        setLogs(formattedLogs);
+      } catch (err) {
+        console.error("Error al obtener logs:", err);
+      }
+    };
+
+    fetchLogs();
+  }, []);
+
+  const filteredLogs = logs.filter((log: any) => {
     const matchesType = typeFilter === "Todos" || log.type === typeFilter;
     const matchesSearch =
       log.message.toLowerCase().includes(search.toLowerCase()) ||
       log.module.toLowerCase().includes(search.toLowerCase()) ||
-      log.user.toLowerCase().includes(search.toLowerCase()) ||
-      log.ip.includes(search);
+      log.userName.toLowerCase().includes(search.toLowerCase()) ||
+      log.ipaddress.includes(search);
     return matchesType && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
-  const visibleLogs = filteredLogs.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+  const visibleLogs = filteredLogs.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  function getResponsivePages(totalPages: number, currentPage: number): (number | string)[] {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    pages.push(1);
+
+    if (currentPage > 4) {
+      pages.push("...");
+    }
+
+    const start = Math.max(2, currentPage - 2);
+    const end = Math.min(totalPages - 1, currentPage + 2);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (currentPage + 2 < totalPages - 1) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  }
+
 
   return (
     <div className="px-6 pt-4 pb-10 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-            Logs del Sistema
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Logs del Sistema</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Monitoreo de la actividad del sistema federado
           </p>
@@ -133,12 +184,12 @@ export default function LogDelSistema() {
               <tr key={i}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.timestamp}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <span className={`px-3 py-1 rounded-full font-medium text-xs ${typeColor[log.type]}`}>{log.type}</span>
+                  <span className={`px-3 py-1 rounded-full font-medium text-xs ${typeColor[capitalize(log.type)]}`}>{log.type}</span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.module}</td>
                 <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.message}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.user}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.ip}</td>
+                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.userName}</td>
+                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.ipaddress}</td>
                 <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">
                   <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
                     <HiEye className="w-4 h-4" />
@@ -151,24 +202,28 @@ export default function LogDelSistema() {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center pt-4">
-          <div className="inline-flex -space-x-px rounded-md shadow-sm">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i + 1)}
-                className={`px-4 py-2 border text-sm font-medium ${
-                  page === i + 1
-                    ? "bg-indigo-500 text-white border-indigo-600"
-                    : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+  <div className="flex justify-center pt-4">
+    <div className="flex flex-wrap items-center gap-1">
+      {getResponsivePages(totalPages, page).map((p, i) => (
+        <button
+          key={i}
+          disabled={p === '...'}
+          onClick={() => typeof p === "number" && setPage(p)}
+          className={`px-3 py-1 text-sm rounded-md border ${
+            page === p
+              ? "bg-indigo-500 text-white border-indigo-600"
+              : typeof p === "number"
+              ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+              : "bg-transparent border-none text-gray-500 cursor-default"
+          }`}
+        >
+          {p}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

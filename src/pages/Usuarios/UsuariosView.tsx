@@ -8,6 +8,9 @@ import { Rule } from '../../models/rules';
 import organizationService from '../../services/organizationService';
 import { Organization } from '../../models/organization';
 import FiltroDinamico from '../../components/filtros/UsuariosFiltro';
+import { Alerta } from '../../models/aletas';
+import { getLocalDateTime } from '../../utils/dateUtils';
+import alertaService from '../../services/alertaService';
 
 export default function UsuariosView() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
@@ -82,6 +85,14 @@ export default function UsuariosView() {
     try {
       console.log("Guardando usuario:", usuario);
       const response = await usersService.newUser(usuario);
+      // const alerta: Alerta = {
+      //   id: 0,
+      //   tipo: "👤",
+      //   mensaje: `Usuario nuevo creado: ${usuario.mail}`,
+      //   timestamp: getLocalDateTime()
+      // };
+      // const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      // console.log("Alerta registrada:", alertaResponse);
       reiniciarFormulario();
       fetchUsuarios();
       console.log("Usuario guardado:", response);
