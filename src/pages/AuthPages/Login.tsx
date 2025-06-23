@@ -83,6 +83,7 @@ const Login = () => {
       sessionStorage.setItem("roleID", role.id.toString());
       sessionStorage.setItem("roleName", role.name);
       sessionStorage.setItem("userId", user.id.toString()); // opcional
+      sessionStorage.setItem("customLogin", "true");
 
       setIsAuthenticated(true)
       const isAdmin = user.rolesId[0]===2 || role.name?.toLocaleLowerCase() === "admin";
