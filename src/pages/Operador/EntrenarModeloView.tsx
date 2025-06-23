@@ -96,6 +96,18 @@ export default function EntrenarModeloView() {
       <section className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-semibold mb-4">Pasos para iniciar el entrenamiento</h2>
         <ol className="list-decimal list-inside space-y-6 text-gray-700 dark:text-gray-300">
+          <li>
+            Descargar docker desktop.{" "}
+            <a
+              href="https://docs.docker.com/desktop/setup/install/windows-install/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 dark:text-indigo-400 font-semibold underline hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200"
+            >
+              Click Aquí
+            </a>
+          </li>
+          
           <li>Abrir terminal CMD o PowerShell</li>
 
           <li>
