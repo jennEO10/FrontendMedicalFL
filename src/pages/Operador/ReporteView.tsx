@@ -1,20 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
+import { Prediccion } from "../../models/prediccion";
+import prediccionService from "../../services/prediccionService";
 
 export default function ReportesView() {
-  const [reportes] = useState([
-    { id: 1, fecha: "23/03/2025", resultado: "Riesgo Alto", confianza: "90%" },
-    { id: 2, fecha: "24/03/2025", resultado: "Riesgo Bajo", confianza: "75%" },
-    { id: 3, fecha: "25/03/2025", resultado: "Riesgo Medio", confianza: "82%" },
-    { id: 4, fecha: "26/03/2025", resultado: "Riesgo Alto", confianza: "95%" },
-    { id: 5, fecha: "27/03/2025", resultado: "Riesgo Medio", confianza: "88%" },
-    { id: 6, fecha: "28/03/2025", resultado: "Riesgo Bajo", confianza: "70%" },
-  ]);
+  // const [reportes] = useState([
+  //   { id: 1, fecha: "23/03/2025", resultado: "Riesgo Alto", confianza: "90%" },
+  //   { id: 2, fecha: "24/03/2025", resultado: "Riesgo Bajo", confianza: "75%" },
+  //   { id: 3, fecha: "25/03/2025", resultado: "Riesgo Medio", confianza: "82%" },
+  //   { id: 4, fecha: "26/03/2025", resultado: "Riesgo Alto", confianza: "95%" },
+  //   { id: 5, fecha: "27/03/2025", resultado: "Riesgo Medio", confianza: "88%" },
+  //   { id: 6, fecha: "28/03/2025", resultado: "Riesgo Bajo", confianza: "70%" },
+  // ]);
+
+  const [reportes, setReportes] = useState<Prediccion[]>([]);
+
+  const getPrediccionsAll = async () => {
+    try {
+      const response = await prediccionService.getAllPredictions();
+
+      const formatted = response
+        .sort((a, b) => a.id - b.id) // orden descendente por id
+        .map((r) => {
+          const date = new Date(r.timestamp);
+          const formattedDate = date.toLocaleString("es-PE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          });
+
+          return {
+            ...r,
+            timestamp: formattedDate,
+          };
+        });
+
+        console.log("Reporte formateado:", formatted)
+
+      setReportes(formatted);
+    } catch (error) {
+      console.error("Error al obtener las predicciones:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    getPrediccionsAll()
+  }, [])
 
   const handleDownload = () => {
     const csvContent = "data:text/csv;charset=utf-8," +
       ["ID,Fecha,Resultado,Confianza"].concat(
-        reportes.map(r => `${r.id},${r.fecha},${r.resultado},${r.confianza}`)
+        reportes.map(r => `${r.id},${r.timestamp},${r.riskResult},${r.probability}`)
       ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -52,9 +93,9 @@ export default function ReportesView() {
             {reportes.map((r) => (
               <tr key={r.id} className="even:bg-gray-50 dark:even:bg-gray-900">
                 <td className="px-6 py-3">{r.id}</td>
-                <td className="px-6 py-3">{r.fecha}</td>
-                <td className="px-6 py-3">{r.resultado}</td>
-                <td className="px-6 py-3">{r.confianza}</td>
+                <td className="px-6 py-3">{r.timestamp}</td>
+                <td className="px-6 py-3">{r.riskResult}</td>
+                <td className="px-6 py-3">{(r.probability * 100).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
