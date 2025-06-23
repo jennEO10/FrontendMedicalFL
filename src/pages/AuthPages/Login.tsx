@@ -10,7 +10,7 @@ import { LoginSchema } from "../../models/login";
 import { comparePassword } from "../../utils/hash";
 
 const Login = () => {
-  const { loginWithEmail, loginWithGoogle, isAuthenticated, setIsAuthenticated, logout  } = useAuth();
+  const { loginWithEmail, loginWithGoogle, isAuthenticated, setIsAuthenticated, logout, isAuthorized, setIsAuthorized  } = useAuth();
   const navigate = useNavigate();
   
   const [login, setLogin] = useState<LoginSchema>({email: "", password: ""})
@@ -43,12 +43,12 @@ const Login = () => {
     const roleId = sessionStorage?.getItem("roleID") ?? "2";
     const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
 
-    if (isAuthenticated) {
+    if (isAuthenticated && isAuthorized) {
       const isAdmin = roleId === "2" || roleId === "0" || roleName === "admin";
       const redirectPath = isAdmin ? "/dash-admin" : "/dashboard";
       navigate(redirectPath); // Ya está logueado, redirige
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isAuthorized, navigate]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     const email = login.email
@@ -102,15 +102,18 @@ const Login = () => {
       const user = auth.currentUser;
 
        // 🚨 Validación por correo
-      if (!user?.email || !allowedEmails.includes(user.email)) {
+      if (!user?.email || !allowedEmails.includes(user.email) || !response) {
         alert("🚫 Correo no autorizado");
         logout(); // Cerrar sesión en Firebase
         return;
       }
 
+      setIsAuthorized(true)
+
       sessionStorage.setItem("userEmail", user.email);
       sessionStorage.setItem("roleID", "0");
       sessionStorage.setItem("rolName", "Admin"); 
+      sessionStorage.setItem("customLogin", "true");
 
       navigate("/dash-admin");
     } catch (error: any) {

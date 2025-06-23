@@ -4,17 +4,20 @@ import { auth, provider } from "../firebase/firebase";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
+  isAuthorized: boolean;
   loading: boolean;
   loginWithEmail: (email: string, password: string) => Promise<UserCredential>;
   loginWithGoogle: () => Promise<UserCredential>;
   logout: () => void;
   setIsAuthenticated: (auth: boolean) => void;
+  setIsAuthorized: (auth: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,8 +26,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (user || isCustomLogin) {
         setIsAuthenticated(true);
+        setIsAuthorized(true)
       } else {
         setIsAuthenticated(false);
+        setIsAuthorized(false)
       }
 
       setLoading(false);
@@ -49,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return response;
   };
 
-  const logout = () => {
+  const logout = async () => {
     const isCustom = sessionStorage.getItem("customLogin") === "true";
     sessionStorage.clear();
     signOut(auth);
@@ -60,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, loginWithEmail, loginWithGoogle, logout, setIsAuthenticated  }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAuthorized, loading, loginWithEmail, loginWithGoogle, logout, setIsAuthenticated, setIsAuthorized  }}>
       {children}
     </AuthContext.Provider>
   );
