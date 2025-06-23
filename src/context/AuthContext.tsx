@@ -25,9 +25,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
 
       if (user || isCustomLogin) {
-        setIsAuthorized(true)
+        setIsAuthenticated(true)
       } else {
-        setIsAuthorized(false)
+        setIsAuthenticated(false)
       }
 
       setLoading(false);
