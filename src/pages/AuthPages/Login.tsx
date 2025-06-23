@@ -82,7 +82,6 @@ const Login = () => {
       sessionStorage.setItem("userEmail", user.mail);
       sessionStorage.setItem("roleID", role.id.toString());
       sessionStorage.setItem("roleName", role.name);
-      sessionStorage.setItem("customLogin", "true");
       sessionStorage.setItem("userId", user.id.toString()); // opcional
 
       setIsAuthenticated(true)
