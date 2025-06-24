@@ -10,6 +10,15 @@ const prediccionService = {
             throw error;
         }
     },
+    crearInferencia: async (data: any) => {
+        try {
+            const response = await prediccion.createPredicction(data);
+            return response;
+        } catch (error) {
+            console.error('Error create inference:', error);
+            throw error;
+        }
+    },
 }
 
 export default prediccionService;

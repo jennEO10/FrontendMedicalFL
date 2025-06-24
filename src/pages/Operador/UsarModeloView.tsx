@@ -1,22 +1,28 @@
 import { useState } from "react";
-import { Sparkles, Activity } from "lucide-react";
+import { Sparkles, Activity, Lock } from "lucide-react";
+import prediccionService from "../../services/prediccionService";
+
+// • Bajo (<20%): Riesgo bajo de parto prematuro. Seguimiento habitual.
+// • Moderado (20–50%): Riesgo moderado. Considerar evaluación adicional.
+// • Alto (>50%): Riesgo elevado. Requiere seguimiento clínico intensivo.
 
 const campos = [
-  { label: "EDAD", type: "int" },
-  { label: "ABORTOS", type: "int" },
-  { label: "INFECCIONES DURANTE EL EMBARAZO", type: "select", options: ["ITU", "ITU SFV", "NO", "PIELONEFRITIS", "SFV", "SIFILIS URINARIA", "URINARIA", "URINARIA SFV"] },
-  { label: "DIABETES", type: "select", options: ["SI", "NO"] },
-  { label: "HIPERTENSION", type: "select", options: ["SI", "NO"] },
-  { label: "EDAD GESTACIONAL", type: "string" },
-  { label: "EMB MÚLTIPLES", type: "int" },
-  { label: "PESO EN EL EMBARAZO", type: "float" },
-  { label: "IMC PRE GESTACIONAL", type: "select", options: ["Bajo", "Elevado", "Normal"] },
-  { label: "CPN", type: "int" },
-  { label: "SANGRADO DEL I,II,III TRIMESTRE", type: "select", options: ["I T", "II T", "III T", "I,II T", "I,III T"] },
-  { label: "TABAQUISMO", type: "select", options: ["SI", "NO"] },
-  { label: "ALCOHOLISMO", type: "select", options: ["SI", "NO"] },
+  { label: "EDAD", name: "edad", type: "int" },
+  { label: "ABORTOS", name: "abortos", type: "int" },
+  { label: "INFECCIONES DURANTE EL EMBARAZO", name: "infecciones_durante_el_embarazo", type: "select", options: ["ITU", "ITU SFV", "NO", "PIELONEFRITIS", "SFV", "SIFILIS URINARIA", "URINARIA", "URINARIA SFV"] },
+  { label: "DIABETES", name: "diabetes", type: "select", options: ["SI", "NO"] },
+  { label: "HIPERTENSION", name: "hipertencion", type: "select", options: ["SI", "NO"] },
+  { label: "EDAD GESTACIONAL", name: "eg", type: "string" },
+  { label: "EMB MÚLTIPLES", name: "emb_multiples", type: "int" },
+  { label: "PESO EN EL EMBARAZO", name: "peso_en_el_embarazo", type: "float" },
+  { label: "IMC PRE GESTACIONAL", name: "imc_pre_gestacional", type: "select", options: ["Bajo", "Elevado", "Normal"] },
+  { label: "CPN", name: "cpn", type: "int" },
+  { label: "SANGRADO DEL I,II,III TRIMESTRE", name: "sangrado_del_i_ii_iii_trimestre", type: "select", options: ["I T", "II T", "III T", "I,II T", "I,III T"] },
+  { label: "TABAQUISMO", name: "tabaquismo", type: "select", options: ["SI", "NO"] },
+  { label: "ALCOHOLISMO", name: "alcoholismo", type: "select", options: ["SI", "NO"] },
   {
     label: "NIV EDUCATIVO",
+    name: "niv_educativo",
     type: "select",
     options: [
       "1 sec", "2 sec", "3sec", "4 sec", "5 sec", "6 prim", "inst comp",
@@ -24,7 +30,7 @@ const campos = [
       "univ comp", "univ imcomp", "univ incomp"
     ]
   },
-  { label: "FORMULA OBSTETRICA", type: "string" }
+  { label: "FORMULA OBSTETRICA", name: "formula_obstetrica", type: "string" }
 ];
 
 const datosPrecargados: Record<string, string> = {
@@ -47,13 +53,15 @@ const datosPrecargados: Record<string, string> = {
 
 export default function UsarModeloView() {
   const [form, setForm] = useState<Record<string, string>>(() => {
-    return campos.reduce((acc, { label }) => {
-      acc[label] = "";
+    return campos.reduce((acc, { name }) => {
+      acc[name] = "";
       return acc;
     }, {} as Record<string, string>);
   });
 
   const [resultado, setResultado] = useState<string | null>(null);
+
+  const isFormValid = campos.every(({ name }) => form[name].trim() !== "");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -66,14 +74,33 @@ export default function UsarModeloView() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const completado = Object.fromEntries(
       Object.entries(form).map(([key, value]) => [key, value || datosPrecargados[key] || ""])
     );
 
-    setResultado(
-      "Se tiene un 90% de confiabilidad de que el paciente tiene un riesgo alto.\nFactores más influyentes: Edad, Tensión, Glucosa.\nRecomendación: Se sugiere revisar al paciente."
-    );
+    console.log("Predicción enviada:", completado);
+
+    try {
+      const response = await prediccionService.crearInferencia(completado);
+      console.log("Respuesta al crear la inferencia: ", response);
+
+      const porcentaje = Math.round((response as number) * 10000) / 100; // ejemplo: 0.47277 => 47.28
+
+      let mensaje = "";
+
+      if (porcentaje < 20) {
+        mensaje = `Riesgo bajo de parto prematuro (${porcentaje}%). Continuar con controles prenatales de rutina. No se requieren medidas adicionales por el momento.`;
+      } else if (porcentaje >= 20 && porcentaje <= 50) {
+        mensaje = `Riesgo moderado de parto prematuro (${porcentaje}%). Se sugiere control clínico más frecuente, vigilancia obstétrica y considerar pruebas complementarias.`;
+      } else {
+        mensaje = `Riesgo alto de parto prematuro (${porcentaje}%). Se recomienda intervención médica inmediata, seguimiento especializado y evaluación obstétrica detallada.`;
+      }
+
+      setResultado(mensaje);
+    } catch (error) {
+      console.error("Error al crear la inferencia: ", error);
+    }
   };
 
   return (
@@ -90,16 +117,16 @@ export default function UsarModeloView() {
       <div className="grid md:grid-cols-2 gap-8">
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
           <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {campos.map(({ label, type, options }) => (
-              <div key={label} className="flex flex-col">
-                <label htmlFor={label} className="text-sm font-medium mb-1 truncate">
+            {campos.map(({ label, name, type, options }) => (
+              <div key={name} className="flex flex-col">
+                <label htmlFor={name} className="text-sm font-medium mb-1 truncate">
                   {label}
                 </label>
 
                 {type === "select" && options ? (
                   <select
-                    name={label}
-                    value={form[label]}
+                    name={name}
+                    value={form[name]}
                     onChange={handleChange}
                     className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                   >
@@ -115,8 +142,8 @@ export default function UsarModeloView() {
                     type={type === "int" || type === "float" ? "number" : "text"}
                     step={type === "float" ? "any" : undefined}
                     min={type === "int" || type === "float" ? "0" : undefined}
-                    name={label}
-                    value={form[label]}
+                    name={name}
+                    value={form[name]}
                     onChange={handleChange}
                     onKeyDown={type === "int" || type === "float" ? handleKeyDown : undefined}
                     placeholder={`Ej. ${datosPrecargados[label] ?? "Ingresa valor"}`}
@@ -130,9 +157,23 @@ export default function UsarModeloView() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md flex items-center justify-center gap-2 transition"
+                disabled={!isFormValid}
+                title={!isFormValid ? "Completa todos los campos para habilitar el botón" : ""}
+                className={`w-full font-semibold py-2 rounded-md flex items-center justify-center gap-2 transition
+                  ${isFormValid
+                    ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                    : "bg-gray-400 cursor-not-allowed text-gray-100"
+                  }`}
               >
-                <Activity className="w-4 h-4" /> Realizar predicción
+                {!isFormValid ? (
+                  <>
+                    <Lock className="w-4 h-4" /> Completa todos los campos
+                  </>
+                ) : (
+                  <>
+                    <Activity className="w-4 h-4" /> Realizar predicción
+                  </>
+                )}
               </button>
             </div>
           </form>
@@ -140,8 +181,10 @@ export default function UsarModeloView() {
 
         {resultado && (
           <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-xl border border-gray-300 dark:border-gray-700 shadow-md">
-            <h2 className="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-400">Resultado</h2>
-            <p className="text-sm whitespace-pre-line leading-relaxed text-gray-700 dark:text-gray-300">
+            <h2 className="font-semibold text-xl mb-2 text-indigo-600 dark:text-indigo-400">
+              Resultado
+            </h2>
+            <p className="text-base whitespace-pre-line leading-relaxed text-justify text-gray-800 dark:text-gray-300">
               {resultado}
             </p>
           </div>

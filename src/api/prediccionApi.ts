@@ -6,7 +6,7 @@ export const getPredictions = async () => {
     return response.data;
 };
 
-// export const getPredictionsByUser = async () => {
-//     const response = await api.get<Prediccion[]>(`/api/predictions/`);
-//     return response.data;
-// };
+export const createPredicction = async (data: any) => {
+    const response = await api.post(`/api/inferencia/predict`, data);
+    return response.data;
+};
