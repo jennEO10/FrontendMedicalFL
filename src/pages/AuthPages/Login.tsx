@@ -98,17 +98,17 @@ const Login = () => {
     try {
       const idToken = await (await loginWithGoogle()).user.getIdToken();
       const response = await authLoginOAuth(idToken) as any
-
-      sessionStorage.setItem("token", response.token);
-
+      
       const user = auth.currentUser;
-
-       // 🚨 Validación por correo
+      
+      // 🚨 Validación por correo
       if (!user?.email || !response) {
         alert("🚫 Correo no autorizado");
         logout(); // Cerrar sesión en Firebase
         return;
       }
+      
+      sessionStorage.setItem("token", response.token);
 
       const user1 = await userService.buscarEmail(user.email);
       const role = await rulesService.obtenerRole(user1.rolesId[0])

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { HiDownload, HiEye } from "react-icons/hi";
 import { Log } from "../../models/log";
 import logService from "../../services/logService";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const typeColor: Record<string, string> = {
   Info: "bg-blue-100 text-blue-800",
@@ -96,6 +98,44 @@ export default function LogDelSistema() {
     return pages;
   }
 
+  const exportToExcel = () => {
+    const dataToExport = logs.map((log: Log) => ({
+      FECHA: log.timestamp,
+      TIPO: log.type,
+      MÓDULO: log.module,
+      MENSAJE: log.message,
+      USUARIO: log.userName,
+      IP: log.ipaddress,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    // 🧠 Autoajustar ancho de columnas
+    const columnWidths = Object.keys(dataToExport[0]).map((key) => {
+      const maxLength = dataToExport.reduce((max, item) => {
+        const value = (item as any)[key] ? (item as any)[key].toString() : "";
+        return Math.max(max, value.length);
+      }, key.length);
+      return { wch: maxLength + 2 }; // +2 para margen
+    });
+
+    worksheet["!cols"] = columnWidths;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Logs");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "logs_sistema.xlsx");
+  };
+
 
   return (
     <div className="px-6 pt-4 pb-10 max-w-7xl mx-auto space-y-6">
@@ -106,7 +146,10 @@ export default function LogDelSistema() {
             Monitoreo de la actividad del sistema federado
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md text-sm font-medium">
+        <button 
+          onClick={exportToExcel}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md text-sm font-medium"
+        >
           <HiDownload className="w-5 h-5" /> Exportar Logs
         </button>
       </div>
@@ -167,39 +210,40 @@ export default function LogDelSistema() {
       </div>
 
       <div className="overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 max-h-[410px]">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Módulo</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mensaje</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">IP</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acción</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {visibleLogs.map((log, i) => (
-              <tr key={i}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.timestamp}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <span className={`px-3 py-1 rounded-full font-medium text-xs ${typeColor[capitalize(log.type)]}`}>{log.type}</span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.module}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.message}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.userName}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.ipaddress}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">
-                  <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <HiEye className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+    <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
+      <tr>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Módulo</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mensaje</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">IP</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acción</th>
+      </tr>
+    </thead>
+    <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+      {visibleLogs.map((log, i) => (
+        <tr key={i}>
+          <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">{log.timestamp}</td>
+          <td className="px-6 py-4 text-sm">
+            <span className={`px-3 py-1 rounded-full font-medium text-xs ${typeColor[capitalize(log.type)]}`}>{log.type}</span>
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.module}</td>
+          <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 break-words md:max-w-[200px]">{log.message}</td>
+          <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">{log.userName}</td>
+          <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 break-words md:max-w-[120px]">{log.ipaddress}</td>
+          <td className="px-6 py-4 text-sm text-gray-800 dark:text-gray-300">
+            <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+              <HiEye className="w-4 h-4" />
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {totalPages > 1 && (
   <div className="flex justify-center pt-4">
