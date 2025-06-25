@@ -95,7 +95,7 @@ export default function ReportesView() {
                 <td className="px-6 py-3">{r.id}</td>
                 <td className="px-6 py-3">{r.timestamp}</td>
                 <td className="px-6 py-3">{r.riskResult}</td>
-                <td className="px-6 py-3">{(r.probability * 100).toFixed(2)}</td>
+                <td className="px-6 py-3">{(r.probability * 100).toFixed(2)}%</td>
               </tr>
             ))}
           </tbody>

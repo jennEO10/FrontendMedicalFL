@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Iteracion, MetricasByIteracion } from '../../../models/iteracion';
 import iteracionService from '../../../services/iteracionService';
+import { Prediccion } from '../../../models/prediccion';
+import prediccionService from '../../../services/prediccionService';
 
 const OperadorDashboard = () => {
   const navigate = useNavigate();
@@ -35,6 +37,40 @@ const OperadorDashboard = () => {
        auc: 0,
        loss: 0
      });
+  
+  const [reportes, setReportes] = useState<Prediccion[]>([]);
+
+  const getPrediccionsAll = async () => {
+    try {
+      const response = await prediccionService.getAllPredictions();
+
+      const formatted = response
+        .sort((a, b) => b.id - a.id) // orden descendente por id
+        .map((r) => {
+          const date = new Date(r.timestamp);
+          const formattedDate = date.toLocaleString("es-PE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          });
+
+          return {
+            ...r,
+            timestamp: formattedDate,
+          };
+        });
+
+        console.log("Reporte formateado:", formatted)
+
+      setReportes([formatted[0]]);
+    } catch (error) {
+      console.error("Error al obtener las predicciones:", error);
+    }
+  };
   
   const obtenerUltimaIteracion = async () => {
     const userId = sessionStorage.getItem("userId");
@@ -172,12 +208,14 @@ const OperadorDashboard = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-900">
-              <tr className="border-t dark:border-gray-700">
-                <td className="px-4 py-3">1</td>
-                <td className="px-4 py-3">23/03/2025</td>
-                <td className="px-4 py-3">Riesgo Alto</td>
-                <td className="px-4 py-3">90%</td>
-              </tr>
+              {reportes.map((reporte) => (
+                <tr key={reporte.id} className="border-t dark:border-gray-700">
+                  <td className="px-4 py-3">{reporte.id}</td>
+                  <td className="px-4 py-3">{reporte.timestamp}</td>
+                  <td className="px-4 py-3">{reporte.riskResult}</td>
+                  <td className="px-4 py-3">{(reporte.probability * 100).toFixed(2)}%</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
