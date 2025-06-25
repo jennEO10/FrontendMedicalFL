@@ -9,6 +9,6 @@ export const login = async (login: LoginSchema) => {
 };
 
 export const loginFirebase = async (idToken: string) => {
-  const response = await axios.post(`${API_URL}/auth/firebase-login`, idToken);
+  const response = await axios.post(`${API_URL}/auth/firebase-login`, {"idToken": idToken});
   return response.data;
 };

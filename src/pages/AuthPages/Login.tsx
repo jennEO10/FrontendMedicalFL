@@ -14,7 +14,7 @@ const Login = () => {
   const navigate = useNavigate();
   
   const [login, setLogin] = useState<LoginSchema>({email: "", password: ""})
-  const allowedEmails = ["jennyespinoza618@gmail.com", "jorgefernando614@gmail.com", "sebyon69@gmail.com"];
+  // const allowedEmails = ["jennyespinoza618@gmail.com", "jorgefernando614@gmail.com", "sebyon69@gmail.com"];
 
   const authLogin = async (login: LoginSchema) => {
     try {
@@ -99,10 +99,13 @@ const Login = () => {
       const idToken = await (await loginWithGoogle()).user.getIdToken();
       const response = await authLoginOAuth(idToken) as any
       console.log("Respuesta del logueo", response)
+
+      sessionStorage.setItem("token", response.token);
+
       const user = auth.currentUser;
 
        // 🚨 Validación por correo
-      if (!user?.email || !allowedEmails.includes(user.email) || !response) {
+      if (!user?.email || !response) {
         alert("🚫 Correo no autorizado");
         logout(); // Cerrar sesión en Firebase
         return;
