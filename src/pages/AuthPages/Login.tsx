@@ -111,11 +111,16 @@ const Login = () => {
         return;
       }
 
+      const user1 = await userService.buscarEmail(user.email);
+      const role = await rulesService.obtenerRole(user1.rolesId[0])
+
       setIsAuthorized(true)
 
-      sessionStorage.setItem("userEmail", user.email);
-      sessionStorage.setItem("roleID", "0");
-      sessionStorage.setItem("rolName", "Admin"); 
+      sessionStorage.setItem("username", user1.username);
+      sessionStorage.setItem("userEmail", user1.mail);
+      sessionStorage.setItem("roleID", role.id.toString());
+      sessionStorage.setItem("roleName", role.name);
+      sessionStorage.setItem("userId", user1.id.toString());
       sessionStorage.setItem("customLogin", "true");
 
       navigate("/dash-admin");
