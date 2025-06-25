@@ -78,9 +78,9 @@ const CrearEditarOrganizacion: FC<OrganizacionModalProps> = ({
           </button>
           <button
             onClick={onSubmit}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+            className="px-4 py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white"
           >
-            Guardar
+            { modoEdicion ? "Editar" : "Guardar"}
           </button>
         </div>
       </div>

@@ -32,13 +32,13 @@ export const searchRoleName = async (roleName: string) => {
 };
 
 export const createUser = async (data: User) => {
-  const response = await api.post(`/api/crear-usuario`, data);
-  return response;
+  const response = await api.post<User>(`/api/crear-usuario`, data);
+  return response.data;
 };
 
 export const updateUser = async (id: number, data: User) => {
-  const response = await api.patch(`/api/actualizar-usuario/${id}`, data);
-  return response;
+  const response = await api.patch<User>(`/api/actualizar-usuario/${id}`, data);
+  return response.data;
 };
 
 export const deleteUser = async (id: number) => {

@@ -13,13 +13,13 @@ export const fetchOrganization = async (name: string) => {
 };
 
 export const createOrganization = async (data: Organization) => {
-  const response = await api.post(`/api/crear-organizacion`, data);
-  return response;
+  const response = await api.post<Organization>(`/api/crear-organizacion`, data);
+  return response.data;
 };
 
 export const updateOrganization = async (id: number, data: Organization) => {
-  const response = await api.patch(`/api/actualizar-organizacion/${id}`, data);
-  return response;
+  const response = await api.patch<Organization>(`/api/actualizar-organizacion/${id}`, data);
+  return response.data;
 };
 
 export const deleteOrganization = async (id: number) => {

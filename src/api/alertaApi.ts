@@ -7,6 +7,6 @@ export const getAlerts = async () => {
 };
 
 export const createAlert = async (data: Alerta) => {
-  const response = await api.post<Alerta>(`/api/alerts-create`, data);
+  const response = await api.post<Alerta>(`/api/alerts/create`, data);
   return response.data;
 };

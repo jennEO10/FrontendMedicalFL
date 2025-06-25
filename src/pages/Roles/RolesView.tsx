@@ -4,6 +4,10 @@ import { Rule } from '../../models/rules';
 import rulesService from '../../services/rulesService';
 import RolModal from '../../components/modals/RolModal';
 import { useNavigate } from 'react-router-dom';
+import { Alerta } from '../../models/aletas';
+import { getLocalDateTime } from '../../utils/dateUtils';
+import alertaService from '../../services/alertaService';
+import { alertaEmitter } from '../../utils/alertaEvents';
 
 export default function RolesView() {
     const navigate = useNavigate();
@@ -48,7 +52,19 @@ export default function RolesView() {
     const crearRol = async () => {
         try {
             console.log('Rol a crear:', rol);
-            const response = await rulesService.newRule(rol);
+            const response = await rulesService.newRule(rol) as any;
+
+            const alerta: Alerta = {
+                id: 0,
+                tipo: "🛡️",
+                mensaje: `Rol creado: ID<${response.data.id}> - "${rol.name}" por ${sessionStorage.getItem("userEmail")}`,
+                timestamp: getLocalDateTime()
+            };
+            const alertaResponse = await alertaService.nuevaAlerta(alerta);
+            console.log("Alerta registrada:", alertaResponse);
+            // 🟠 Emitir evento para notificaciones en tiempo real
+            alertaEmitter.emit('alertaCreada');
+
             reiniciarFormulario();
             fetchRoles();
             console.log('Rol creado:', response);
@@ -68,6 +84,18 @@ export default function RolesView() {
         try {
             console.log('Rol a editar:', rol);
             const response = await rulesService.updRule(rol.id, rol);
+
+            const alerta: Alerta = {
+                id: 0,
+                tipo: "✏️",
+                mensaje: `Rol editado: ID<${rol.id}> - "${rol.name}" por ${sessionStorage.getItem("userEmail")}`,
+                timestamp: getLocalDateTime()
+            };
+            const alertaResponse = await alertaService.nuevaAlerta(alerta);
+            console.log("Alerta registrada:", alertaResponse);
+            // 🟠 Emitir evento para notificaciones en tiempo real
+            alertaEmitter.emit('alertaCreada');
+
             reiniciarFormulario();
             fetchRoles();
             console.log('Rol editado:', response);
@@ -86,6 +114,18 @@ export default function RolesView() {
         try {
             console.log('Rol a eliminar:', rol);
             const response = await rulesService.delRule(rol.id);
+
+            const alerta: Alerta = {
+                id: 0,
+                tipo: "🗑️",
+                mensaje: `Rol eliminado: ID<${rol.id}> - "${rol.name}" por ${sessionStorage.getItem("userEmail")}`,
+                timestamp: getLocalDateTime()
+            };
+            const alertaResponse = await alertaService.nuevaAlerta(alerta);
+            console.log("Alerta registrada:", alertaResponse);
+            // 🟠 Emitir evento para notificaciones en tiempo real
+            alertaEmitter.emit('alertaCreada');
+
             reiniciarFormulario();
             fetchRoles();
             console.log('Rol eliminado:', response);

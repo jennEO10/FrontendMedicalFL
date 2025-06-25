@@ -11,6 +11,7 @@ import FiltroDinamico from '../../components/filtros/UsuariosFiltro';
 import { Alerta } from '../../models/aletas';
 import { getLocalDateTime } from '../../utils/dateUtils';
 import alertaService from '../../services/alertaService';
+import { alertaEmitter } from '../../utils/alertaEvents';
 
 export default function UsuariosView() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
@@ -85,14 +86,18 @@ export default function UsuariosView() {
     try {
       console.log("Guardando usuario:", usuario);
       const response = await usersService.newUser(usuario);
-      // const alerta: Alerta = {
-      //   id: 0,
-      //   tipo: "👤",
-      //   mensaje: `Usuario nuevo creado: ${usuario.mail}`,
-      //   timestamp: getLocalDateTime()
-      // };
-      // const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      // console.log("Alerta registrada:", alertaResponse);
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "👤",
+        mensaje: `Usuario creado: ID<${response.id}> - "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       fetchUsuarios();
       console.log("Usuario guardado:", response);
@@ -112,6 +117,18 @@ export default function UsuariosView() {
     try {
       console.log("Editando datos del usuario:", usuario);
       const response = await usersService.updateUser(usuario.id, usuario);
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "✏️",
+        mensaje: `Usuario editado: ID<${usuario.id}> - "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       fetchUsuarios();
       console.log("Usuario editado:", response);
@@ -131,6 +148,18 @@ export default function UsuariosView() {
       console.log("Eliminando usuario:", usuario);
       
       const response = await usersService.deleteUser(usuario.id);
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🗑️",
+        mensaje: `Usuario eliminado: ID<${usuario.id}> - "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       fetchUsuarios();
       console.log("Usuario eliminado:", response);
@@ -221,8 +250,30 @@ export default function UsuariosView() {
     try {
       if (usuario.enabled) {
         await usersService.desactivarUsuario(usuario.id);
+
+        const alerta: Alerta = {
+          id: 0,
+          tipo: "🔒",
+          mensaje: `Usuario desactivado: "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
+          timestamp: getLocalDateTime()
+        };
+        const alertaResponse = await alertaService.nuevaAlerta(alerta);
+        console.log("Alerta registrada:", alertaResponse);
+        // 🟠 Emitir evento para notificaciones en tiempo real
+        alertaEmitter.emit('alertaCreada');
       } else {
         await usersService.activarUsuario(usuario.id);
+
+        const alerta: Alerta = {
+          id: 0,
+          tipo: "🔓",
+          mensaje: `Usuario activo: "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
+          timestamp: getLocalDateTime()
+        };
+        const alertaResponse = await alertaService.nuevaAlerta(alerta);
+        console.log("Alerta registrada:", alertaResponse);
+        // 🟠 Emitir evento para notificaciones en tiempo real
+        alertaEmitter.emit('alertaCreada');
       }
       fetchUsuarios();
     } catch (error) {

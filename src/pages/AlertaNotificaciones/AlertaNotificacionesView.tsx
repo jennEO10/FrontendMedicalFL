@@ -5,43 +5,43 @@ import alertaService from "../../services/alertaService";
 
 export default function AlertaNotificacionesView() {
   // const [alerts] = useState([
-  //   { type: "⚠️", message: "Alerta de seguridad: Acceso inusual detectado", time: "Hace 30 minutos" },
-  //   { type: "👤", message: "Usuario nuevo creado: maria.lopez@hospital.org", time: "Hace 2 horas" },
-  //   { type: "📊", message: "Organización \"Hospital Norte\" agregada", time: "Hace 3 horas" },
-  //   { type: "✅", message: "Iteración #28 completada", time: "Hace 5 horas" },
-  //   { type: "📄", message: "Nuevo documento subido al sistema", time: "Hace 10 horas" },
-  //   { type: "🔄", message: "Actualización automática del sistema completada", time: "Hace 12 horas" },
-  //   { type: "🔔", message: "Notificación de revisión periódica activada", time: "Hace 1 día" },
-  //   { type: "📥", message: "Nuevo backup generado correctamente", time: "Hace 1 día" },
-  //   { type: "🔐", message: "Cambio de contraseña exitoso para admin01", time: "Hace 1 día" },
-  //   { type: "💾", message: "Base de datos sincronizada con éxito", time: "Hace 2 días" },
-  //   { type: "🚨", message: "Intento fallido de acceso externo bloqueado", time: "Hace 2 días" },
-  //   { type: "👨‍⚕️", message: "Perfil de usuario médico actualizado", time: "Hace 2 días" },
-  //   { type: "📦", message: "Nuevo lote de vacunas registrado", time: "Hace 3 días" },
-  //   { type: "🛠️", message: "Mantenimiento programado finalizado", time: "Hace 3 días" },
-  //   { type: "🌐", message: "Configuración de red actualizada", time: "Hace 4 días" },
-  //   { type: "📬", message: "Correo institucional configurado exitosamente", time: "Hace 4 días" },
-  //   { type: "🗃️", message: "Archivo histórico movido a backup", time: "Hace 5 días" },
-  //   { type: "🧪", message: "Nuevo análisis clínico agregado", time: "Hace 6 días" },
-  //   { type: "👥", message: "Grupo de usuarios sincronizado", time: "Hace 6 días" },
-  //   { type: "📊", message: "Reporte mensual generado automáticamente", time: "Hace 7 días" },
-  //   { type: "🕵️", message: "Revisión de logs de seguridad completada", time: "Hace 7 días" },
-  //   { type: "🧾", message: "Factura de proveedor cargada", time: "Hace 8 días" },
-  //   { type: "🔍", message: "Auditoría interna iniciada", time: "Hace 8 días" },
-  //   { type: "📋", message: "Nuevo protocolo de emergencia publicado", time: "Hace 9 días" },
-  //   { type: "🏥", message: "Se agregó una nueva sede hospitalaria", time: "Hace 10 días" },
-  //   { type: "🛎️", message: "Se notificó cambio de política de seguridad", time: "Hace 11 días" },
-  //   { type: "📈", message: "Incremento de visitas registrado", time: "Hace 12 días" },
-  //   { type: "⚙️", message: "Configuración avanzada aplicada", time: "Hace 13 días" },
-  //   { type: "🧑‍💼", message: "Se asignó nuevo rol a usuario invitado", time: "Hace 14 días" },
-  //   { type: "🔄", message: "Se reinició servicio de autenticación", time: "Hace 15 días" },
+  //   { tipo: "⚠️", mensaje: "Alerta de seguridad: Acceso inusual detectado", timestamp: "Hace 30 minutos" },
+  //   { tipo: "👤", mensaje: "Usuario nuevo creado: maria.lopez@hospital.org", timestamp: "Hace 2 horas" },
+  //   { tipo: "📊", mensaje: "Organización \"Hospital Norte\" agregada", timestamp: "Hace 3 horas" },
+  //   { tipo: "✅", mensaje: "Iteración #28 completada", timestamp: "Hace 5 horas" },
+  //   { tipo: "📄", mensaje: "Nuevo documento subido al sistema", timestamp: "Hace 10 horas" },
+  //   { tipo: "🔄", mensaje: "Actualización automática del sistema completada", timestamp: "Hace 12 horas" },
+  //   { tipo: "🔔", mensaje: "Notificación de revisión periódica activada", timestamp: "Hace 1 día" },
+  //   { tipo: "📥", mensaje: "Nuevo backup generado correctamente", timestamp: "Hace 1 día" },
+  //   { tipo: "🔐", mensaje: "Cambio de contraseña exitoso para admin01", timestamp: "Hace 1 día" },
+  //   { tipo: "💾", mensaje: "Base de datos sincronizada con éxito", timestamp: "Hace 2 días" },
+  //   { tipo: "🚨", mensaje: "Intento fallido de acceso externo bloqueado", timestamp: "Hace 2 días" },
+  //   { tipo: "👨‍⚕️", mensaje: "Perfil de usuario médico actualizado", timestamp: "Hace 2 días" },
+  //   { tipo: "📦", mensaje: "Nuevo lote de vacunas registrado", timestamp: "Hace 3 días" },
+  //   { tipo: "🛠️", mensaje: "Mantenimiento programado finalizado", timestamp: "Hace 3 días" },
+  //   { tipo: "🌐", mensaje: "Configuración de red actualizada", timestamp: "Hace 4 días" },
+  //   { tipo: "📬", mensaje: "Correo institucional configurado exitosamente", timestamp: "Hace 4 días" },
+  //   { tipo: "🗃️", mensaje: "Archivo histórico movido a backup", timestamp: "Hace 5 días" },
+  //   { tipo: "🧪", mensaje: "Nuevo análisis clínico agregado", timestamp: "Hace 6 días" },
+  //   { tipo: "👥", mensaje: "Grupo de usuarios sincronizado", timestamp: "Hace 6 días" },
+  //   { tipo: "📊", mensaje: "Reporte mensual generado automáticamente", timestamp: "Hace 7 días" },
+  //   { tipo: "🕵️", mensaje: "Revisión de logs de seguridad completada", timestamp: "Hace 7 días" },
+  //   { tipo: "🧾", mensaje: "Factura de proveedor cargada", timestamp: "Hace 8 días" },
+  //   { tipo: "🔍", mensaje: "Auditoría interna iniciada", timestamp: "Hace 8 días" },
+  //   { tipo: "📋", mensaje: "Nuevo protocolo de emergencia publicado", timestamp: "Hace 9 días" },
+  //   { tipo: "🏥", mensaje: "Se agregó una nueva sede hospitalaria", timestamp: "Hace 10 días" },
+  //   { tipo: "🛎️", mensaje: "Se notificó cambio de política de seguridad", timestamp: "Hace 11 días" },
+  //   { tipo: "📈", mensaje: "Incremento de visitas registrado", timestamp: "Hace 12 días" },
+  //   { tipo: "⚙️", mensaje: "Configuración avanzada aplicada", timestamp: "Hace 13 días" },
+  //   { tipo: "🧑‍💼", mensaje: "Se asignó nuevo rol a usuario invitado", timestamp: "Hace 14 días" },
+  //   { tipo: "🔄", mensaje: "Se reinició servicio de autenticación", timestamp: "Hace 15 días" },
   // ]);
 
   const [alerts, setAlerts] = useState<Alerta[]>([]);
 
   const getAllAlerts = async () => {
     try {
-      const response = await alertaService.getAllAlerts();
+      const response = (await alertaService.getAllAlerts()).sort((a, b) => b.id - a.id);
       setAlerts(response);
     } catch (error) {
       console.error("Error al obtener las alertas:",error)
@@ -51,6 +51,25 @@ export default function AlertaNotificacionesView() {
   useEffect(() => {
     getAllAlerts()
   }, [])
+
+  function formatearTiempoRelativo(fechaStr: string): string {
+    const fecha = new Date(fechaStr);
+    const ahora = new Date();
+    const segundos = Math.floor((ahora.getTime() - fecha.getTime()) / 1000);
+
+    const minutos = Math.floor(segundos / 60);
+    const horas = Math.floor(minutos / 60);
+    const dias = Math.floor(horas / 24);
+    const meses = Math.floor(dias / 30);
+    const años = Math.floor(meses / 12);
+
+    if (segundos < 60) return "Hace unos segundos";
+    if (minutos < 60) return `Hace ${minutos} minuto${minutos > 1 ? "s" : ""}`;
+    if (horas < 24) return `Hace ${horas} hora${horas > 1 ? "s" : ""}`;
+    if (dias < 30) return `Hace ${dias} día${dias > 1 ? "s" : ""}`;
+    if (meses < 12) return `Hace ${meses} mes${meses > 1 ? "es" : ""}`;
+    return `Hace ${años} año${años > 1 ? "s" : ""}`;
+  }
 
   return (
     <div className="px-6 py-6 max-w-4xl mx-auto space-y-6">
@@ -74,7 +93,7 @@ export default function AlertaNotificacionesView() {
                 </p>
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap mt-1 md:mt-0">
-                {alert.timestamp}
+                {formatearTiempoRelativo(alert.timestamp)}
               </span>
             </div>
           ))}

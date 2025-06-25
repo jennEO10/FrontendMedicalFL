@@ -8,6 +8,9 @@ import rulesService from "../../services/rulesService";
 import loginService from "../../services/loginService";
 import { LoginSchema } from "../../models/login";
 import { comparePassword } from "../../utils/hash";
+import { Alerta } from "../../models/aletas";
+import { getLocalDateTime } from "../../utils/dateUtils";
+import alertaService from "../../services/alertaService";
 
 const Login = () => {
   const { loginWithEmail, loginWithGoogle, isAuthenticated, setIsAuthenticated, logout, isAuthorized, setIsAuthorized  } = useAuth();
@@ -77,6 +80,15 @@ const Login = () => {
           
       const role = await rulesService.obtenerRole(user.rolesId[0])
 
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🔐",
+        mensaje: `Usuario inició sesión: ${user.mail}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+
       // Sesión local válida hasta que se cierre pestaña
       sessionStorage.setItem("username", user.username);
       sessionStorage.setItem("userEmail", user.mail);
@@ -112,6 +124,15 @@ const Login = () => {
 
       const user1 = await userService.buscarEmail(user.email);
       const role = await rulesService.obtenerRole(user1.rolesId[0])
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🔐",
+        mensaje: `Usuario inició sesión: ${user1.mail}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
 
       setIsAuthorized(true)
 

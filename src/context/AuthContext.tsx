@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     const isCustom = sessionStorage.getItem("customLogin") === "true";
     sessionStorage.clear();
-    signOut(auth);
+    await signOut(auth);
 
     if (isCustom) {
       window.location.href = "/login";

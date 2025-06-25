@@ -1,24 +1,62 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { FaBell, FaUser, FaBuilding, FaCheck, FaFileAlt, FaSync, FaExclamationTriangle, FaDatabase, FaLock } from "react-icons/fa";
 import { Link } from "react-router";
+import { Alerta } from "../../models/aletas";
+import alertaService from "../../services/alertaService";
+import { alertaEmitter } from "../../utils/alertaEvents";
 
 export default function NotificationDropdown() {
+  const prevAlertCount = useRef<number>(0);
   const [isOpen, setIsOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
-  const [alerts] = useState([
-    { icon: <FaExclamationTriangle className="text-yellow-400" />, message: "Alerta de seguridad: Acceso inusual detectado", time: "Hace 30 minutos" },
-    { icon: <FaUser className="text-purple-400" />, message: "Usuario nuevo creado: maria.lopez@hospital.org", time: "Hace 2 horas" },
-    { icon: <FaBuilding className="text-pink-400" />, message: "Organización \"Hospital Norte\" agregada", time: "Hace 3 horas" },
-    { icon: <FaCheck className="text-green-400" />, message: "Iteración #28 completada", time: "Hace 5 horas" },
-    { icon: <FaFileAlt className="text-gray-300" />, message: "Nuevo documento subido al sistema", time: "Hace 10 horas" },
-    { icon: <FaSync className="text-blue-400" />, message: "Actualización automática del sistema completada", time: "Hace 12 horas" },
-    { icon: <FaBell className="text-yellow-300" />, message: "Notificación de revisión periódica activada", time: "Hace 1 día" },
-    { icon: <FaDatabase className="text-pink-400" />, message: "Nuevo backup generado correctamente", time: "Hace 1 día" },
-    { icon: <FaLock className="text-orange-400" />, message: "Cambio de contraseña exitoso para admin01", time: "Hace 1 día" },
-    { icon: <FaDatabase className="text-purple-400" />, message: "Base de datos sincronizada con éxito", time: "Hace 2 días" },
-  ]);
+  // const [alerts] = useState([
+  //   { icon: <FaExclamationTriangle className="text-yellow-400" />, message: "Alerta de seguridad: Acceso inusual detectado", time: "Hace 30 minutos" },
+  //   { icon: <FaUser className="text-purple-400" />, message: "Usuario nuevo creado: maria.lopez@hospital.org", time: "Hace 2 horas" },
+  //   { icon: <FaBuilding className="text-pink-400" />, message: "Organización \"Hospital Norte\" agregada", time: "Hace 3 horas" },
+  //   { icon: <FaCheck className="text-green-400" />, message: "Iteración #28 completada", time: "Hace 5 horas" },
+  //   { icon: <FaFileAlt className="text-gray-300" />, message: "Nuevo documento subido al sistema", time: "Hace 10 horas" },
+  //   { icon: <FaSync className="text-blue-400" />, message: "Actualización automática del sistema completada", time: "Hace 12 horas" },
+  //   { icon: <FaBell className="text-yellow-300" />, message: "Notificación de revisión periódica activada", time: "Hace 1 día" },
+  //   { icon: <FaDatabase className="text-pink-400" />, message: "Nuevo backup generado correctamente", time: "Hace 1 día" },
+  //   { icon: <FaLock className="text-orange-400" />, message: "Cambio de contraseña exitoso para admin01", time: "Hace 1 día" },
+  //   { icon: <FaDatabase className="text-purple-400" />, message: "Base de datos sincronizada con éxito", time: "Hace 2 días" },
+  // ]);
+
+  const [alerts, setAlerts] = useState<Alerta[]>([]);
+
+  const getAllAlerts = async () => {
+    try {
+      const response = (await alertaService.getAllAlerts())
+      .sort((a, b) => b.id - a.id)
+      .slice(0, 10);
+
+      setAlerts(response);
+
+      if (response.length > 0 && response[0].id !== prevAlertCount.current) {
+        setNotifying(true); // 👉 activa la luz naranja
+        prevAlertCount.current = response[0].id;
+      }
+    } catch (error) {
+      console.error("Error al obtener las alertas:",error)
+    }
+  }
+
+  useEffect(() => {
+    getAllAlerts()
+
+    const handler = () => {
+      getAllAlerts();
+      setNotifying(true); // 🔥 Activa la campanita
+    };
+
+    alertaEmitter.on('alertaCreada', handler);
+
+    return () => {
+      alertaEmitter.off('alertaCreada', handler);
+    };
+  }, []);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -32,6 +70,26 @@ export default function NotificationDropdown() {
     toggleDropdown();
     setNotifying(false);
   };
+
+  function formatearTiempoRelativo(fechaStr: string): string {
+    const fecha = new Date(fechaStr);
+    const ahora = new Date();
+    const segundos = Math.floor((ahora.getTime() - fecha.getTime()) / 1000);
+
+    const minutos = Math.floor(segundos / 60);
+    const horas = Math.floor(minutos / 60);
+    const dias = Math.floor(horas / 24);
+    const meses = Math.floor(dias / 30);
+    const años = Math.floor(meses / 12);
+
+    if (segundos < 60) return "Hace unos segundos";
+    if (minutos < 60) return `Hace ${minutos} minuto${minutos > 1 ? "s" : ""}`;
+    if (horas < 24) return `Hace ${horas} hora${horas > 1 ? "s" : ""}`;
+    if (dias < 30) return `Hace ${dias} día${dias > 1 ? "s" : ""}`;
+    if (meses < 12) return `Hace ${meses} mes${meses > 1 ? "es" : ""}`;
+    return `Hace ${años} año${años > 1 ? "s" : ""}`;
+  }
+
   return (
     <div className="relative">
       <button
@@ -67,7 +125,7 @@ export default function NotificationDropdown() {
       >
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
           <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Notification
+            Notificaciones
           </h5>
           <button
             onClick={toggleDropdown}
@@ -96,14 +154,14 @@ export default function NotificationDropdown() {
               className="flex items-start gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
             >
               <div className="text-xl mt-1">
-                {alert.icon}
+                {alert.tipo}
               </div>
               <div className="flex flex-col w-full">
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {alert.message}
+                  {alert.mensaje}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {alert.time}
+                  {formatearTiempoRelativo(alert.timestamp)}
                 </span>
               </div>
             </li>
@@ -111,9 +169,10 @@ export default function NotificationDropdown() {
         </ul>
         <Link
           to="/alerta-notificaciones"
+          onClick={() => setIsOpen(false)}
           className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
         >
-          View All Notifications
+          Ver todas las notificaciones
         </Link>
       </Dropdown>
     </div>

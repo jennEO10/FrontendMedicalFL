@@ -13,6 +13,10 @@ import { useNavigate } from 'react-router-dom';
 import { FaFileExport } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { Alerta } from '../../models/aletas';
+import { getLocalDateTime } from '../../utils/dateUtils';
+import alertaService from '../../services/alertaService';
+import { alertaEmitter } from '../../utils/alertaEvents';
 
 export default function IteracionesView() {
   const navigate = useNavigate();
@@ -178,7 +182,7 @@ export default function IteracionesView() {
       
       console.log("Iteración guardada:", response)
 
-      const iterationId = response.data?.id;
+      const iterationId = response.id;
       // const userIds = response.data?.userIds ?? [];
 
       if (typeof iterationId === 'number') {
@@ -198,6 +202,17 @@ export default function IteracionesView() {
       const lanzarVM = await iteracionService.lanzarVM(VM)
 
       console.log("VM lanzado correctamente: ", lanzarVM);
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🔄",
+        mensaje: `Iteración creada: ID<${response.id}> - "${iteracion.iterationName}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
 
       obtenerIteraciones()
       return iterationId;
@@ -251,6 +266,18 @@ export default function IteracionesView() {
 
     try {
       const response = await iteracionService.delIteracion(iteracion.id);
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🗑️",
+        mensaje: `Iteración eliminada: ID<${iteracion.id}> - "${iteracion.iterationName}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       obtenerIteraciones();
       console.log("Iteración eliminada:", response)

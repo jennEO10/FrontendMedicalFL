@@ -8,7 +8,7 @@ export const getIteraciones = async () => {
 
 export const createIteracion = async (data: Iteracion) => {
   const response = await api.post<Iteracion>(`/api/crear-iteracion`, data);
-  return response;
+  return response.data;
 };
 
 export const updateIteracion = async (id: number, data: Iteracion) => {

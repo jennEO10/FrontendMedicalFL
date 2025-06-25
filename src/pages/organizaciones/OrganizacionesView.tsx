@@ -3,6 +3,10 @@ import { FaEdit, FaSearch, FaTimes } from "react-icons/fa";
 import organizationService from '../../services/organizationService';
 import { Organization } from "../../models/organization";
 import Organizacion from "../../components/modals/OrganizacionModal";
+import { Alerta } from "../../models/aletas";
+import { getLocalDateTime } from "../../utils/dateUtils";
+import alertaService from "../../services/alertaService";
+import { alertaEmitter } from "../../utils/alertaEvents";
 
 const OrganizacionesView = () => {
   const [busqueda, setBusqueda] = useState("");
@@ -40,6 +44,18 @@ const OrganizacionesView = () => {
       console.log("Guardando organización:", org);
 
       const response = await organizationService.saveOrganization(org)
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🏢",
+        mensaje: `Organización creada: ID<${response.id}> - "${org.name}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       fetchData();
       console.log("Organización guardada:", response);
@@ -60,6 +76,18 @@ const OrganizacionesView = () => {
       console.log("Editando datos de la organización:", org);
 
       const response = await organizationService.actualizarOrganization(org.id, org)
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "✏️",
+        mensaje: `Organización editada: ID<${org.id}> - "${org.name}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       fetchData();
       console.log("Organización editada:", response);
@@ -79,6 +107,18 @@ const OrganizacionesView = () => {
       console.log("Eliminando organización:", org);
 
       const response = await organizationService.delOrganization(org.id);
+
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🗑️",
+        mensaje: `Organización eliminada: ID<${org.id}> - "${org.name}" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime()
+      };
+      const alertaResponse = await alertaService.nuevaAlerta(alerta);
+      console.log("Alerta registrada:", alertaResponse);
+      // 🟠 Emitir evento para notificaciones en tiempo real
+      alertaEmitter.emit('alertaCreada');
+
       reiniciarFormulario();
       fetchData();
       console.log("Organización eliminada:", response);
