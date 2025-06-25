@@ -98,7 +98,6 @@ const Login = () => {
     try {
       const idToken = await (await loginWithGoogle()).user.getIdToken();
       const response = await authLoginOAuth(idToken) as any
-      console.log("Respuesta del logueo", response)
 
       sessionStorage.setItem("token", response.token);
 
