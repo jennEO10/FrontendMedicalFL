@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { Prediccion } from "../../models/prediccion";
 import prediccionService from "../../services/prediccionService";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 export default function ReportesView() {
   // const [reportes] = useState([
@@ -52,19 +54,34 @@ export default function ReportesView() {
     getPrediccionsAll()
   }, [])
 
-  const handleDownload = () => {
-    const csvContent = "data:text/csv;charset=utf-8," +
-      ["ID,Fecha,Resultado,Confianza"].concat(
-        reportes.map(r => `${r.id},${r.timestamp},${r.riskResult},${r.probability}`)
-      ).join("\n");
+  const handleDownloadExcel = () => {
+    const data = reportes.map((r) => ({
+      ID: r.id,
+      Fecha: r.timestamp,
+      Resultado: r.riskResult,
+      "Porcentaje de confiabilidad": `${(r.probability * 100).toFixed(2)}%`,
+    }));
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "reportes.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const worksheet = XLSX.utils.json_to_sheet(data);
+
+    // 🧠 Autoajustar ancho de columnas
+    const columnWidths = Object.keys(data[0]).map((key) => {
+      const maxLength = data.reduce((max, item) => {
+        const value = (item as any)[key] ? (item as any)[key].toString() : "";
+        return Math.max(max, value.length);
+      }, key.length);
+      return { wch: maxLength + 2 }; // +2 para margen
+    });
+
+    worksheet["!cols"] = columnWidths;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    saveAs(blob, "reporte-predicciones.xlsx");
   };
 
   return (
@@ -72,10 +89,10 @@ export default function ReportesView() {
       <header className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Reporte de Predicciones</h1>
         <button
-          onClick={handleDownload}
+          onClick={handleDownloadExcel}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md"
         >
-          <Download className="w-4 h-4" /> Descargar CSV
+          <Download className="w-4 h-4" /> Descargar Excel
         </button>
       </header>
 

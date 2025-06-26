@@ -12,6 +12,8 @@ import { useEffect, useState, useRef } from "react";
 import userService from "../../services/usersService";
 import organizationService from "../../services/organizationService";
 import iteracionService from "../../services/iteracionService";
+import { Alerta } from "../../models/aletas";
+import alertaService from "../../services/alertaService";
 
 export default function DashboardAdminView() {
   const initialized = useRef(false);
@@ -49,6 +51,20 @@ export default function DashboardAdminView() {
     },
   ]);
 
+  const [alerts, setAlerts] = useState<Alerta[]>([]);
+  
+  const getAllAlerts = async () => {
+    try {
+      const response = (await alertaService.getAllAlerts())
+      .sort((a, b) => b.id - a.id)
+      .slice(0, 6);
+  
+      setAlerts(response);
+    } catch (error) {
+      console.error("Error al obtener las alertas: ", error)
+    }
+  }
+
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
@@ -77,6 +93,7 @@ export default function DashboardAdminView() {
     };
 
     fetchData();
+    getAllAlerts();
   }, []);
 
   useEffect(() => {
@@ -116,6 +133,25 @@ export default function DashboardAdminView() {
 
   // Extraer las últimas 10 fechas con datos
   const historicoData = fullHistorico.slice(-10);
+
+  function formatearTiempoRelativo(fechaStr: string): string {
+    const fecha = new Date(fechaStr);
+    const ahora = new Date();
+    const segundos = Math.floor((ahora.getTime() - fecha.getTime()) / 1000);
+
+    const minutos = Math.floor(segundos / 60);
+    const horas = Math.floor(minutos / 60);
+    const dias = Math.floor(horas / 24);
+    const meses = Math.floor(dias / 30);
+    const años = Math.floor(meses / 12);
+
+    if (segundos < 60) return "Hace unos segundos";
+    if (minutos < 60) return `Hace ${minutos} minuto${minutos > 1 ? "s" : ""}`;
+    if (horas < 24) return `Hace ${horas} hora${horas > 1 ? "s" : ""}`;
+    if (dias < 30) return `Hace ${dias} día${dias > 1 ? "s" : ""}`;
+    if (meses < 12) return `Hace ${meses} mes${meses > 1 ? "es" : ""}`;
+    return `Hace ${años} año${años > 1 ? "s" : ""}`;
+  }
 
   return (
     <div className="px-6 py-6 max-w-7xl mx-auto space-y-6">
@@ -236,13 +272,25 @@ export default function DashboardAdminView() {
         <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
           Actividad Reciente
         </h2>
-        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-          <li>⚠️ Alerta de seguridad: Acceso inusual detectado - Hace 30 minutos</li>
-          <li>👤 Usuario nuevo creado: maria.lopez@hospital.org - Hace 2 horas</li>
-          <li>📊 Organización "Hospital Norte" agregada - Hace 3 horas</li>
-          <li>✅ Iteración #28 completada - Hace 5 horas</li>
-          <li>📃 Nuevo reporte de auditoría disponible - Hace 1 día</li>
-        </ul>
+        <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
+  {alerts.map((alert, index) => (
+    <li
+      key={index}
+      className="flex items-start gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+    >
+      <div className="text-xl mt-1">{alert.tipo}</div>
+      <div className="flex flex-col w-full">
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {alert.mensaje}
+        </span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {formatearTiempoRelativo(alert.timestamp)}
+        </span>
+      </div>
+    </li>
+  ))}
+</ul>
+
       </div>
     </div>
   );
