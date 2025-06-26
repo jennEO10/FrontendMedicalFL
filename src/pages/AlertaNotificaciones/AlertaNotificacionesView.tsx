@@ -84,15 +84,25 @@ export default function AlertaNotificacionesView() {
           {alerts.map((alert, index) => (
             <div
               key={index}
-              className="flex justify-between items-start py-4 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 rounded-md transition-colors"
+              className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 rounded-md transition-colors"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex flex-row md:flex-row items-start md:items-center gap-3 w-full">
                 <span className="text-lg md:text-xl">{alert.tipo}</span>
-                <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
-                  {alert.mensaje}
-                </p>
+
+                <div className="flex flex-col md:flex-row md:items-center md:gap-2 w-full">
+                  <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
+                    {alert.mensaje}
+                  </p>
+
+                  {/* Solo visible en mobile */}
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 md:hidden">
+                    {formatearTiempoRelativo(alert.timestamp)}
+                  </span>
+                </div>
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap mt-1 md:mt-0">
+
+              {/* Solo visible en desktop */}
+              <span className="hidden md:inline text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap mt-1 md:mt-0">
                 {formatearTiempoRelativo(alert.timestamp)}
               </span>
             </div>
