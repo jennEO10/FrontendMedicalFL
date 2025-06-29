@@ -83,7 +83,24 @@ const OperadorDashboard = () => {
         const ultima = ultimaIteracion.sort((a, b) => b.id - a.id)[0]; // ordena por id desc y toma la primera
         const ultimaIteracionByMetrica = await iteracionService.obtenerUltimaMetricaPorIteracion(ultima.id);
         setIteracion(ultima)
-        setMetrica(ultimaIteracionByMetrica)
+
+        // extrae el primer elemento (viene en array)
+        const metricaRaw = ultimaIteracionByMetrica[0];
+
+        // transforma para que coincida con tu interfaz
+        const metricaTransformada = {
+          iterationId: metricaRaw.iterationId,
+          round: metricaRaw.round,
+          accuracy: metricaRaw.accuracy,
+          precision: metricaRaw.precision,
+          recall: metricaRaw.recall,
+          f1score: (metricaRaw as any).f1_score, // ← ¡transformación clave!
+          auc: metricaRaw.auc,
+          loss: metricaRaw.loss,
+          userId: metricaRaw.userId,
+        };
+        
+        setMetrica(metricaTransformada)
       }      
     } catch (error) {
       console.error('Error al obtener la última ronda', error);
@@ -168,19 +185,19 @@ const OperadorDashboard = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Precision</p>
-            <p className="text-lg font-bold">{ metrica.precision ?? 0 }%</p>
+            <p className="text-lg font-bold">{ Math.round((metrica.precision ?? 0) * 10000) / 100 }%</p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Recall</p>
-            <p className="text-lg font-bold">{ metrica.recall ?? 0 }%</p>
+            <p className="text-lg font-bold">{ Math.round((metrica.recall ?? 0) * 10000) / 100 }%</p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">F1 Score</p>
-            <p className="text-lg font-bold">{ metrica.f1score ?? 0 }%</p>
+            <p className="text-lg font-bold">{ Math.round((metrica.f1score ?? 0) * 10000) / 100 }%</p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
-            <p className="text-lg font-bold">{ metrica.accuracy ?? 0 }%</p>
+            <p className="text-lg font-bold">{ Math.round((metrica.accuracy ?? 0) * 10000) / 100 }%</p>
           </div>
         </div>
       </section>

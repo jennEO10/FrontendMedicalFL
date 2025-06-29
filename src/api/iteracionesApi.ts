@@ -66,7 +66,7 @@ export const launchVM = async (vm: VM) => {
 
 //Métricas
 export const getLastMetricByIteration = async (idIteracion: number) => {
-  const response = await api.get<MetricasByIteracion>(`/api/metrics/latest/iteration/${idIteracion}`);
+  const response = await api.get<MetricasByIteracion[]>(`/api/metrics/latest/iteration/${idIteracion}`);
   return response.data;
 };
 
