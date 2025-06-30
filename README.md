@@ -1,196 +1,277 @@
-<<<<<<< HEAD
-# FrontendMedicalFL
-=======
-# TailAdmin React - Free React Tailwind Admin Dashboard Template
+# MedicalFL - Sistema de Aprendizaje Federado Médico
 
-TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers
-with everything they need to create a comprehensive, data-driven back-end,
-dashboard, or admin panel solution for upcoming web projects.
+![MedicalFL Banner](./banner.png)
 
-With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a
-feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web
-application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
+## 📋 Descripción
 
-![TailAdmin React.js Dashboard Preview](./banner.png)
+**MedicalFL** es una aplicación web frontend que implementa un sistema de **aprendizaje federado** (Federated Learning) diseñado específicamente para aplicaciones médicas. Esta plataforma permite a múltiples organizaciones médicas colaborar en el entrenamiento de modelos de machine learning sin compartir datos sensibles entre sí, preservando así la privacidad y confidencialidad de los datos de pacientes.
 
-## Overview
+## 🎯 Características Principales
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and
-control panels. It's built on:
+### 🔐 Sistema de Autenticación y Autorización
+- **Autenticación múltiple**: Login con email/password y Google OAuth
+- **Sistema de roles**: Administrador, Operador, y roles personalizables
+- **Rutas protegidas**: Acceso controlado basado en permisos de usuario
+- **Gestión de sesiones**: Persistencia de sesión con Firebase
 
-- React 19
-- TypeScript
-- Tailwind CSS
+### 🏥 Gestión de Organizaciones Médicas
+- **CRUD completo** de organizaciones participantes
+- **Configuración de parámetros** específicos por organización
+- **Asignación de usuarios** a organizaciones
+- **Control de acceso** por organización
 
-### Quick Links
+### 👥 Administración de Usuarios
+- **Gestión de usuarios** con roles y permisos
+- **Filtros dinámicos** para búsqueda avanzada
+- **Estados de usuario** (activo/inactivo)
+- **Asignación de roles** y organizaciones
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1214477970819985778)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
+### 🤖 Sistema de Iteraciones Federadas
+- **Creación y configuración** de iteraciones de entrenamiento
+- **Hiperparámetros configurables**:
+  - Épocas locales (`localEpochs`)
+  - Número mínimo de clientes (`minAvailableClients`)
+  - Número de rondas (`rounds`)
+  - Tiempo local de entrenamiento
+- **Estados de iteración**: Activa, Finalizada, Cancelada
+- **Seguimiento de métricas** por ronda y usuario
 
-### Demos
+### 📊 Dashboard de Operador
+- **Entrenamiento de modelos**: Interfaz para iniciar entrenamientos federados
+- **Uso de modelos**: Aplicación de modelos entrenados
+- **Reportes y métricas**: Visualización de resultados
+- **Histórico de iteraciones**: Seguimiento temporal de entrenamientos
+- **Información adicional**: Configuraciones y parámetros del sistema
 
-- [Free Version](https://free-react-demo.tailadmin.com/)
-- [Pro Version](https://react-demo.tailadmin.com)
+### 📈 Monitoreo y Analytics
+- **Métricas en tiempo real**: Accuracy, Precision, Recall, F1-Score, AUC
+- **Gráficos interactivos**: Visualización de progreso por ronda
+- **Logs del sistema**: Registro detallado de actividades
+- **Alertas y notificaciones**: Sistema de notificaciones en tiempo real
 
-### Other Versions
+## 🛠️ Tecnologías Utilizadas
 
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
+### Frontend
+- **React 19**: Framework principal con hooks modernos
+- **TypeScript**: Tipado estático para mejor mantenibilidad
+- **Vite**: Build tool rápido y moderno
+- **React Router DOM**: Navegación y rutas protegidas
 
-## Installation
+### UI/UX
+- **Tailwind CSS**: Framework de estilos utility-first
+- **TailAdmin Template**: Componentes UI predefinidos
+- **Lucide React**: Iconografía moderna
+- **Responsive Design**: Compatible con móviles y desktop
 
-### Prerequisites
+### Gráficos y Visualización
+- **ApexCharts**: Gráficos interactivos avanzados
+- **Chart.js**: Gráficos adicionales
+- **Recharts**: Componentes de gráficos React
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+### Autenticación y Backend
+- **Firebase Auth**: Sistema de autenticación
+- **Axios**: Cliente HTTP para APIs
+- **Session Storage**: Gestión de estado de sesión
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
+### Utilidades
+- **React Dropzone**: Subida de archivos
+- **Flatpickr**: Selector de fechas
+- **XLSX**: Manejo de archivos Excel
+- **File Saver**: Descarga de archivos
 
-### Cloning the Repository
+## 🚀 Instalación y Configuración
 
-Clone the repository using the following command:
+### Prerrequisitos
+- **Node.js**: Versión 18.x o superior (recomendado 20.x)
+- **npm** o **yarn**: Gestor de paquetes
 
-```bash
-git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
-```
+### Pasos de Instalación
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+1. **Clonar el repositorio**
+   ```bash
+   git clone [URL_DEL_REPOSITORIO]
+   cd FrontendMedicalFL
+   ```
 
-1. Install dependencies:
-
+2. **Instalar dependencias**
    ```bash
    npm install
-   # or
+   # o
    yarn install
    ```
 
-   > Use the `--legacy-peer-deps` flag, if you face issues while installing.
+3. **Configurar variables de entorno**
+   ```bash
+   # Crear archivo .env en la raíz del proyecto
+   VITE_FIREBASE_API_KEY=tu_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=tu_auth_domain
+   VITE_FIREBASE_PROJECT_ID=tu_project_id
+   ```
 
-2. Start the development server:
+4. **Iniciar servidor de desarrollo**
    ```bash
    npm run dev
-   # or
+   # o
    yarn dev
    ```
 
-## Components
+5. **Abrir en navegador**
+   ```
+   http://localhost:5173
+   ```
+   
+   > **Nota sobre el puerto**: Por defecto, Vite utiliza el puerto `5173`. Si necesitas cambiar el puerto, puedes:
+   > - **Opción 1**: Modificar el archivo `vite.config.ts` agregando:
+   >   ```typescript
+   >   export default defineConfig({
+   >     server: {
+   >       port: 3000 // o el puerto que prefieras
+   >     },
+   >     // ... resto de la configuración
+   >   })
+   >   ```
+   > - **Opción 2**: Usar el comando con flag:
+   >   ```bash
+   >   npx vite --port 3000
+   >   ```
+   > - **Opción 3**: Crear archivo `.env` con:
+   >   ```
+   >   VITE_PORT=3000
+   >   ```
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
-template includes:
+## 📁 Estructura del Proyecto
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- Can't forget Dark Mode 🕶️
+```
+FrontendMedicalFL/
+├── src/
+│   ├── api/                 # Configuración de APIs y endpoints
+│   ├── components/          # Componentes reutilizables
+│   │   ├── auth/           # Componentes de autenticación
+│   │   ├── charts/         # Componentes de gráficos
+│   │   ├── form/           # Componentes de formularios
+│   │   ├── modals/         # Modales y diálogos
+│   │   └── ui/             # Componentes UI básicos
+│   ├── context/            # Contextos de React (Auth, Theme)
+│   ├── firebase/           # Configuración de Firebase
+│   ├── hooks/              # Custom hooks
+│   ├── layout/             # Componentes de layout
+│   ├── models/             # Interfaces TypeScript
+│   ├── pages/              # Páginas de la aplicación
+│   │   ├── AuthPages/      # Páginas de autenticación
+│   │   ├── Dashboard/      # Dashboards principales
+│   │   ├── Iteraciones/    # Gestión de iteraciones
+│   │   ├── Operador/       # Dashboard de operador
+│   │   └── Usuarios/       # Gestión de usuarios
+│   ├── services/           # Servicios de negocio
+│   └── utils/              # Utilidades y helpers
+├── public/                 # Archivos estáticos
+└── package.json           # Dependencias y scripts
+```
 
-All components are built with React and styled using Tailwind CSS for easy customization.
+## 🔄 Flujo de Trabajo del Sistema
 
-## Feature Comparison
+### 1. Configuración Inicial (Administrador)
+- Crear organizaciones médicas participantes
+- Configurar usuarios y roles
+- Definir permisos y accesos
 
-### Free Version
+### 2. Configuración de Iteración (Administrador)
+- Crear nueva iteración federada
+- Configurar hiperparámetros
+- Definir participantes y organizaciones
+- Establecer fechas y duración
 
-- 1 Unique Dashboard
-- 30+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+### 3. Entrenamiento Federado (Operadores)
+- Los operadores de cada organización inician entrenamiento local
+- El sistema coordina la agregación de modelos
+- Se ejecutan múltiples rondas de entrenamiento
+- Se registran métricas y progreso
 
-### Pro Version
+### 4. Monitoreo y Resultados
+- Visualización de métricas en tiempo real
+- Generación de reportes
+- Análisis de rendimiento por organización
+- Histórico de iteraciones
 
-- 5 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, Stocks (more coming soon)
-- 400+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+## 📊 Métricas y KPIs
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+### Métricas de Modelo
+- **Accuracy**: Precisión general del modelo
+- **Precision**: Precisión de predicciones positivas
+- **Recall**: Sensibilidad del modelo
+- **F1-Score**: Media armónica de precisión y recall
+- **AUC**: Área bajo la curva ROC
 
-## Changelog
+### Métricas de Sistema
+- **Tiempo de entrenamiento** por ronda
+- **Participación** de organizaciones
+- **Convergencia** del modelo federado
+- **Rendimiento** por usuario
 
-### Version 2.0.2 - [March 25, 2025]
+## 🔧 Scripts Disponibles
 
-- Upgraded to React 19
-- Included overrides for packages to prevent peer dependency errors.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
+```bash
+# Desarrollo
+npm run dev          # Iniciar servidor de desarrollo
+npm run build        # Construir para producción
+npm run preview      # Vista previa de producción
+npm run lint         # Ejecutar linter
 
-### Version 2.0.1 - [February 27, 2025]
+# Producción
+npm run build        # Construir aplicación
+```
 
-#### Update Overview
+## 🌐 Despliegue
 
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
+### Producción
+```bash
+npm run build
+# Los archivos se generan en /dist
+```
 
-#### Next Steps
+### Variables de Entorno de Producción
+```bash
+VITE_API_BASE_URL=https://api.medicalfl.com
+VITE_FIREBASE_CONFIG=production_config
+```
 
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
+## 🤝 Contribución
 
-### Version 2.0.0 - [February 2025]
+1. Fork el proyecto
+2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir un Pull Request
 
-A major update with comprehensive redesign and modern React patterns implementation.
+## 📝 Licencia
 
-#### Major Improvements
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE.md` para más detalles.
 
-- Complete UI redesign with modern React patterns
-- New features: collapsible sidebar, chat, and calendar
-- Improved performance and accessibility
-- Updated data visualization using ApexCharts
+## 🆘 Soporte
 
-#### Key Features
+Para soporte técnico o preguntas sobre el proyecto:
+- Crear un issue en GitHub
+- Contactar al equipo de desarrollo
+- Revisar la documentación técnica
 
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Enhanced navigation with React Router integration
-- Advanced tables with sorting and filtering
-- Calendar with drag-and-drop support
-- New UI components and improved existing ones
+## 🔮 Roadmap
 
-#### Breaking Changes
+### Próximas Características
+- [ ] Integración con más algoritmos de ML
+- [ ] Dashboard de métricas avanzadas
+- [ ] API REST completa
+- [ ] Soporte para múltiples tipos de datos médicos
+- [ ] Sistema de notificaciones push
+- [ ] Exportación de reportes en PDF
+- [ ] Integración con sistemas hospitalarios
 
-- Updated sidebar component API
-- Migrated charts to ApexCharts
-- Revised authentication system
+### Mejoras Técnicas
+- [ ] Optimización de rendimiento
+- [ ] Tests unitarios y de integración
+- [ ] Documentación de API
+- [ ] Dockerización
+- [ ] CI/CD pipeline
 
-[Read more](https://tailadmin.com/docs/update-logs/react) on this release.
+---
 
-### Version 1.3.7 - [June 20, 2024]
-
-#### Enhancements
-
-1. Remove Repetition of DefaultLayout in every Pages
-2. Add ClickOutside Component for reduce repeated functionality in Header Message, Notification and User Dropdowns.
-
-### Version 1.3.6 - [Jan 31, 2024]
-
-#### Enhancements
-
-1. Integrate flatpickr in [Date Picker/Form Elements]
-2. Change color after select an option [Select Element/Form Elements].
-3. Make it functional [Multiselect Dropdown/Form Elements].
-4. Make best value editable [Pricing Table One/Pricing Table].
-5. Rearrange Folder structure.
-
-### Version 1.2.0 - [Apr 28, 2023]
-
-- Add Typescript in TailAdmin React.
-
-### Version 1.0.0 - Initial Release - [Mar 13, 2023]
-
-- Initial release of TailAdmin React.
-
-## License
-
-TailAdmin React.js Free Version is released under the MIT License.
-
-## Support
-
-If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing
-and maintaining this template.
->>>>>>> b99be5e (feat: Inicializando proyecto Federado)
+**MedicalFL** - Transformando la colaboración médica a través del aprendizaje federado 🤖🏥
