@@ -21,6 +21,7 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import OrganizacionesView from "./pages/organizaciones/OrganizacionesView";
 import { AuthProvider } from "./context/AuthContext";
+import { InactivityProvider } from "./context/InactivityContext";
 import ProtectedRoute from "./components/router/ProtectedRoute";
 import Login from "./pages/AuthPages/Login";
 import UsuariosView from "./pages/Usuarios/UsuariosView";
@@ -43,59 +44,73 @@ import MetricasPorUsuario from "./pages/Iteraciones/MetricasPorUsuario";
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Auth */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+      <InactivityProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
+            {/* Auth */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
 
-          {/* Layout con rutas protegidas */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index path="/" element={<RoleRedirector />} />
-            <Route path="/dash-admin" element={<DashboardAdminView />} />
-            <Route path="/organizaciones" element={<OrganizacionesView />} />
-            <Route path="/usuarios" element={<UsuariosView />} />
-            <Route path="/roles" element={<RolesView />} />
-            <Route path="/roles/permisos/:id" element={<PermisosView />} />
-            <Route path="/iteraciones" element={<IteracionesView />} />
-            <Route path="/iteraciones/rondas/:id" element={<IteracionForRondas />} />
-            <Route path="/metricas-usuario" element={<MetricasPorUsuario />} />
-            <Route path="/log-sistema" element={<LogSistemaView />} />
-            <Route path="/alerta-notificaciones" element={<AlertaNotificacionesView />} />
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
-            <Route path="/form-elements" element={<FormElements />} />
-            <Route path="/basic-tables" element={<BasicTables />} />
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
+            {/* Layout con rutas protegidas */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index path="/" element={<RoleRedirector />} />
+              <Route path="/dash-admin" element={<DashboardAdminView />} />
+              <Route path="/organizaciones" element={<OrganizacionesView />} />
+              <Route path="/usuarios" element={<UsuariosView />} />
+              <Route path="/roles" element={<RolesView />} />
+              <Route path="/roles/permisos/:id" element={<PermisosView />} />
+              <Route path="/iteraciones" element={<IteracionesView />} />
+              <Route
+                path="/iteraciones/rondas/:id"
+                element={<IteracionForRondas />}
+              />
+              <Route
+                path="/metricas-usuario"
+                element={<MetricasPorUsuario />}
+              />
+              <Route path="/log-sistema" element={<LogSistemaView />} />
+              <Route
+                path="/alerta-notificaciones"
+                element={<AlertaNotificacionesView />}
+              />
+              <Route path="/profile" element={<UserProfiles />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/blank" element={<Blank />} />
+              <Route path="/form-elements" element={<FormElements />} />
+              <Route path="/basic-tables" element={<BasicTables />} />
+              <Route path="/alerts" element={<Alerts />} />
+              <Route path="/avatars" element={<Avatars />} />
+              <Route path="/badge" element={<Badges />} />
+              <Route path="/buttons" element={<Buttons />} />
+              <Route path="/images" element={<Images />} />
+              <Route path="/videos" element={<Videos />} />
+              <Route path="/line-chart" element={<LineChart />} />
+              <Route path="/bar-chart" element={<BarChart />} />
 
-            {/* Operador */}
-            <Route path="/dashboard" element={<OperadorDashboard />} />
-            <Route path="/model-train" element={<EntrenarModeloView />} />
-            <Route path="/use-model" element={<UsarModeloView />} />
-            <Route path="/view-reports" element={<ReportesView />} />
-            <Route path="/additional-information" element={<InformacionAdicional />} />
-            <Route path="/historico" element={<HistoricoIteracion />} />
-          </Route>
+              {/* Operador */}
+              <Route path="/dashboard" element={<OperadorDashboard />} />
+              <Route path="/model-train" element={<EntrenarModeloView />} />
+              <Route path="/use-model" element={<UsarModeloView />} />
+              <Route path="/view-reports" element={<ReportesView />} />
+              <Route
+                path="/additional-information"
+                element={<InformacionAdicional />}
+              />
+              <Route path="/historico" element={<HistoricoIteracion />} />
+            </Route>
 
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </InactivityProvider>
     </AuthProvider>
   );
 }
