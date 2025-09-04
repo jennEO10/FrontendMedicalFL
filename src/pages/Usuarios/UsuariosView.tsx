@@ -96,6 +96,7 @@ export default function UsuariosView() {
     setMostrarModalAddUpd(false);
     setModoEdicion(false);
     setMostrarModalDelete(false);
+    setMostrarModalCambiarContraseña(false);
   };
 
   // const handleInputChange = (e: any) => {
@@ -443,7 +444,20 @@ export default function UsuariosView() {
         </div>
         <button
           className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-sm text-sm"
-          onClick={() => setMostrarModalAddUpd(true)}
+          onClick={() => {
+            // Limpiar el estado del usuario y establecer modo creación
+            setUsuario({
+              id: 0,
+              username: "",
+              password: "",
+              enabled: true,
+              mail: "",
+              organizationId: 0,
+              rolesId: [0],
+            });
+            setModoEdicion(false);
+            setMostrarModalAddUpd(true);
+          }}
         >
           <FaUserPlus className="text-base" />
           Nuevo Usuario
