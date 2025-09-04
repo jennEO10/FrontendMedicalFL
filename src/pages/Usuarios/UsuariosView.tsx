@@ -160,32 +160,59 @@ export default function UsuariosView() {
     setMostrarModalAddUpd(true);
   };
 
-  const clickCambiarContraseña = (usuario: User) => {
-    console.log("Cambiar contraseña para:", usuario);
-
-    // Obtener el email del usuario actual desde sessionStorage
+  // Función helper para verificar permisos de cambio de contraseña
+  const puedeCambiarContraseña = (
+    usuario: User
+  ): { puede: boolean; razon?: string } => {
     const currentUserEmail = sessionStorage.getItem("userEmail");
-    console.log("Email del usuario actual:", currentUserEmail);
-    console.log("Email del usuario a modificar:", usuario.mail);
+    const currentUserOrganizationId = parseInt(
+      sessionStorage.getItem("userOrganizationId") || "0"
+    );
+    const currentUserRoleName = sessionStorage.getItem("roleName");
 
-    // Verificar si el usuario es administrador
-    const isAdmin = usuario.roleName === "Administrador";
-    const isCurrentUser = usuario.mail === currentUserEmail;
+    // Si es el usuario actual, siempre puede cambiar su contraseña
+    if (usuario.mail === currentUserEmail) {
+      return { puede: true };
+    }
 
-    console.log("Es administrador:", isAdmin);
-    console.log("Es el usuario actual:", isCurrentUser);
+    // Solo administradores pueden cambiar contraseñas de otros usuarios
+    if (currentUserRoleName !== "Administrador") {
+      return {
+        puede: false,
+        razon:
+          "Solo los administradores pueden cambiar contraseñas de otros usuarios",
+      };
+    }
 
-    // Si es administrador y no es el usuario actual, no permitir cambiar contraseña
-    if (isAdmin && !isCurrentUser) {
-      console.log(
-        "Bloqueando cambio de contraseña - es admin pero no es el usuario actual"
-      );
+    // No puede cambiar contraseñas de otros administradores (incluso de su misma organización)
+    if (usuario.roleName === "Administrador") {
+      return {
+        puede: false,
+        razon: "No puedes cambiar la contraseña de otros administradores",
+      };
+    }
+
+    // Solo puede cambiar contraseñas de usuarios de su misma organización
+    if (usuario.organizationId !== currentUserOrganizationId) {
+      return {
+        puede: false,
+        razon: "Solo puedes cambiar contraseñas de usuarios de tu organización",
+      };
+    }
+
+    // Si llegamos aquí, es un usuario no-administrador de la misma organización
+    return { puede: true };
+  };
+
+  const clickCambiarContraseña = (usuario: User) => {
+    const { puede, razon } = puedeCambiarContraseña(usuario);
+
+    if (!puede) {
       // Mostrar alerta de error
       const alerta: Alerta = {
         id: 0,
         tipo: "error",
-        mensaje:
-          "No puedes cambiar la contraseña de otros administradores. Solo puedes cambiar tu propia contraseña.",
+        mensaje: razon || "No tienes permisos para cambiar esta contraseña",
         timestamp: getLocalDateTime(),
       };
 
@@ -194,7 +221,6 @@ export default function UsuariosView() {
       return;
     }
 
-    console.log("Permitiendo cambio de contraseña");
     setUsuario(usuario);
     setMostrarModalCambiarContraseña(true);
   };
@@ -521,22 +547,18 @@ export default function UsuariosView() {
                   </button>
                   <button
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      usuario.roleName === "Administrador" &&
-                      usuario.mail !== sessionStorage.getItem("userEmail")
+                      !puedeCambiarContraseña(usuario).puede
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-500 hover:bg-blue-600"
                     } text-white`}
                     onClick={() => clickCambiarContraseña(usuario)}
                     title={
-                      usuario.roleName === "Administrador" &&
-                      usuario.mail !== sessionStorage.getItem("userEmail")
-                        ? "No puedes cambiar la contraseña de otros administradores"
+                      !puedeCambiarContraseña(usuario).puede
+                        ? puedeCambiarContraseña(usuario).razon ||
+                          "No tienes permisos para cambiar esta contraseña"
                         : "Cambiar contraseña"
                     }
-                    disabled={
-                      usuario.roleName === "Administrador" &&
-                      usuario.mail !== sessionStorage.getItem("userEmail")
-                    }
+                    disabled={!puedeCambiarContraseña(usuario).puede}
                   >
                     <FaKey />
                   </button>
