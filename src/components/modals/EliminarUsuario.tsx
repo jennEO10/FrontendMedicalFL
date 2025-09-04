@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { EliminarUsuarioModalProps } from '../../models/user';
+import { FC } from "react";
+import { EliminarUsuarioModalProps } from "../../models/user";
 
 const EliminarUsuarioModal: FC<EliminarUsuarioModalProps> = ({
   open,
@@ -10,11 +10,14 @@ const EliminarUsuarioModal: FC<EliminarUsuarioModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Fondo oscuro difuminado */}
-      <div className="absolute inset-0" onClick={onClose}></div>
-
-      <div className="relative z-10 w-[90%] max-w-sm bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg text-gray-800 dark:text-white animate-fade-in">
+    <div
+      className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative z-10 w-[90%] max-w-sm bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg text-gray-800 dark:text-white animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-3 right-4 text-xl text-gray-400 dark:text-gray-300 hover:text-red-500"
@@ -27,7 +30,8 @@ const EliminarUsuarioModal: FC<EliminarUsuarioModalProps> = ({
         </h2>
 
         <p className="text-center mb-6">
-          ¿Estás seguro que deseas eliminar al usuario <strong>{nombreUsuario}</strong>?
+          ¿Estás seguro que deseas eliminar al usuario{" "}
+          <strong>{nombreUsuario}</strong>?
         </p>
 
         <div className="flex justify-between gap-4">

@@ -34,8 +34,13 @@ const ModalUsuario: FC<ModalUsuarioProps> = ({
         return !value || value.trim() === "" ? "El nombre es obligatorio" : "";
       case "mail":
         if (!value || value.trim() === "") return "El correo es obligatorio";
+        if (!value.includes("@")) return "El correo debe contener @";
+        if (!value.includes("."))
+          return "El correo debe contener un dominio válido (ejemplo.com)";
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return !emailRegex.test(value) ? "Ingrese un correo válido" : "";
+        return !emailRegex.test(value)
+          ? "Formato de correo inválido. Use: usuario@ejemplo.com"
+          : "";
       case "password":
         // En modo edición, la contraseña no es obligatoria
         if (modoEdicion) return "";

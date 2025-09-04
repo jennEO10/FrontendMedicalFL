@@ -103,10 +103,34 @@ export default function UsuariosView() {
   //   setFiltros({ ...filtros, [name]: value });
   // };
 
+  // Función helper para obtener información completa del usuario
+  const obtenerUsuarioCompleto = async (usuario: User) => {
+    const [org, rol] = await Promise.all([
+      organizationService.getOrganization(usuario.organizationId),
+      usuario.rolesId?.[0] !== undefined
+        ? rulesService.obtenerRole(usuario.rolesId[0])
+        : Promise.resolve(undefined),
+    ]);
+
+    return {
+      ...usuario,
+      nameOrganization: org?.name || "Organización no encontrada",
+      roleName: rol?.name || "Rol no encontrado",
+    };
+  };
+
   const guardarUsuario = async () => {
     try {
       console.log("Guardando usuario:", usuario);
       const response = await usersService.newUser(usuario);
+
+      // Obtener información completa del usuario
+      const usuarioCompleto = await obtenerUsuarioCompleto(response);
+
+      // Agregar al estado local y ordenar por ID
+      setUsuarios((prev) =>
+        [...prev, usuarioCompleto].sort((a, b) => a.id - b.id)
+      );
 
       const alerta: Alerta = {
         id: 0,
@@ -122,10 +146,9 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      fetchUsuarios();
       console.log("Usuario guardado:", response);
     } catch (error) {
-      console.error("Error al guardar organización:", error);
+      console.error("Error al guardar usuario:", error);
     }
   };
 
@@ -214,6 +237,14 @@ export default function UsuariosView() {
       console.log("Editando datos del usuario:", usuario);
       const response = await usersService.updateUser(usuario.id, usuario);
 
+      // Obtener información completa del usuario
+      const usuarioCompleto = await obtenerUsuarioCompleto(response);
+
+      // Actualizar el usuario en el estado local
+      setUsuarios((prev) =>
+        prev.map((u) => (u.id === usuario.id ? usuarioCompleto : u))
+      );
+
       const alerta: Alerta = {
         id: 0,
         tipo: "✏️",
@@ -228,7 +259,6 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      fetchUsuarios();
       console.log("Usuario editado:", response);
     } catch (error) {
       console.error("Error al guardar usuario:", error);
@@ -247,6 +277,9 @@ export default function UsuariosView() {
 
       const response = await usersService.deleteUser(usuario.id);
 
+      // Remover el usuario del estado local
+      setUsuarios((prev) => prev.filter((u) => u.id !== usuario.id));
+
       const alerta: Alerta = {
         id: 0,
         tipo: "🗑️",
@@ -261,7 +294,6 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      fetchUsuarios();
       console.log("Usuario eliminado:", response);
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
@@ -357,6 +389,11 @@ export default function UsuariosView() {
       if (usuario.enabled) {
         await usersService.desactivarUsuario(usuario.id);
 
+        // Actualizar el estado local - cambiar enabled a false
+        setUsuarios((prev) =>
+          prev.map((u) => (u.id === usuario.id ? { ...u, enabled: false } : u))
+        );
+
         const alerta: Alerta = {
           id: 0,
           tipo: "🔒",
@@ -372,6 +409,11 @@ export default function UsuariosView() {
       } else {
         await usersService.activarUsuario(usuario.id);
 
+        // Actualizar el estado local - cambiar enabled a true
+        setUsuarios((prev) =>
+          prev.map((u) => (u.id === usuario.id ? { ...u, enabled: true } : u))
+        );
+
         const alerta: Alerta = {
           id: 0,
           tipo: "🔓",
@@ -385,7 +427,6 @@ export default function UsuariosView() {
         // 🟠 Emitir evento para notificaciones en tiempo real
         alertaEmitter.emit("alertaCreada");
       }
-      fetchUsuarios();
     } catch (error) {
       console.error("Error al cambiar estado del usuario:", error);
     }
