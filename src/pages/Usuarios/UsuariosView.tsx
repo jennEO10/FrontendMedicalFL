@@ -1,60 +1,73 @@
-import { useState, useEffect } from 'react';
-import { FaEdit, FaSearch, FaTimes, FaUserPlus } from 'react-icons/fa';
-import { User } from '../../models/user';
-import usersService from '../../services/usersService';
-import UsuarioModal from '../../components/modals/UsuarioModal';
-import rulesService from '../../services/rulesService';
-import { Rule } from '../../models/rules';
-import organizationService from '../../services/organizationService';
-import { Organization } from '../../models/organization';
-import FiltroDinamico from '../../components/filtros/UsuariosFiltro';
-import { Alerta } from '../../models/aletas';
-import { getLocalDateTime } from '../../utils/dateUtils';
-import alertaService from '../../services/alertaService';
-import { alertaEmitter } from '../../utils/alertaEvents';
+import { useState, useEffect } from "react";
+import { FaEdit, FaSearch, FaTimes, FaUserPlus, FaKey } from "react-icons/fa";
+import { User } from "../../models/user";
+import usersService from "../../services/usersService";
+import UsuarioModal from "../../components/modals/UsuarioModal";
+import CambiarContraseña from "../../components/modals/CambiarContraseña";
+import rulesService from "../../services/rulesService";
+import { Rule } from "../../models/rules";
+import organizationService from "../../services/organizationService";
+import { Organization } from "../../models/organization";
+import FiltroDinamico from "../../components/filtros/UsuariosFiltro";
+import { Alerta } from "../../models/aletas";
+import { getLocalDateTime } from "../../utils/dateUtils";
+import alertaService from "../../services/alertaService";
+import { alertaEmitter } from "../../utils/alertaEvents";
 
 export default function UsuariosView() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [rules, setRules] = useState<Rule[]>([]);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
-  const [usuario, setUsuario] = useState({ id: 0, username: '', password: '', enabled: true, mail: '', organizationId: 0, rolesId: [0]});
+  const [usuario, setUsuario] = useState({
+    id: 0,
+    username: "",
+    password: "",
+    enabled: true,
+    mail: "",
+    organizationId: 0,
+    rolesId: [0],
+  });
   const [modoEdicion, setModoEdicion] = useState(false);
   const [mostrarModalDelete, setMostrarModalDelete] = useState(false);
   const [mostrarModalAddUpd, setMostrarModalAddUpd] = useState(false);
-  const [filtroElegido, setSetFiltroElegido] = useState<string>(''); // Para manejar el filtro seleccionado
+  const [mostrarModalCambiarContraseña, setMostrarModalCambiarContraseña] =
+    useState(false);
+  const [filtroElegido, setSetFiltroElegido] = useState<string>(""); // Para manejar el filtro seleccionado
   const [filtros, setFiltros] = useState({
-    nombre: '',
-    email: '',
-    rolName: '',
+    nombre: "",
+    email: "",
+    rolName: "",
     estado: 0,
-    rol: 0
+    rol: 0,
   });
 
   const fetchUsuarios = async () => {
     try {
       const response = await usersService.getAllUsers();
       const usuarioFormateado = await Promise.all(
-      response.map(async (usuario) => {
-        try {
-          const [org, rol] = await Promise.all([
-            organizationService.getOrganization(usuario.organizationId),
-            usuario.rolesId?.[0] !== undefined
-              ? rulesService.obtenerRole(usuario.rolesId[0])
-              : Promise.resolve(undefined)
-          ]);
+        response.map(async (usuario) => {
+          try {
+            const [org, rol] = await Promise.all([
+              organizationService.getOrganization(usuario.organizationId),
+              usuario.rolesId?.[0] !== undefined
+                ? rulesService.obtenerRole(usuario.rolesId[0])
+                : Promise.resolve(undefined),
+            ]);
 
-          return {
-            ...usuario,
-            nameOrganization: org?.name || "Organización no encontrada",
-            roleName: rol?.name || "Rol no encontrado",
-          };
-        } catch (error) {
-          console.warn(`Error al obtener organización para ID ${usuario.organizationId}:`, error);
-          return usuario
-        }
-      })).then((usuarios) =>
-        usuarios.sort((a, b) => a.id - b.id)
-      );
+            return {
+              ...usuario,
+              nameOrganization: org?.name || "Organización no encontrada",
+              roleName: rol?.name || "Rol no encontrado",
+            };
+          } catch (error) {
+            console.warn(
+              `Error al obtener organización para ID ${usuario.organizationId}:`,
+              error
+            );
+            return usuario;
+          }
+        })
+      ).then((usuarios) => usuarios.sort((a, b) => a.id - b.id));
 
       const organizaciones = await organizationService.fetchAll(); // Asumiendo que tienes un método para obtener organizaciones
       const rules = await rulesService.getAllRules();
@@ -62,20 +75,28 @@ export default function UsuariosView() {
       setOrganizaciones(organizaciones);
       setRules(rules);
     } catch (error) {
-      console.error('Error al cargar usuarios:', error);
+      console.error("Error al cargar usuarios:", error);
     }
-  }
+  };
 
   useEffect(() => {
-      fetchUsuarios();
+    fetchUsuarios();
   }, []);
 
   const reiniciarFormulario = () => {
-    setUsuario({ id: 0, username: '', password: '', enabled: true, mail: '', organizationId: 0, rolesId: [0] });
+    setUsuario({
+      id: 0,
+      username: "",
+      password: "",
+      enabled: true,
+      mail: "",
+      organizationId: 0,
+      rolesId: [0],
+    });
     setMostrarModalAddUpd(false);
     setModoEdicion(false);
     setMostrarModalDelete(false);
-  }
+  };
 
   // const handleInputChange = (e: any) => {
   //   const { name, value } = e.target;
@@ -90,13 +111,15 @@ export default function UsuariosView() {
       const alerta: Alerta = {
         id: 0,
         tipo: "👤",
-        mensaje: `Usuario creado: ID<${response.id}> - "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Usuario creado: ID<${response.id}> - "${
+          usuario.mail
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
       fetchUsuarios();
@@ -104,14 +127,87 @@ export default function UsuariosView() {
     } catch (error) {
       console.error("Error al guardar organización:", error);
     }
-  }
+  };
 
   const clickEditar = (usuario: User) => {
-    console.log("Obtener datos para editar:", usuario); 
+    console.log("Obtener datos para editar:", usuario);
     setUsuario(usuario);
     setModoEdicion(true);
     setMostrarModalAddUpd(true);
-  }
+  };
+
+  const clickCambiarContraseña = (usuario: User) => {
+    console.log("Cambiar contraseña para:", usuario);
+
+    // Obtener el email del usuario actual desde sessionStorage
+    const currentUserEmail = sessionStorage.getItem("userEmail");
+    console.log("Email del usuario actual:", currentUserEmail);
+    console.log("Email del usuario a modificar:", usuario.mail);
+
+    // Verificar si el usuario es administrador
+    const isAdmin = usuario.roleName === "Administrador";
+    const isCurrentUser = usuario.mail === currentUserEmail;
+
+    console.log("Es administrador:", isAdmin);
+    console.log("Es el usuario actual:", isCurrentUser);
+
+    // Si es administrador y no es el usuario actual, no permitir cambiar contraseña
+    if (isAdmin && !isCurrentUser) {
+      console.log(
+        "Bloqueando cambio de contraseña - es admin pero no es el usuario actual"
+      );
+      // Mostrar alerta de error
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "error",
+        mensaje:
+          "No puedes cambiar la contraseña de otros administradores. Solo puedes cambiar tu propia contraseña.",
+        timestamp: getLocalDateTime(),
+      };
+
+      alertaService.nuevaAlerta(alerta);
+      alertaEmitter.emit("alertaCreada");
+      return;
+    }
+
+    console.log("Permitiendo cambio de contraseña");
+    setUsuario(usuario);
+    setMostrarModalCambiarContraseña(true);
+  };
+
+  const cambiarContraseña = async (newPassword: string) => {
+    try {
+      console.log("Cambiando contraseña para usuario:", usuario.id);
+      await usersService.actualizarContraseña(usuario.id, newPassword);
+
+      // Mostrar alerta de éxito
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "success",
+        mensaje: `La contraseña del usuario ${usuario.username} ha sido actualizada exitosamente.`,
+        timestamp: getLocalDateTime(),
+      };
+
+      await alertaService.nuevaAlerta(alerta);
+      alertaEmitter.emit("alertaCreada");
+
+      setMostrarModalCambiarContraseña(false);
+      console.log("Contraseña actualizada exitosamente");
+    } catch (error) {
+      console.error("Error al cambiar contraseña:", error);
+
+      // Mostrar alerta de error
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "error",
+        mensaje: `No se pudo actualizar la contraseña del usuario ${usuario.username}.`,
+        timestamp: getLocalDateTime(),
+      };
+
+      await alertaService.nuevaAlerta(alerta);
+      alertaEmitter.emit("alertaCreada");
+    }
+  };
 
   const editarUsuario = async () => {
     try {
@@ -121,13 +217,15 @@ export default function UsuariosView() {
       const alerta: Alerta = {
         id: 0,
         tipo: "✏️",
-        mensaje: `Usuario editado: ID<${usuario.id}> - "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Usuario editado: ID<${usuario.id}> - "${
+          usuario.mail
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
       fetchUsuarios();
@@ -135,30 +233,32 @@ export default function UsuariosView() {
     } catch (error) {
       console.error("Error al guardar usuario:", error);
     }
-  }
+  };
 
   const clickEliminar = (usuario: User) => {
     console.log("Obtener datos para eliminar:", usuario);
     setUsuario(usuario);
     setMostrarModalDelete(true);
-  }
+  };
 
   const eliminarUsuario = async () => {
     try {
       console.log("Eliminando usuario:", usuario);
-      
+
       const response = await usersService.deleteUser(usuario.id);
 
       const alerta: Alerta = {
         id: 0,
         tipo: "🗑️",
-        mensaje: `Usuario eliminado: ID<${usuario.id}> - "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Usuario eliminado: ID<${usuario.id}> - "${
+          usuario.mail
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
       fetchUsuarios();
@@ -166,17 +266,17 @@ export default function UsuariosView() {
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
     }
-  }
+  };
 
-  const reiniciarCargaDatos = async (dato:any) => {
-    if (dato === '' || Number(dato) === 0) {
+  const reiniciarCargaDatos = async (dato: any) => {
+    if (dato === "" || Number(dato) === 0) {
       try {
         fetchUsuarios();
       } catch (error) {
         console.error("Error al reiniciar carga de datos:", error);
       }
     }
-  }
+  };
 
   const handleBuscar = async () => {
     console.log("Filtro elegido:", filtroElegido);
@@ -184,7 +284,7 @@ export default function UsuariosView() {
     // Aquí podrías aplicar los filtros al listado si es necesario
     try {
       switch (filtroElegido) {
-        case 'nombre': {
+        case "nombre": {
           if (!filtros.nombre) {
             reiniciarCargaDatos(filtros.nombre);
             return;
@@ -194,7 +294,7 @@ export default function UsuariosView() {
           setUsuarios(result);
           break;
         }
-        case 'email': {
+        case "email": {
           if (!filtros.email) {
             reiniciarCargaDatos(filtros.email);
             return;
@@ -204,33 +304,39 @@ export default function UsuariosView() {
           setUsuarios([emailResult]);
           break;
         }
-        case 'rolName': {
+        case "rolName": {
           if (!filtros.rolName) {
             reiniciarCargaDatos(filtros.rolName);
             return;
           }
 
-          const rolNameResult = await usersService.buscarNombreRol(filtros.rolName);
+          const rolNameResult = await usersService.buscarNombreRol(
+            filtros.rolName
+          );
           setUsuarios(rolNameResult);
           break;
         }
-        case 'estado': {
+        case "estado": {
           if (Number(filtros.estado) === 0) {
             reiniciarCargaDatos(Number(filtros.estado));
             return;
           }
 
-          const estadoResult = await usersService.seleccionarEstado(Number(filtros.estado) === 1? true : false);
+          const estadoResult = await usersService.seleccionarEstado(
+            Number(filtros.estado) === 1 ? true : false
+          );
           setUsuarios(estadoResult);
           break;
         }
-        case 'rol': {
+        case "rol": {
           if (Number(filtros.rol) === 0) {
             reiniciarCargaDatos(filtros.rol);
             return;
           }
 
-          const rolResult = await usersService.seleccionarRol(Number(filtros.rol));
+          const rolResult = await usersService.seleccionarRol(
+            Number(filtros.rol)
+          );
           setUsuarios(rolResult);
           break;
         }
@@ -243,7 +349,7 @@ export default function UsuariosView() {
       console.error("Error al buscar usuarios:", error);
       const result: any[] = [];
       setUsuarios(result);
-    }        
+    }
   };
 
   const toggleUsuarioActivo = async (usuario: User) => {
@@ -254,26 +360,30 @@ export default function UsuariosView() {
         const alerta: Alerta = {
           id: 0,
           tipo: "🔒",
-          mensaje: `Usuario desactivado: "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
-          timestamp: getLocalDateTime()
+          mensaje: `Usuario desactivado: "${
+            usuario.mail
+          }" por ${sessionStorage.getItem("userEmail")}`,
+          timestamp: getLocalDateTime(),
         };
         const alertaResponse = await alertaService.nuevaAlerta(alerta);
         console.log("Alerta registrada:", alertaResponse);
         // 🟠 Emitir evento para notificaciones en tiempo real
-        alertaEmitter.emit('alertaCreada');
+        alertaEmitter.emit("alertaCreada");
       } else {
         await usersService.activarUsuario(usuario.id);
 
         const alerta: Alerta = {
           id: 0,
           tipo: "🔓",
-          mensaje: `Usuario activo: "${usuario.mail}" por ${sessionStorage.getItem("userEmail")}`,
-          timestamp: getLocalDateTime()
+          mensaje: `Usuario activo: "${
+            usuario.mail
+          }" por ${sessionStorage.getItem("userEmail")}`,
+          timestamp: getLocalDateTime(),
         };
         const alertaResponse = await alertaService.nuevaAlerta(alerta);
         console.log("Alerta registrada:", alertaResponse);
         // 🟠 Emitir evento para notificaciones en tiempo real
-        alertaEmitter.emit('alertaCreada');
+        alertaEmitter.emit("alertaCreada");
       }
       fetchUsuarios();
     } catch (error) {
@@ -326,33 +436,70 @@ export default function UsuariosView() {
                 key={usuario.id}
                 className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                <td className="px-4 py-3 whitespace-nowrap">{usuario.username}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {usuario.username}
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">{usuario.mail}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{usuario.nameOrganization}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{usuario.roleName}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {usuario.nameOrganization}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {usuario.roleName}
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${
                       usuario.enabled
-                        ? 'bg-green-200 text-green-800'
-                        : 'bg-red-200 text-red-800' // rojo suave de fondo y texto oscuro
+                        ? "bg-green-200 text-green-800"
+                        : "bg-red-200 text-red-800" // rojo suave de fondo y texto oscuro
                     }`}
                   >
-                    {usuario.enabled? 'Activo' : 'Inactivo'}
+                    {usuario.enabled ? "Activo" : "Inactivo"}
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap flex gap-2">
-                  <button className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center" onClick={() => clickEditar(usuario)}>
+                  <button
+                    className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center"
+                    onClick={() => clickEditar(usuario)}
+                  >
                     <FaEdit />
                   </button>
-                  <button className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center" onClick={() => clickEliminar(usuario)}>
+                  <button
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      usuario.roleName === "Administrador" &&
+                      usuario.mail !== sessionStorage.getItem("userEmail")
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600"
+                    } text-white`}
+                    onClick={() => clickCambiarContraseña(usuario)}
+                    title={
+                      usuario.roleName === "Administrador" &&
+                      usuario.mail !== sessionStorage.getItem("userEmail")
+                        ? "No puedes cambiar la contraseña de otros administradores"
+                        : "Cambiar contraseña"
+                    }
+                    disabled={
+                      usuario.roleName === "Administrador" &&
+                      usuario.mail !== sessionStorage.getItem("userEmail")
+                    }
+                  >
+                    <FaKey />
+                  </button>
+                  <button
+                    className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center"
+                    onClick={() => clickEliminar(usuario)}
+                  >
                     <FaTimes />
                   </button>
                   <button
                     className={`w-8 h-8 ${
-                      usuario.enabled ? "bg-gray-500 hover:bg-gray-600" : "bg-green-500 hover:bg-green-600"
+                      usuario.enabled
+                        ? "bg-gray-500 hover:bg-gray-600"
+                        : "bg-green-500 hover:bg-green-600"
                     } text-white rounded-full flex items-center justify-center`}
-                    title={usuario.enabled ? "Desactivar usuario" : "Activar usuario"}
+                    title={
+                      usuario.enabled ? "Desactivar usuario" : "Activar usuario"
+                    }
                     onClick={() => toggleUsuarioActivo(usuario)}
                   >
                     {usuario.enabled ? "🔒" : "🔓"}
@@ -367,7 +514,7 @@ export default function UsuariosView() {
       <UsuarioModal.ModalUsuario
         open={mostrarModalAddUpd} // Cambiar a true para mostrar el modal
         onClose={reiniciarFormulario}
-        onSubmit={modoEdicion? editarUsuario : guardarUsuario}
+        onSubmit={modoEdicion ? editarUsuario : guardarUsuario}
         usuario={usuario}
         setUsuario={setUsuario}
         roles={rules} // Cargar roles desde el servicio
@@ -380,6 +527,13 @@ export default function UsuariosView() {
         onClose={reiniciarFormulario}
         onConfirm={eliminarUsuario}
         nombreUsuario={usuario.username}
+      />
+
+      <CambiarContraseña
+        open={mostrarModalCambiarContraseña}
+        onClose={() => setMostrarModalCambiarContraseña(false)}
+        onSubmit={cambiarContraseña}
+        usuario={usuario}
       />
     </div>
   );

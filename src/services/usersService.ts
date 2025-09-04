@@ -1,5 +1,5 @@
-import * as userApi from '../api/usersApi';
-import { User } from '../models/user';
+import * as userApi from "../api/usersApi";
+import { User } from "../models/user";
 
 const userService = {
   getAllUsers: async () => {
@@ -119,6 +119,16 @@ const userService = {
       return response;
     } catch (error) {
       console.error("Error deactivating user:", error);
+      throw error;
+    }
+  },
+  actualizarContraseña: async (id: number, newPassword: string) => {
+    try {
+      const response = await userApi.updatePassword(id, newPassword);
+      console.log("Password updated:", response);
+      return response;
+    } catch (error) {
+      console.error("Error updating password:", error);
       throw error;
     }
   },
