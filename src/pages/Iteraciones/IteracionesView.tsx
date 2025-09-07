@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react';
-import { FaTrash, FaEye, FaUsers } from 'react-icons/fa';
-import { Iteracion } from '../../models/iteracion';
-import iteracionService from '../../services/iteracionService';
-import CrearEditarIteracionModal from '../../components/modals/CrearEditarIteracion';
-import EliminarIteracionModal from '../../components/modals/EliminarIteracion';
-import { Organization } from '../../models/organization';
-import organizationService from '../../services/organizationService';
-import userService from '../../services/usersService';
-import { User } from '../../models/user';
-import { buildHyperparameterPayload } from '../../utils/formatters';
-import { useNavigate } from 'react-router-dom';
-import { FaFileExport } from 'react-icons/fa';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-import { Alerta } from '../../models/aletas';
-import { getLocalDateTime } from '../../utils/dateUtils';
-import alertaService from '../../services/alertaService';
-import { alertaEmitter } from '../../utils/alertaEvents';
+import { useEffect, useState } from "react";
+import { FaTrash, FaEye, FaUsers } from "react-icons/fa";
+import { Iteracion } from "../../models/iteracion";
+import iteracionService from "../../services/iteracionService";
+import CrearEditarIteracionModal from "../../components/modals/CrearEditarIteracion";
+import EliminarIteracionModal from "../../components/modals/EliminarIteracion";
+import { Organization } from "../../models/organization";
+import organizationService from "../../services/organizationService";
+import userService from "../../services/usersService";
+import { User } from "../../models/user";
+import { buildHyperparameterPayload } from "../../utils/formatters";
+import { useNavigate } from "react-router-dom";
+import { FaFileExport } from "react-icons/fa";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { Alerta } from "../../models/aletas";
+import { getLocalDateTime } from "../../utils/dateUtils";
+import alertaService from "../../services/alertaService";
+import { alertaEmitter } from "../../utils/alertaEvents";
 
 export default function IteracionesView() {
   const navigate = useNavigate();
@@ -24,30 +24,33 @@ export default function IteracionesView() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
   const [iteraciones, setIteraciones] = useState<Iteracion[]>([]);
+  const [todasLasIteraciones, setTodasLasIteraciones] = useState<Iteracion[]>(
+    []
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [modalClose, setModalClose] = useState(false);
   const [openConfirmacion, setOpenConfirmacion] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [iteracion, setIteracion] = useState<Iteracion>({
     id: 0,
-    iterationName: '',
-    iterationNumber: '',
-    startDate: '',
-    finishDate: '',
-    duration: '',
-    metrics: '',
-    state: 'Procesando',
-    participantsQuantity: '',
+    iterationName: "",
+    iterationNumber: "",
+    startDate: "",
+    finishDate: "",
+    duration: "",
+    metrics: "",
+    state: "Procesando",
+    participantsQuantity: "",
     userIds: [],
     organizacionId: 0,
-    idHyper:0,
+    idHyper: 0,
     minUsuarios: 0,
     rondas: 0,
     tiempoLocal: 0,
     idInvitation: 0,
-    codeInvitation: '',
-    stateInvitation: 'ACTIVE',
-    trainingMode: '',
+    codeInvitation: "",
+    stateInvitation: "ACTIVE",
+    trainingMode: "",
   });
 
   const obtenerUsuarios = async () => {
@@ -55,7 +58,7 @@ export default function IteracionesView() {
       const response = await userService.getAllUsers();
       setUsuarios(response);
     } catch (error) {
-      console.error('Error al obtener organizaciones', error);
+      console.error("Error al obtener organizaciones", error);
     }
   };
 
@@ -64,7 +67,7 @@ export default function IteracionesView() {
       const response = await organizationService.fetchAll();
       setOrganizaciones(response);
     } catch (error) {
-      console.error('Error al obtener organizaciones', error);
+      console.error("Error al obtener organizaciones", error);
     }
   };
 
@@ -89,82 +92,110 @@ export default function IteracionesView() {
       //     console.error(`Error obteniendo usuario ${iteracion.userIds[0]}`, error);
       //     return iteracion;
       //   }
-      // })      
+      // })
       // );
 
       const iterationForHyper = await Promise.all(
         listIteraciones.map(async (ite) => {
           try {
             const hyper = await iteracionService.obtenerHyperIteracion(ite.id);
-            const hyperExists = Array.isArray(hyper) ? hyper[0] : null
+            const hyperExists = Array.isArray(hyper) ? hyper[0] : null;
 
             return {
               ...ite,
               idHyper: hyperExists?.id ?? 0,
               minUsuarios: hyperExists?.minAvailableClients ?? 0,
               rondas: hyperExists?.rounds ?? 0,
-              tiempoLocal: hyperExists?.localEpochs ?? 0
-            }
+              tiempoLocal: hyperExists?.localEpochs ?? 0,
+            };
           } catch (error) {
-            console.error(`Error al obtener el hyperparametro ${ite.id}`, error)
+            console.error(
+              `Error al obtener el hyperparametro ${ite.id}`,
+              error
+            );
             return ite;
           }
         })
-      )
+      );
 
-      const iteracionesOrdenadas = iterationForHyper.sort((a, b) => b.id - a.id);
+      const iteracionesOrdenadas = iterationForHyper.sort(
+        (a, b) => b.id - a.id
+      );
 
-      console.log("Iteraciones alteradas: ", iteracionesOrdenadas)
+      console.log("Iteraciones alteradas: ", iteracionesOrdenadas);
       setIteraciones(iteracionesOrdenadas);
+      setTodasLasIteraciones(iteracionesOrdenadas);
     } catch (error) {
-      console.error('Error al cargar las iteraciones:', error);
+      console.error("Error al cargar las iteraciones:", error);
     }
   };
 
   const obtenerUltimaInteracion = async () => {
     try {
-      const ultimaIteracion = await iteracionService.obtenerUltimaIteracion()
-      setUltimaIteracion((ultimaIteracion.id+1).toString());
+      const ultimaIteracion = await iteracionService.obtenerUltimaIteracion();
+      setUltimaIteracion((ultimaIteracion.id + 1).toString());
     } catch (error) {
-      console.error('Error al obtener la última iteración:', error);
+      console.error("Error al obtener la última iteración:", error);
     }
-  }
+  };
+
+  // Función helper para obtener información completa de la iteración
+  const obtenerIteracionCompleta = async (iteracion: Iteracion) => {
+    try {
+      const hyper = await iteracionService.obtenerHyperIteracion(iteracion.id);
+      const hyperExists = Array.isArray(hyper) ? hyper[0] : null;
+
+      return {
+        ...iteracion,
+        idHyper: hyperExists?.id ?? 0,
+        minUsuarios: hyperExists?.minAvailableClients ?? 0,
+        rondas: hyperExists?.rounds ?? 0,
+        tiempoLocal: hyperExists?.localEpochs ?? 0,
+      };
+    } catch (error) {
+      console.error(
+        `Error al obtener hiperparámetros de iteración ${iteracion.id}`,
+        error
+      );
+      return iteracion;
+    }
+  };
 
   useEffect(() => {
     obtenerIteraciones();
     obtenerOrganizaciones();
-    obtenerUsuarios()
-    obtenerUltimaInteracion()
+    obtenerUsuarios();
+    obtenerUltimaInteracion();
   }, []);
 
   const reiniciarFormulario = () => {
-    setOpenConfirmacion(false)
-    setModalOpen(false)
-    setModalClose(false)
-    setEditMode(false)
+    setOpenConfirmacion(false);
+    setModalOpen(false);
+    setModalClose(false);
+    setEditMode(false);
     setIteracion({
       id: 0,
-      iterationName: '',
-      iterationNumber: '',
-      startDate: '',
-      finishDate: '',
-      duration: '',
-      metrics: '',
-      state: 'Procesando',
-      participantsQuantity: '',
+      iterationName: "",
+      iterationNumber: "",
+      startDate: "",
+      finishDate: "",
+      duration: "",
+      metrics: "",
+      state: "Procesando",
+      participantsQuantity: "",
       userIds: [],
       organizacionId: 0,
-      idHyper:0,
+      idHyper: 0,
       minUsuarios: 0,
       rondas: 0,
       tiempoLocal: 0,
       idInvitation: 0,
-      codeInvitation: '',
-      stateInvitation: 'ACTIVE',
-      trainingMode: '',
-    })
-    obtenerUltimaInteracion()
-  }
+      codeInvitation: "",
+      stateInvitation: "ACTIVE",
+      trainingMode: "",
+    });
+    obtenerUltimaInteracion();
+  };
 
   // function generarCodigoAleatorio(longitud: number = 10): string {
   //   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}<>?';
@@ -176,20 +207,24 @@ export default function IteracionesView() {
   // }
 
   const handleGuardarIteracion = async () => {
-    console.log("Recibir datos de la iteración a crear:", iteracion)
+    console.log("Recibir datos de la iteración a crear:", iteracion);
     try {
       const response = await iteracionService.addIteracion(iteracion);
-      
-      console.log("Iteración guardada:", response)
+
+      console.log("Iteración guardada:", response);
 
       const iterationId = response.id;
       // const userIds = response.data?.userIds ?? [];
 
-      if (typeof iterationId === 'number') {
-        const hyperParams = buildHyperparameterPayload(editMode, iteracion, iterationId);
+      if (typeof iterationId === "number") {
+        const hyperParams = buildHyperparameterPayload(
+          editMode,
+          iteracion,
+          iterationId
+        );
         const response1 = await iteracionService.creatHyper(hyperParams);
 
-        console.log("Hyperparameter guardada:", response1)
+        console.log("Hyperparameter guardada:", response1);
       }
 
       const VM = {
@@ -197,69 +232,99 @@ export default function IteracionesView() {
         fractionFit: "1.0",
         fractionEval: "1.0",
         minAvailableClients: iteracion.minUsuarios.toString(),
-        localEpochs: iteracion.tiempoLocal.toString()
-      }
-      const lanzarVM = await iteracionService.lanzarVM(VM)
+        localEpochs: iteracion.tiempoLocal.toString(),
+      };
+      const lanzarVM = await iteracionService.lanzarVM(VM);
 
       console.log("VM lanzado correctamente: ", lanzarVM);
 
       const alerta: Alerta = {
         id: 0,
         tipo: "🔄",
-        mensaje: `Iteración creada: ID<${response.id}> - "${iteracion.iterationName}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Iteración creada: ID<${response.id}> - "${
+          iteracion.iterationName
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
-      obtenerIteraciones()
+      // Obtener información completa de la iteración creada
+      const iteracionCompleta = await obtenerIteracionCompleta(response);
+
+      // Agregar al estado local y ordenar por ID
+      const nuevasIteraciones = [
+        ...todasLasIteraciones,
+        iteracionCompleta,
+      ].sort((a, b) => b.id - a.id);
+      setIteraciones(nuevasIteraciones);
+      setTodasLasIteraciones(nuevasIteraciones);
+
       return iterationId;
     } catch (error) {
-      console.error('Error al guardar la iteración:', error);
+      console.error("Error al guardar la iteración:", error);
     }
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const clickEditar = (iteracion: Iteracion) => {
-    console.log("Se carga la iteración seleccionada: ", iteracion)
+    console.log("Se carga la iteración seleccionada: ", iteracion);
     setEditMode(true);
     setIteracion(iteracion);
     setModalOpen(true);
   };
 
   const editarIteracion = async () => {
-    console.log("Recibir datos de la iteración a editar:", iteracion)
+    console.log("Recibir datos de la iteración a editar:", iteracion);
     try {
-      const response = await iteracionService.updIteracion(iteracion.id, iteracion);
-      console.log("Iteración editada:", response)
+      const response = await iteracionService.updIteracion(
+        iteracion.id,
+        iteracion
+      );
+      console.log("Iteración editada:", response);
 
       const iterationId = response.data?.id;
 
-      const hyperParams = buildHyperparameterPayload(editMode, iteracion, iterationId);
+      const hyperParams = buildHyperparameterPayload(
+        editMode,
+        iteracion,
+        iterationId
+      );
       let response1;
 
       if (hyperParams.id === 0) {
         response1 = await iteracionService.creatHyper(hyperParams);
       } else {
-        response1 = await iteracionService.actualizarHyper(hyperParams.id, hyperParams);
+        response1 = await iteracionService.actualizarHyper(
+          hyperParams.id,
+          hyperParams
+        );
       }
 
-      console.log("Hyperparameter editada:", response1)
+      console.log("Hyperparameter editada:", response1);
 
-      obtenerIteraciones();
+      // Obtener información completa de la iteración editada
+      const iteracionCompleta = await obtenerIteracionCompleta(response.data);
+
+      // Actualizar la iteración en el estado local
+      const iteracionesActualizadas = todasLasIteraciones.map((i) =>
+        i.id === iteracion.id ? iteracionCompleta : i
+      );
+      setIteraciones(iteracionesActualizadas);
+      setTodasLasIteraciones(iteracionesActualizadas);
 
       return iterationId;
     } catch (error) {
-      console.error('Error al editar la iteración:', error);
+      console.error("Error al editar la iteración:", error);
     }
-  }
+  };
 
   const clickEliminar = (iteracion: Iteracion) => {
     setModalClose(true);
     setIteracion(iteracion);
-  }
+  };
 
   const eliminarIteracion = async () => {
     console.log("Iteración a eliminar:", iteracion);
@@ -270,34 +335,44 @@ export default function IteracionesView() {
       const alerta: Alerta = {
         id: 0,
         tipo: "🗑️",
-        mensaje: `Iteración eliminada: ID<${iteracion.id}> - "${iteracion.iterationName}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Iteración eliminada: ID<${iteracion.id}> - "${
+          iteracion.iterationName
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
+
+      // Remover la iteración del estado local
+      const iteracionesFiltradas = todasLasIteraciones.filter(
+        (i) => i.id !== iteracion.id
+      );
+      setIteraciones(iteracionesFiltradas);
+      setTodasLasIteraciones(iteracionesFiltradas);
 
       reiniciarFormulario();
-      obtenerIteraciones();
-      console.log("Iteración eliminada:", response)
+      console.log("Iteración eliminada:", response);
     } catch (error: any) {
-      console.error('Error al eliminar la iteración:', error);
-      alert('Error: ' + error.message);
+      console.error("Error al eliminar la iteración:", error);
+      alert("Error: " + error.message);
     }
-  }
+  };
 
   const irVistaRondas = (iteracion: Iteracion) => {
-    navigate(`/iteraciones/rondas/${iteracion.id}`, { state: { iteracion } })
-  }
+    navigate(`/iteraciones/rondas/${iteracion.id}`, { state: { iteracion } });
+  };
 
   const exportarRondasAExcel = async (iteracionId: number) => {
     try {
-      const data = await iteracionService.exportarMetricasPorIteracion(iteracionId);
+      const data = await iteracionService.exportarMetricasPorIteracion(
+        iteracionId
+      );
 
       if (!Array.isArray(data) || data.length === 0) {
-        alert('No hay datos para exportar.')
-        console.error('No hay datos para exportar.');
+        alert("No hay datos para exportar.");
+        console.error("No hay datos para exportar.");
         return;
       }
 
@@ -309,7 +384,7 @@ export default function IteracionesView() {
         "recall",
         "f1_score",
         "auc",
-        "loss"
+        "loss",
       ];
 
       const datosNormalizados = data.map((item: any) => {
@@ -320,153 +395,181 @@ export default function IteracionesView() {
         return fila;
       });
 
-      console.log("Datos normalizados: ", datosNormalizados)
+      console.log("Datos normalizados: ", datosNormalizados);
 
-      const worksheet = XLSX.utils.json_to_sheet(datosNormalizados, { header: cabeceras });
+      const worksheet = XLSX.utils.json_to_sheet(datosNormalizados, {
+        header: cabeceras,
+      });
 
       // Aplicar formato de porcentaje a ciertas columnas
-      const columnasPorcentaje = ["accuracy", "precision", "recall", "f1_score", "auc", "loss"];
-      const columnaIndices = columnasPorcentaje.map(c => cabeceras.indexOf(c));
+      const columnasPorcentaje = [
+        "accuracy",
+        "precision",
+        "recall",
+        "f1_score",
+        "auc",
+        "loss",
+      ];
+      const columnaIndices = columnasPorcentaje.map((c) =>
+        cabeceras.indexOf(c)
+      );
 
-      console.log("Indices: ", columnaIndices)
+      console.log("Indices: ", columnaIndices);
 
       datosNormalizados.forEach((_, rowIndex) => {
         columnaIndices.forEach((colIndex) => {
-          const cellAddress = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex + 1 }); // +1 por el header
+          const cellAddress = XLSX.utils.encode_cell({
+            c: colIndex,
+            r: rowIndex + 1,
+          }); // +1 por el header
           if (worksheet[cellAddress]) {
-            worksheet[cellAddress].z = '0.00%'; // Formato porcentaje con 2 decimales
+            worksheet[cellAddress].z = "0.00%"; // Formato porcentaje con 2 decimales
           }
         });
       });
 
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Rondas');
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rondas");
 
       const excelBuffer = XLSX.write(workbook, {
-        bookType: 'xlsx',
-        type: 'array',
+        bookType: "xlsx",
+        type: "array",
       });
 
       const blob = new Blob([excelBuffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
       saveAs(blob, `rondas_iteracion_${iteracionId}.xlsx`);
     } catch (error) {
-      console.error('Error al exportar las rondas:', error);
+      console.error("Error al exportar las rondas:", error);
     }
   };
 
   const irAMetricasPorUsuario = (iteracion: Iteracion) => {
-    navigate('/metricas-usuario', { state: { iteracion } })
-  }
-  
+    navigate("/metricas-usuario", { state: { iteracion } });
+  };
+
   return (
-  <div className="p-4 sm:p-6 text-gray-800 dark:text-white h-full flex flex-col">
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <div>
-        <h1 className="text-2xl font-bold">Gestión de Iteraciones</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Administra las iteraciones del modelo de aprendizaje federado
-        </p>
+    <div className="p-4 sm:p-6 text-gray-800 dark:text-white h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Gestión de Iteraciones</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Administra las iteraciones del modelo de aprendizaje federado
+          </p>
+        </div>
+        <button
+          className="w-full sm:w-auto px-4 py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white"
+          onClick={() => setModalOpen(true)}
+        >
+          Crear Iteración
+        </button>
       </div>
-      <button
-        className="w-full sm:w-auto px-4 py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white"
-        onClick={() => setModalOpen(true)}
-      >
-        Crear Iteración
-      </button>
-    </div>
 
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-auto max-h-[600px] relative">
-      <table className="w-full min-w-[640px] text-sm table-auto">
-        <thead>
-          <tr className="sticky top-0 bg-gray-100 dark:bg-gray-800 z-10">
-            <th className="px-4 py-3 text-left font-semibold">Iteración</th>
-            <th className="px-4 py-3 text-left font-semibold">Estado</th>
-            <th className="px-4 py-3 text-left font-semibold">Fecha Inicio</th>
-            <th className="px-4 py-3 text-left font-semibold">Fecha Fin</th>
-            <th className="px-4 py-3 text-left font-semibold">Cantidad de participantes</th>
-            <th className="px-4 py-3 text-left font-semibold">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {iteraciones.map((iteracion) => (
-            <tr key={iteracion.id} className="border-b border-gray-200 dark:border-gray-700">
-              <td className="px-4 py-3">#{iteracion.id}</td>
-              <td className="px-4 py-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  iteracion.state === 'Procesando'
-                    ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
-                    : 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100'
-                }`}>
-                  {iteracion.state}
-                </span>
-              </td>
-              <td className="px-4 py-3 whitespace-nowrap">{iteracion.startDate ? iteracion.startDate.replace('T', ' ') : '-'}</td>
-              <td className="px-4 py-3 whitespace-nowrap">{iteracion.finishDate ? iteracion.finishDate.replace('T', ' ') : '-'}</td>
-              <td className="px-4 py-3">{iteracion.userIds.length}</td>
-              <td className="px-4 py-3">
-                <div className="flex flex-nowrap gap-2 justify-center sm:justify-start overflow-x-auto">
-                  <button
-                    className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
-                    title="Ver Métricas"
-                    onClick={() => irVistaRondas(iteracion)}
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    className="p-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600"
-                    title="Métricas por Usuario"
-                    onClick={() => irAMetricasPorUsuario(iteracion)}
-                  >
-                    <FaUsers />
-                  </button>
-                  <button
-                    className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
-                    title="Exportar Excel"
-                    onClick={() => exportarRondasAExcel(iteracion.id)}
-                  >
-                    <FaFileExport />
-                  </button>
-                  <button
-                    className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
-                    title="Eliminar"
-                    onClick={() => clickEliminar(iteracion)}
-                  >
-                    <FaTrash />
-                  </button>
-
-                </div>
-
-              </td>
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-auto max-h-[600px] relative">
+        <table className="w-full min-w-[640px] text-sm table-auto">
+          <thead>
+            <tr className="sticky top-0 bg-gray-100 dark:bg-gray-800 z-10">
+              <th className="px-4 py-3 text-left font-semibold">Iteración</th>
+              <th className="px-4 py-3 text-left font-semibold">Estado</th>
+              <th className="px-4 py-3 text-left font-semibold">
+                Fecha Inicio
+              </th>
+              <th className="px-4 py-3 text-left font-semibold">Fecha Fin</th>
+              <th className="px-4 py-3 text-left font-semibold">
+                Cantidad de participantes
+              </th>
+              <th className="px-4 py-3 text-left font-semibold">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {iteraciones.map((iteracion) => (
+              <tr
+                key={iteracion.id}
+                className="border-b border-gray-200 dark:border-gray-700"
+              >
+                <td className="px-4 py-3">#{iteracion.id}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      iteracion.state === "Procesando"
+                        ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100"
+                        : "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100"
+                    }`}
+                  >
+                    {iteracion.state}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {iteracion.startDate
+                    ? iteracion.startDate.replace("T", " ")
+                    : "-"}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {iteracion.finishDate
+                    ? iteracion.finishDate.replace("T", " ")
+                    : "-"}
+                </td>
+                <td className="px-4 py-3">{iteracion.userIds.length}</td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-nowrap gap-2 justify-center sm:justify-start overflow-x-auto">
+                    <button
+                      className="p-2 rounded-full bg-purple-600 text-white hover:bg-purple-700"
+                      title="Ver Métricas"
+                      onClick={() => irVistaRondas(iteracion)}
+                    >
+                      <FaEye />
+                    </button>
+                    <button
+                      className="p-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600"
+                      title="Métricas por Usuario"
+                      onClick={() => irAMetricasPorUsuario(iteracion)}
+                    >
+                      <FaUsers />
+                    </button>
+                    <button
+                      className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                      title="Exportar Excel"
+                      onClick={() => exportarRondasAExcel(iteracion.id)}
+                    >
+                      <FaFileExport />
+                    </button>
+                    <button
+                      className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                      title="Eliminar"
+                      onClick={() => clickEliminar(iteracion)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <CrearEditarIteracionModal
+        open={modalOpen}
+        onClose={reiniciarFormulario}
+        isEditMode={editMode}
+        iteracion={iteracion}
+        setIteracion={setIteracion}
+        onSubmit={editMode ? editarIteracion : handleGuardarIteracion}
+        organizaciones={organizaciones}
+        usuarios={usuarios}
+        openConfirmacion={openConfirmacion}
+        setOpenConfirmacion={setOpenConfirmacion}
+        ultimaIteracion={ultimaIteracion}
+      />
+
+      <EliminarIteracionModal
+        open={modalClose}
+        iterationName={iteracion.iterationName}
+        onClose={reiniciarFormulario}
+        onConfirm={eliminarIteracion}
+      />
     </div>
-
-    <CrearEditarIteracionModal
-      open={modalOpen}
-      onClose={reiniciarFormulario}
-      isEditMode={editMode}
-      iteracion={iteracion}
-      setIteracion={setIteracion}
-      onSubmit={editMode ? editarIteracion : handleGuardarIteracion}
-      organizaciones={organizaciones}
-      usuarios={usuarios}
-      openConfirmacion={openConfirmacion}
-      setOpenConfirmacion={setOpenConfirmacion}
-      ultimaIteracion={ultimaIteracion}
-    />
-
-    <EliminarIteracionModal
-      open={modalClose}
-      iterationName={iteracion.iterationName}
-      onClose={reiniciarFormulario}
-      onConfirm={eliminarIteracion}
-    />
-  </div>
-);
-
+  );
 }

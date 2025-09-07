@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { ModalEliminarRolProps } from '../../models/rules';
+import { FC } from "react";
+import { ModalEliminarRolProps } from "../../models/rules";
 
 const ModalEliminarRol: FC<ModalEliminarRolProps> = ({
   open,
@@ -10,14 +10,26 @@ const ModalEliminarRol: FC<ModalEliminarRolProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0" onClick={onClose}></div>
+    <div
+      className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative z-10 w-[90%] max-w-sm bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg text-gray-800 dark:text-white animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-4 text-xl text-gray-400 dark:text-gray-300 hover:text-red-500"
+        >
+          &times;
+        </button>
 
-      <div className="relative z-10 w-[90%] max-w-md p-6 bg-white dark:bg-gray-900 text-gray-800 dark:text-white rounded-xl shadow-xl animate-fade-in">
         <h2 className="text-xl font-bold mb-4">Confirmar eliminación</h2>
 
         <p className="mb-6">
-          ¿Está seguro que desea eliminar el rol <span className="font-semibold">{nombreRol}</span>?
+          ¿Está seguro que desea eliminar el rol{" "}
+          <span className="font-semibold">{nombreRol}</span>?
         </p>
 
         <div className="flex justify-end gap-4">

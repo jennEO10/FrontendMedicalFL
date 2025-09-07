@@ -195,7 +195,7 @@ const CrearEditarOrganizacion: FC<OrganizacionModalProps> = ({
           </button>
           <button
             onClick={() => {
-              if (validateAllFields()) {
+              if (validateAllFields() && onSubmit) {
                 onSubmit();
               }
             }}

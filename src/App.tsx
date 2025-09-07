@@ -1,45 +1,84 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
-import NotFound from "./pages/OtherPage/NotFound";
-import UserProfiles from "./pages/UserProfiles";
-import Videos from "./pages/UiElements/Videos";
-import Images from "./pages/UiElements/Images";
-import Alerts from "./pages/UiElements/Alerts";
-import Badges from "./pages/UiElements/Badges";
-import Avatars from "./pages/UiElements/Avatars";
-import Buttons from "./pages/UiElements/Buttons";
-import LineChart from "./pages/Charts/LineChart";
-import BarChart from "./pages/Charts/BarChart";
-import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
-import Blank from "./pages/Blank";
-import AppLayout from "./layout/AppLayout";
-import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
-import OrganizacionesView from "./pages/organizaciones/OrganizacionesView";
+import { lazy, Suspense } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import { InactivityProvider } from "./context/InactivityContext";
 import ProtectedRoute from "./components/router/ProtectedRoute";
-import Login from "./pages/AuthPages/Login";
-import UsuariosView from "./pages/Usuarios/UsuariosView";
-import RolesView from "./pages/Roles/RolesView";
-import IteracionesView from "./pages/Iteraciones/IteracionesView";
-import PermisosView from "./pages/Roles/PermisosRolesView";
-import LogSistemaView from "./pages/logSistema/LogSistemaView";
-import DashboardAdminView from "./pages/Dashboard/DashAdmin";
-import AlertaNotificacionesView from "./pages/AlertaNotificaciones/AlertaNotificacionesView";
-import OperadorDashboard from "./pages/Operador/dashboard/dashboard";
+import AppLayout from "./layout/AppLayout";
+import { ScrollToTop } from "./components/common/ScrollToTop";
 import RoleRedirector from "./components/router/RoleRedirector";
-import EntrenarModeloView from "./pages/Operador/EntrenarModeloView";
-import UsarModeloView from "./pages/Operador/UsarModeloView";
-import ReportesView from "./pages/Operador/ReporteView";
-import InformacionAdicional from "./pages/Operador/InformacionAdicionalView";
-import IteracionForRondas from "./pages/Iteraciones/IteracionRondasView";
-import HistoricoIteracion from "./pages/Operador/HistoricoIteracion";
-import MetricasPorUsuario from "./pages/Iteraciones/MetricasPorUsuario";
+
+// Importaciones estáticas (componentes críticos que se cargan inmediatamente)
+import Login from "./pages/AuthPages/Login";
+
+// Lazy loading para páginas de autenticación
+const SignIn = lazy(() => import("./pages/AuthPages/SignIn"));
+const SignUp = lazy(() => import("./pages/AuthPages/SignUp"));
+
+// Lazy loading para páginas de administración
+const OrganizacionesView = lazy(
+  () => import("./pages/organizaciones/OrganizacionesView")
+);
+const UsuariosView = lazy(() => import("./pages/Usuarios/UsuariosView"));
+const RolesView = lazy(() => import("./pages/Roles/RolesView"));
+const DashboardAdminView = lazy(() => import("./pages/Dashboard/DashAdmin"));
+const LogSistemaView = lazy(() => import("./pages/logSistema/LogSistemaView"));
+const AlertaNotificacionesView = lazy(
+  () => import("./pages/AlertaNotificaciones/AlertaNotificacionesView")
+);
+
+// Lazy loading para páginas de operador
+const OperadorDashboard = lazy(
+  () => import("./pages/Operador/dashboard/dashboard")
+);
+const EntrenarModeloView = lazy(
+  () => import("./pages/Operador/EntrenarModeloView")
+);
+const UsarModeloView = lazy(() => import("./pages/Operador/UsarModeloView"));
+const ReportesView = lazy(() => import("./pages/Operador/ReporteView"));
+const InformacionAdicional = lazy(
+  () => import("./pages/Operador/InformacionAdicionalView")
+);
+const HistoricoIteracion = lazy(
+  () => import("./pages/Operador/HistoricoIteracion")
+);
+
+// Lazy loading para páginas de iteraciones
+const IteracionesView = lazy(
+  () => import("./pages/Iteraciones/IteracionesView")
+);
+const IteracionForRondas = lazy(
+  () => import("./pages/Iteraciones/IteracionRondasView")
+);
+const MetricasPorUsuario = lazy(
+  () => import("./pages/Iteraciones/MetricasPorUsuario")
+);
+
+// Lazy loading para páginas de roles
+const PermisosView = lazy(() => import("./pages/Roles/PermisosRolesView"));
+
+// Lazy loading para páginas de UI (menos críticas)
+const UserProfiles = lazy(() => import("./pages/UserProfiles"));
+const Videos = lazy(() => import("./pages/UiElements/Videos"));
+const Images = lazy(() => import("./pages/UiElements/Images"));
+const Alerts = lazy(() => import("./pages/UiElements/Alerts"));
+const Badges = lazy(() => import("./pages/UiElements/Badges"));
+const Avatars = lazy(() => import("./pages/UiElements/Avatars"));
+const Buttons = lazy(() => import("./pages/UiElements/Buttons"));
+const LineChart = lazy(() => import("./pages/Charts/LineChart"));
+const BarChart = lazy(() => import("./pages/Charts/BarChart"));
+const Calendar = lazy(() => import("./pages/Calendar"));
+const BasicTables = lazy(() => import("./pages/Tables/BasicTables"));
+const FormElements = lazy(() => import("./pages/Forms/FormElements"));
+const Blank = lazy(() => import("./pages/Blank"));
+const NotFound = lazy(() => import("./pages/OtherPage/NotFound"));
+
+// Componente de carga
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-500"></div>
+  </div>
+);
 
 export default function App() {
   return (
@@ -47,68 +86,73 @@ export default function App() {
       <InactivityProvider>
         <Router>
           <ScrollToTop />
-          <Routes>
-            {/* Auth */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Auth */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
 
-            {/* Layout con rutas protegidas */}
-            <Route
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index path="/" element={<RoleRedirector />} />
-              <Route path="/dash-admin" element={<DashboardAdminView />} />
-              <Route path="/organizaciones" element={<OrganizacionesView />} />
-              <Route path="/usuarios" element={<UsuariosView />} />
-              <Route path="/roles" element={<RolesView />} />
-              <Route path="/roles/permisos/:id" element={<PermisosView />} />
-              <Route path="/iteraciones" element={<IteracionesView />} />
+              {/* Layout con rutas protegidas */}
               <Route
-                path="/iteraciones/rondas/:id"
-                element={<IteracionForRondas />}
-              />
-              <Route
-                path="/metricas-usuario"
-                element={<MetricasPorUsuario />}
-              />
-              <Route path="/log-sistema" element={<LogSistemaView />} />
-              <Route
-                path="/alerta-notificaciones"
-                element={<AlertaNotificacionesView />}
-              />
-              <Route path="/profile" element={<UserProfiles />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/blank" element={<Blank />} />
-              <Route path="/form-elements" element={<FormElements />} />
-              <Route path="/basic-tables" element={<BasicTables />} />
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/avatars" element={<Avatars />} />
-              <Route path="/badge" element={<Badges />} />
-              <Route path="/buttons" element={<Buttons />} />
-              <Route path="/images" element={<Images />} />
-              <Route path="/videos" element={<Videos />} />
-              <Route path="/line-chart" element={<LineChart />} />
-              <Route path="/bar-chart" element={<BarChart />} />
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index path="/" element={<RoleRedirector />} />
+                <Route path="/dash-admin" element={<DashboardAdminView />} />
+                <Route
+                  path="/organizaciones"
+                  element={<OrganizacionesView />}
+                />
+                <Route path="/usuarios" element={<UsuariosView />} />
+                <Route path="/roles" element={<RolesView />} />
+                <Route path="/roles/permisos/:id" element={<PermisosView />} />
+                <Route path="/iteraciones" element={<IteracionesView />} />
+                <Route
+                  path="/iteraciones/rondas/:id"
+                  element={<IteracionForRondas />}
+                />
+                <Route
+                  path="/metricas-usuario"
+                  element={<MetricasPorUsuario />}
+                />
+                <Route path="/log-sistema" element={<LogSistemaView />} />
+                <Route
+                  path="/alerta-notificaciones"
+                  element={<AlertaNotificacionesView />}
+                />
+                <Route path="/profile" element={<UserProfiles />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/blank" element={<Blank />} />
+                <Route path="/form-elements" element={<FormElements />} />
+                <Route path="/basic-tables" element={<BasicTables />} />
+                <Route path="/alerts" element={<Alerts />} />
+                <Route path="/avatars" element={<Avatars />} />
+                <Route path="/badge" element={<Badges />} />
+                <Route path="/buttons" element={<Buttons />} />
+                <Route path="/images" element={<Images />} />
+                <Route path="/videos" element={<Videos />} />
+                <Route path="/line-chart" element={<LineChart />} />
+                <Route path="/bar-chart" element={<BarChart />} />
 
-              {/* Operador */}
-              <Route path="/dashboard" element={<OperadorDashboard />} />
-              <Route path="/model-train" element={<EntrenarModeloView />} />
-              <Route path="/use-model" element={<UsarModeloView />} />
-              <Route path="/view-reports" element={<ReportesView />} />
-              <Route
-                path="/additional-information"
-                element={<InformacionAdicional />}
-              />
-              <Route path="/historico" element={<HistoricoIteracion />} />
-            </Route>
+                {/* Operador */}
+                <Route path="/dashboard" element={<OperadorDashboard />} />
+                <Route path="/model-train" element={<EntrenarModeloView />} />
+                <Route path="/use-model" element={<UsarModeloView />} />
+                <Route path="/view-reports" element={<ReportesView />} />
+                <Route
+                  path="/additional-information"
+                  element={<InformacionAdicional />}
+                />
+                <Route path="/historico" element={<HistoricoIteracion />} />
+              </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </Router>
       </InactivityProvider>
     </AuthProvider>
