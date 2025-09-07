@@ -1,4 +1,3 @@
-
 import { FC } from "react";
 import { EliminarOrganizacionModalProps } from "../../models/organization";
 
@@ -11,15 +10,22 @@ const EliminarOrganizacion: FC<EliminarOrganizacionModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Fondo difuminado */}
-      <div
-        // className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-        onClick={onClose}
-      ></div>
-
+    <div
+      className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
       {/* Contenedor del modal */}
-      <div className="relative z-10 w-[90%] max-w-md bg-white dark:bg-gray-900 p-6 rounded-xl shadow-2xl animate-fade-in transition-all text-center space-y-6">
+      <div
+        className="relative z-10 w-[90%] max-w-sm bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg text-gray-800 dark:text-white animate-fade-in text-center space-y-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-4 text-xl text-gray-400 dark:text-gray-300 hover:text-red-500"
+        >
+          &times;
+        </button>
+
         <h3 className="text-xl font-bold text-gray-900 dark:text-white">
           ¿Estás seguro de eliminar la organización?
         </h3>

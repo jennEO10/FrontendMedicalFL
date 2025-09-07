@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaSearch, FaTimes } from "react-icons/fa";
-import organizationService from '../../services/organizationService';
+import organizationService from "../../services/organizationService";
 import { Organization } from "../../models/organization";
 import Organizacion from "../../components/modals/OrganizacionModal";
 import { Alerta } from "../../models/aletas";
@@ -10,23 +10,33 @@ import { alertaEmitter } from "../../utils/alertaEvents";
 
 const OrganizacionesView = () => {
   const [busqueda, setBusqueda] = useState("");
-  const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
+  const [todasLasOrganizaciones, setTodasLasOrganizaciones] = useState<
+    Organization[]
+  >([]);
 
-  const [org, setNueva] = useState({ id: 0, name: "", descripcion: "", contacto: "" });
+  const [org, setNueva] = useState({
+    id: 0,
+    name: "",
+    descripcion: "",
+    contacto: "",
+  });
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalDelete, setMostrarModalDelete] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
 
-
   const fetchData = async () => {
-      try {
-        const data = await organizationService.fetchAll();
-        setOrganizaciones(data);
-      } catch (error) {
-        console.error('Error al cargar organizaciones:', error);
-      }
-    };
+    try {
+      const data = await organizationService.fetchAll();
+      setOrganizaciones(data);
+      setTodasLasOrganizaciones(data);
+    } catch (error) {
+      console.error("Error al cargar organizaciones:", error);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -34,73 +44,92 @@ const OrganizacionesView = () => {
 
   const reiniciarFormulario = () => {
     setNueva({ id: 0, name: "", descripcion: "", contacto: "" });
-    setMostrarModal(false)
+    setMostrarModal(false);
     setModoEdicion(false);
     setMostrarModalDelete(false);
-  }
+  };
 
   const guardarOrganizacion = async () => {
     try {
       console.log("Guardando organización:", org);
 
-      const response = await organizationService.saveOrganization(org)
+      const response = await organizationService.saveOrganization(org);
+
+      // Agregar al estado local y ordenar por ID
+      const nuevasOrganizaciones = [...todasLasOrganizaciones, response].sort(
+        (a, b) => a.id - b.id
+      );
+      setOrganizaciones(nuevasOrganizaciones);
+      setTodasLasOrganizaciones(nuevasOrganizaciones);
 
       const alerta: Alerta = {
         id: 0,
         tipo: "🏢",
-        mensaje: `Organización creada: ID<${response.id}> - "${org.name}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Organización creada: ID<${response.id}> - "${
+          org.name
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      fetchData();
       console.log("Organización guardada:", response);
     } catch (error) {
       console.error("Error al guardar organización:", error);
     }
-  }
+  };
 
   const clickEditar = (org: Organization) => {
     console.log("Obtener datos para editar:", org);
     setNueva(org);
     setModoEdicion(true);
     setMostrarModal(true);
-  }
+  };
 
   const editarOrganizacion = async () => {
     try {
       console.log("Editando datos de la organización:", org);
 
-      const response = await organizationService.actualizarOrganization(org.id, org)
+      const response = await organizationService.actualizarOrganization(
+        org.id,
+        org
+      );
+
+      // Actualizar la organización en el estado local
+      const organizacionesActualizadas = todasLasOrganizaciones.map((o) =>
+        o.id === org.id ? response : o
+      );
+      setOrganizaciones(organizacionesActualizadas);
+      setTodasLasOrganizaciones(organizacionesActualizadas);
 
       const alerta: Alerta = {
         id: 0,
         tipo: "✏️",
-        mensaje: `Organización editada: ID<${org.id}> - "${org.name}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Organización editada: ID<${org.id}> - "${
+          org.name
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      fetchData();
       console.log("Organización editada:", response);
     } catch (error) {
       console.error("Error al guardar organización:", error);
     }
-  }
+  };
 
   const clickEliminar = (org: Organization) => {
     console.log("Obtener datos para eliminar:", org);
     setNueva(org);
     setMostrarModalDelete(true);
-  }
+  };
 
   const eliminarOrganizacion = async () => {
     try {
@@ -108,24 +137,32 @@ const OrganizacionesView = () => {
 
       const response = await organizationService.delOrganization(org.id);
 
+      // Remover la organización del estado local
+      const organizacionesFiltradas = todasLasOrganizaciones.filter(
+        (o) => o.id !== org.id
+      );
+      setOrganizaciones(organizacionesFiltradas);
+      setTodasLasOrganizaciones(organizacionesFiltradas);
+
       const alerta: Alerta = {
         id: 0,
         tipo: "🗑️",
-        mensaje: `Organización eliminada: ID<${org.id}> - "${org.name}" por ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        mensaje: `Organización eliminada: ID<${org.id}> - "${
+          org.name
+        }" por ${sessionStorage.getItem("userEmail")}`,
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
       console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
-      alertaEmitter.emit('alertaCreada');
+      alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      fetchData();
       console.log("Organización eliminada:", response);
     } catch (error) {
       console.error("Error al eliminar organización:", error);
     }
-  }
+  };
 
   const handleSearch = (value: string) => {
     setBusqueda(value);
@@ -134,7 +171,8 @@ const OrganizacionesView = () => {
 
     const timeout = setTimeout(async () => {
       if (value.trim() === "") {
-        await fetchData(); // muestra todo
+        // Restaurar todas las organizaciones desde el estado local sin hacer petición a BD
+        setOrganizaciones(todasLasOrganizaciones);
         return;
       }
 
@@ -189,15 +227,30 @@ const OrganizacionesView = () => {
           </thead>
           <tbody>
             {organizaciones.map((org, i) => (
-              <tr key={i} className="border-t border-gray-200 dark:border-gray-800">
-                <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.name}</td>
-                <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.descripcion}</td>
-                <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">{org.contacto}</td>
+              <tr
+                key={i}
+                className="border-t border-gray-200 dark:border-gray-800"
+              >
+                <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">
+                  {org.name}
+                </td>
+                <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">
+                  {org.descripcion}
+                </td>
+                <td className="px-4 py-2 text-gray-900 dark:text-white whitespace-nowrap">
+                  {org.contacto}
+                </td>
                 <td className="px-4 py-2 whitespace-nowrap flex gap-2">
-                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full" onClick={() => clickEditar(org)}>
+                  <button
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full"
+                    onClick={() => clickEditar(org)}
+                  >
                     <FaEdit />
                   </button>
-                  <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full" onClick={() => clickEliminar(org)}>
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
+                    onClick={() => clickEliminar(org)}
+                  >
                     <FaTimes />
                   </button>
                 </td>
@@ -212,7 +265,7 @@ const OrganizacionesView = () => {
         onClose={reiniciarFormulario}
         org={org}
         setNueva={setNueva}
-        onSubmit={modoEdicion? editarOrganizacion: guardarOrganizacion }
+        onSubmit={modoEdicion ? editarOrganizacion : guardarOrganizacion}
         modoEdicion={modoEdicion}
       />
 
