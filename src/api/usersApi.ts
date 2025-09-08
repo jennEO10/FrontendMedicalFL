@@ -72,8 +72,8 @@ export const deactivateUser = async (id: number) => {
 };
 
 export const updatePassword = async (id: number, newPassword: string) => {
-  const response = await api.patch(`/api/cambio-password/${id}`, {
-    password: newPassword,
+  const response = await api.patch(`/api/cambiar-password/${id}`, {
+    newPassword: newPassword,
   });
   return response.data;
 };

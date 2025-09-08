@@ -4,6 +4,7 @@ import { User } from "../../models/user";
 import usersService from "../../services/usersService";
 import UsuarioModal from "../../components/modals/UsuarioModal";
 import CambiarContraseña from "../../components/modals/CambiarContraseña";
+import ConfirmacionCambioContraseña from "../../components/modals/ConfirmacionCambioContraseña";
 import rulesService from "../../services/rulesService";
 import { Rule } from "../../models/rules";
 import organizationService from "../../services/organizationService";
@@ -31,6 +32,8 @@ export default function UsuariosView() {
   const [mostrarModalDelete, setMostrarModalDelete] = useState(false);
   const [mostrarModalAddUpd, setMostrarModalAddUpd] = useState(false);
   const [mostrarModalCambiarContraseña, setMostrarModalCambiarContraseña] =
+    useState(false);
+  const [mostrarModalConfirmacion, setMostrarModalConfirmacion] =
     useState(false);
   const [filtroElegido, setSetFiltroElegido] = useState<string>(""); // Para manejar el filtro seleccionado
   const [filtros, setFiltros] = useState({
@@ -97,6 +100,7 @@ export default function UsuariosView() {
     setModoEdicion(false);
     setMostrarModalDelete(false);
     setMostrarModalCambiarContraseña(false);
+    setMostrarModalConfirmacion(false);
   };
 
   // const handleInputChange = (e: any) => {
@@ -211,7 +215,7 @@ export default function UsuariosView() {
       // Mostrar alerta de error
       const alerta: Alerta = {
         id: 0,
-        tipo: "error",
+        tipo: "🚫",
         mensaje: razon || "No tienes permisos para cambiar esta contraseña",
         timestamp: getLocalDateTime(),
       };
@@ -233,7 +237,7 @@ export default function UsuariosView() {
       // Mostrar alerta de éxito
       const alerta: Alerta = {
         id: 0,
-        tipo: "success",
+        tipo: "🔑",
         mensaje: `La contraseña del usuario ${usuario.username} ha sido actualizada exitosamente.`,
         timestamp: getLocalDateTime(),
       };
@@ -242,6 +246,7 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       setMostrarModalCambiarContraseña(false);
+      setMostrarModalConfirmacion(true);
       console.log("Contraseña actualizada exitosamente");
     } catch (error) {
       console.error("Error al cambiar contraseña:", error);
@@ -249,7 +254,7 @@ export default function UsuariosView() {
       // Mostrar alerta de error
       const alerta: Alerta = {
         id: 0,
-        tipo: "error",
+        tipo: "❌",
         mensaje: `No se pudo actualizar la contraseña del usuario ${usuario.username}.`,
         timestamp: getLocalDateTime(),
       };
@@ -611,6 +616,12 @@ export default function UsuariosView() {
         onClose={() => setMostrarModalCambiarContraseña(false)}
         onSubmit={cambiarContraseña}
         usuario={usuario}
+      />
+
+      <ConfirmacionCambioContraseña
+        open={mostrarModalConfirmacion}
+        onClose={() => setMostrarModalConfirmacion(false)}
+        usuario={usuario.username}
       />
     </div>
   );
