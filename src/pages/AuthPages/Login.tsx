@@ -25,6 +25,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [login, setLogin] = useState<LoginSchema>({ email: "", password: "" });
+  const [intentosFallidos, setIntentosFallidos] = useState(0);
   // const allowedEmails = ["jennyespinoza618@gmail.com", "jorgefernando614@gmail.com", "sebyon69@gmail.com"];
 
   const authLogin = async (login: LoginSchema) => {
@@ -42,6 +43,30 @@ const Login = () => {
       return response;
     } catch (error) {
       console.error("Error al loguearse por firebase: ", error);
+    }
+  };
+
+  const manejarIntentoFallido = async (tipoLogin: string) => {
+    const nuevosIntentos = intentosFallidos + 1;
+    setIntentosFallidos(nuevosIntentos);
+
+    if (nuevosIntentos >= 3) {
+      // Crear alerta de intentos fallidos
+      const alerta: Alerta = {
+        id: 0,
+        tipo: "🚨",
+        mensaje: `Usuario falló 3 intentos de acceso consecutivos (${tipoLogin})`,
+        timestamp: getLocalDateTime(),
+      };
+
+      try {
+        await alertaService.nuevaAlerta(alerta);
+      } catch (error) {
+        console.error("Error al registrar alerta de intentos fallidos:", error);
+      }
+
+      // Reiniciar contador después de 3 intentos
+      setIntentosFallidos(0);
     }
   };
 
@@ -67,15 +92,12 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = (await authLogin(login)) as any;
-      console.log("Respuesta del logueo", response);
 
       sessionStorage.setItem("token", response.token);
 
       const user = await userService.buscarEmail(email);
 
       const isMatch = await comparePassword(password, user.password);
-
-      console.log("isMatch:", isMatch);
 
       if (!user || !isMatch) {
         throw new Error("Credenciales inválidas");
@@ -95,7 +117,6 @@ const Login = () => {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      console.log("Alerta registrada:", alertaResponse);
 
       // Sesión local válida hasta que se cierre pestaña
       sessionStorage.setItem("username", user.username);
@@ -110,11 +131,17 @@ const Login = () => {
       sessionStorage.setItem("customLogin", "true");
 
       setIsAuthenticated(true);
+      setIsAuthorized(true);
       const isAdmin =
         user.rolesId[0] === 2 || role.name?.toLocaleLowerCase() === "admin";
       const redirectPath = isAdmin ? "/dash-admin" : "/dashboard";
+
+      // Reiniciar contador en login exitoso
+      setIntentosFallidos(0);
       navigate(redirectPath);
     } catch (customError: any) {
+      // Manejar intento fallido
+      await manejarIntentoFallido("Email/Password");
       alert("Correo y/o contraseña incorrectos");
     }
   };
@@ -145,8 +172,8 @@ const Login = () => {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      console.log("Alerta registrada:", alertaResponse);
 
+      setIsAuthenticated(true);
       setIsAuthorized(true);
 
       sessionStorage.setItem("username", user1.username);
@@ -160,8 +187,21 @@ const Login = () => {
       );
       sessionStorage.setItem("customLogin", "true");
 
+      // Reiniciar contador en login exitoso
+      setIntentosFallidos(0);
       navigate("/dash-admin");
     } catch (error: any) {
+      // No mostrar error si el usuario canceló el popup
+      if (
+        error.code === "auth/cancelled-popup-request" ||
+        error.code === "auth/popup-closed-by-user"
+      ) {
+        // El usuario canceló el popup, no es un error real
+        return;
+      }
+
+      // Manejar intento fallido solo para errores reales
+      await manejarIntentoFallido("Google OAuth");
       alert("Error al iniciar sesión con Google: " + error.message);
     }
   };
