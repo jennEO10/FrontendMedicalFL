@@ -1,5 +1,13 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, signInWithPopup, setPersistence, browserSessionPersistence, UserCredential } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  setPersistence,
+  browserSessionPersistence,
+  UserCredential,
+} from "firebase/auth";
 import { auth, provider } from "../firebase/firebase";
 
 interface AuthContextProps {
@@ -25,9 +33,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
 
       if (user || isCustomLogin) {
-        setIsAuthenticated(true)
+        setIsAuthenticated(true);
+        // En producción, asegurar que isAuthorized también se establezca
+        if (isCustomLogin && sessionStorage.getItem("token")) {
+          setIsAuthorized(true);
+        }
       } else {
-        setIsAuthenticated(false)
+        setIsAuthenticated(false);
+        setIsAuthorized(false);
       }
 
       setLoading(false);
@@ -63,7 +76,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAuthorized, loading, loginWithEmail, loginWithGoogle, logout, setIsAuthenticated, setIsAuthorized  }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isAuthorized,
+        loading,
+        loginWithEmail,
+        loginWithGoogle,
+        logout,
+        setIsAuthenticated,
+        setIsAuthorized,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

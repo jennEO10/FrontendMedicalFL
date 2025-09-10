@@ -51,7 +51,7 @@ const OrganizacionesView = () => {
 
   const guardarOrganizacion = async () => {
     try {
-      console.log("Guardando organización:", org);
+      // console.log("Guardando organización:", org);
 
       const response = await organizationService.saveOrganization(org);
 
@@ -71,19 +71,19 @@ const OrganizacionesView = () => {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      console.log("Alerta registrada:", alertaResponse);
+      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      console.log("Organización guardada:", response);
+      // console.log("Organización guardada:", response);
     } catch (error) {
       console.error("Error al guardar organización:", error);
     }
   };
 
   const clickEditar = (org: Organization) => {
-    console.log("Obtener datos para editar:", org);
+    // console.log("Obtener datos para editar:", org);
     setNueva(org);
     setModoEdicion(true);
     setMostrarModal(true);
@@ -91,7 +91,7 @@ const OrganizacionesView = () => {
 
   const editarOrganizacion = async () => {
     try {
-      console.log("Editando datos de la organización:", org);
+      // console.log("Editando datos de la organización:", org);
 
       const response = await organizationService.actualizarOrganization(
         org.id,
@@ -114,26 +114,26 @@ const OrganizacionesView = () => {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      console.log("Alerta registrada:", alertaResponse);
+      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      console.log("Organización editada:", response);
+      // console.log("Organización editada:", response);
     } catch (error) {
       console.error("Error al guardar organización:", error);
     }
   };
 
   const clickEliminar = (org: Organization) => {
-    console.log("Obtener datos para eliminar:", org);
+    // console.log("Obtener datos para eliminar:", org);
     setNueva(org);
     setMostrarModalDelete(true);
   };
 
   const eliminarOrganizacion = async () => {
     try {
-      console.log("Eliminando organización:", org);
+      // console.log("Eliminando organización:", org);
 
       const response = await organizationService.delOrganization(org.id);
 
@@ -153,12 +153,12 @@ const OrganizacionesView = () => {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      console.log("Alerta registrada:", alertaResponse);
+      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      console.log("Organización eliminada:", response);
+      // console.log("Organización eliminada:", response);
     } catch (error) {
       console.error("Error al eliminar organización:", error);
     }

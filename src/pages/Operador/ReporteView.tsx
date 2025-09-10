@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { Prediccion } from "../../models/prediccion";
 import prediccionService from "../../services/prediccionService";
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function ReportesView() {
   // const [reportes] = useState([
@@ -41,7 +41,7 @@ export default function ReportesView() {
           };
         });
 
-        console.log("Reporte formateado:", formatted)
+      // console.log("Reporte formateado:", formatted)
 
       setReportes(formatted);
     } catch (error) {
@@ -49,10 +49,9 @@ export default function ReportesView() {
     }
   };
 
-
   useEffect(() => {
-    getPrediccionsAll()
-  }, [])
+    getPrediccionsAll();
+  }, []);
 
   const handleDownloadExcel = () => {
     const data = reportes.map((r) => ({
@@ -78,7 +77,10 @@ export default function ReportesView() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
 
     saveAs(blob, "reporte-predicciones.xlsx");
@@ -100,10 +102,18 @@ export default function ReportesView() {
         <table className="min-w-full text-sm">
           <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0 z-10">
             <tr className="text-left">
-              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">ID</th>
-              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">Fecha</th>
-              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">Resultado</th>
-              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">Porcentaje de confiabilidad</th>
+              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                ID
+              </th>
+              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                Fecha
+              </th>
+              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                Resultado
+              </th>
+              <th className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">
+                Porcentaje de confiabilidad
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -112,7 +122,9 @@ export default function ReportesView() {
                 <td className="px-6 py-3">{r.id}</td>
                 <td className="px-6 py-3">{r.timestamp}</td>
                 <td className="px-6 py-3">{r.riskResult}</td>
-                <td className="px-6 py-3">{(r.probability * 100).toFixed(2)}%</td>
+                <td className="px-6 py-3">
+                  {(r.probability * 100).toFixed(2)}%
+                </td>
               </tr>
             ))}
           </tbody>
@@ -120,7 +132,11 @@ export default function ReportesView() {
       </div>
 
       <footer className="text-xs text-gray-500 dark:text-gray-400 mt-6">
-        Los datos ingresados no se almacenan en la nube. Las predicciones se realizan utilizando modelos previamente entrenados. Toda acción realizada con información médica debe contar con el consentimiento de la persona. El modelo de inteligencia artificial no reemplaza las labores del personal médico.
+        Los datos ingresados no se almacenan en la nube. Las predicciones se
+        realizan utilizando modelos previamente entrenados. Toda acción
+        realizada con información médica debe contar con el consentimiento de la
+        persona. El modelo de inteligencia artificial no reemplaza las labores
+        del personal médico.
       </footer>
     </main>
   );

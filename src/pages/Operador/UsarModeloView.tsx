@@ -9,46 +9,102 @@ import prediccionService from "../../services/prediccionService";
 const campos = [
   { label: "EDAD", name: "edad", type: "int" },
   { label: "ABORTOS", name: "abortos", type: "int" },
-  { label: "INFECCIONES DURANTE EL EMBARAZO", name: "infecciones_durante_el_embarazo", type: "select", options: ["ITU", "ITU SFV", "NO", "PIELONEFRITIS", "SFV", "SIFILIS URINARIA", "URINARIA", "URINARIA SFV"] },
-  { label: "DIABETES", name: "diabetes", type: "select", options: ["SI", "NO"] },
-  { label: "HIPERTENSION", name: "hipertencion", type: "select", options: ["SI", "NO"] },
+  {
+    label: "INFECCIONES DURANTE EL EMBARAZO",
+    name: "infecciones_durante_el_embarazo",
+    type: "select",
+    options: [
+      "ITU",
+      "ITU SFV",
+      "NO",
+      "PIELONEFRITIS",
+      "SFV",
+      "SIFILIS URINARIA",
+      "URINARIA",
+      "URINARIA SFV",
+    ],
+  },
+  {
+    label: "DIABETES",
+    name: "diabetes",
+    type: "select",
+    options: ["SI", "NO"],
+  },
+  {
+    label: "HIPERTENSION",
+    name: "hipertencion",
+    type: "select",
+    options: ["SI", "NO"],
+  },
   { label: "EDAD GESTACIONAL", name: "eg", type: "string" },
   { label: "EMB MÚLTIPLES", name: "emb_multiples", type: "int" },
   { label: "PESO EN EL EMBARAZO", name: "peso_en_el_embarazo", type: "float" },
-  { label: "IMC PRE GESTACIONAL", name: "imc_pre_gestacional", type: "select", options: ["Bajo", "Elevado", "Normal"] },
+  {
+    label: "IMC PRE GESTACIONAL",
+    name: "imc_pre_gestacional",
+    type: "select",
+    options: ["Bajo", "Elevado", "Normal"],
+  },
   { label: "CPN", name: "cpn", type: "int" },
-  { label: "SANGRADO DEL I,II,III TRIMESTRE", name: "sangrado_del_i_ii_iii_trimestre", type: "select", options: ["I T", "II T", "III T", "I,II T", "I,III T"] },
-  { label: "TABAQUISMO", name: "tabaquismo", type: "select", options: ["SI", "NO"] },
-  { label: "ALCOHOLISMO", name: "alcoholismo", type: "select", options: ["SI", "NO"] },
+  {
+    label: "SANGRADO DEL I,II,III TRIMESTRE",
+    name: "sangrado_del_i_ii_iii_trimestre",
+    type: "select",
+    options: ["I T", "II T", "III T", "I,II T", "I,III T"],
+  },
+  {
+    label: "TABAQUISMO",
+    name: "tabaquismo",
+    type: "select",
+    options: ["SI", "NO"],
+  },
+  {
+    label: "ALCOHOLISMO",
+    name: "alcoholismo",
+    type: "select",
+    options: ["SI", "NO"],
+  },
   {
     label: "NIV EDUCATIVO",
     name: "niv_educativo",
     type: "select",
     options: [
-      "1 sec", "2 sec", "3sec", "4 sec", "5 sec", "6 prim", "inst comp",
-      "inst incomp", "no", "prim comp", "sup comp", "sup univ",
-      "univ comp", "univ imcomp", "univ incomp"
-    ]
+      "1 sec",
+      "2 sec",
+      "3sec",
+      "4 sec",
+      "5 sec",
+      "6 prim",
+      "inst comp",
+      "inst incomp",
+      "no",
+      "prim comp",
+      "sup comp",
+      "sup univ",
+      "univ comp",
+      "univ imcomp",
+      "univ incomp",
+    ],
   },
-  { label: "FORMULA OBSTETRICA", name: "formula_obstetrica", type: "string" }
+  { label: "FORMULA OBSTETRICA", name: "formula_obstetrica", type: "string" },
 ];
 
 const datosPrecargados: Record<string, string> = {
-  "EDAD": "39",
-  "ABORTOS": "0",
+  EDAD: "39",
+  ABORTOS: "0",
   "INFECCIONES DURANTE EL EMBARAZO": "URINARIA",
-  "DIABETES": "NO",
-  "HIPERTENSION": "NO",
+  DIABETES: "NO",
+  HIPERTENSION: "NO",
   "EDAD GESTACIONAL": "39SMS",
   "EMB MÚLTIPLES": "0",
   "PESO EN EL EMBARAZO": "67",
   "IMC PRE GESTACIONAL": "Elevado",
-  "CPN": "7",
+  CPN: "7",
   "SANGRADO DEL I,II,III TRIMESTRE": "II T",
-  "TABAQUISMO": "NO",
-  "ALCOHOLISMO": "NO",
+  TABAQUISMO: "NO",
+  ALCOHOLISMO: "NO",
   "NIV EDUCATIVO": "5 sec",
-  "FORMULA OBSTETRICA": "G6P5015"
+  "FORMULA OBSTETRICA": "G6P5015",
 };
 
 export default function UsarModeloView() {
@@ -63,7 +119,9 @@ export default function UsarModeloView() {
 
   const isFormValid = campos.every(({ name }) => form[name].trim() !== "");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -76,14 +134,17 @@ export default function UsarModeloView() {
 
   const handleSubmit = async () => {
     const completado = Object.fromEntries(
-      Object.entries(form).map(([key, value]) => [key, value || datosPrecargados[key] || ""])
+      Object.entries(form).map(([key, value]) => [
+        key,
+        value || datosPrecargados[key] || "",
+      ])
     );
 
-    console.log("Predicción enviada:", completado);
+    // console.log("Predicción enviada:", completado);
 
     try {
       const response = await prediccionService.crearInferencia(completado);
-      console.log("Respuesta al crear la inferencia: ", response);
+      // console.log("Respuesta al crear la inferencia: ", response);
 
       const porcentaje = Math.round((response as number) * 10000) / 100; // ejemplo: 0.47277 => 47.28
 
@@ -110,7 +171,8 @@ export default function UsarModeloView() {
           <Sparkles className="text-indigo-500" /> Usar Modelo
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Ingresa los valores de entrada para realizar una predicción segura y local.
+          Ingresa los valores de entrada para realizar una predicción segura y
+          local.
         </p>
       </header>
 
@@ -119,7 +181,10 @@ export default function UsarModeloView() {
           <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {campos.map(({ label, name, type, options }) => (
               <div key={name} className="flex flex-col">
-                <label htmlFor={name} className="text-sm font-medium mb-1 truncate">
+                <label
+                  htmlFor={name}
+                  className="text-sm font-medium mb-1 truncate"
+                >
                   {label}
                 </label>
 
@@ -134,19 +199,29 @@ export default function UsarModeloView() {
                       Selecciona una opción
                     </option>
                     {options.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
                     ))}
                   </select>
                 ) : (
                   <input
-                    type={type === "int" || type === "float" ? "number" : "text"}
+                    type={
+                      type === "int" || type === "float" ? "number" : "text"
+                    }
                     step={type === "float" ? "any" : undefined}
                     min={type === "int" || type === "float" ? "0" : undefined}
                     name={name}
                     value={form[name]}
                     onChange={handleChange}
-                    onKeyDown={type === "int" || type === "float" ? handleKeyDown : undefined}
-                    placeholder={`Ej. ${datosPrecargados[label] ?? "Ingresa valor"}`}
+                    onKeyDown={
+                      type === "int" || type === "float"
+                        ? handleKeyDown
+                        : undefined
+                    }
+                    placeholder={`Ej. ${
+                      datosPrecargados[label] ?? "Ingresa valor"
+                    }`}
                     className="px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                   />
                 )}
@@ -158,11 +233,16 @@ export default function UsarModeloView() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!isFormValid}
-                title={!isFormValid ? "Completa todos los campos para habilitar el botón" : ""}
+                title={
+                  !isFormValid
+                    ? "Completa todos los campos para habilitar el botón"
+                    : ""
+                }
                 className={`w-full font-semibold py-2 rounded-md flex items-center justify-center gap-2 transition
-                  ${isFormValid
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                    : "bg-gray-400 cursor-not-allowed text-gray-100"
+                  ${
+                    isFormValid
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      : "bg-gray-400 cursor-not-allowed text-gray-100"
                   }`}
               >
                 {!isFormValid ? (
@@ -192,8 +272,9 @@ export default function UsarModeloView() {
       </div>
 
       <footer className="mt-10 text-sm text-gray-500 dark:text-gray-400 text-center">
-        Los datos ingresados no se almacenan en la nube. Las predicciones se realizan localmente. El modelo de IA no
-        reemplaza el criterio humano para evaluar pacientes.
+        Los datos ingresados no se almacenan en la nube. Las predicciones se
+        realizan localmente. El modelo de IA no reemplaza el criterio humano
+        para evaluar pacientes.
       </footer>
     </main>
   );

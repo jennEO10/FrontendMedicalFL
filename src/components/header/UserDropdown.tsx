@@ -24,16 +24,15 @@ export default function UserDropdown() {
         id: 0,
         tipo: "🚪",
         mensaje: `Usuario cerró sesión: ${sessionStorage.getItem("userEmail")}`,
-        timestamp: getLocalDateTime()
+        timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      console.log("Alerta registrada:", alertaResponse);
 
       await logout();
     } catch (error) {
-      console.error("Error al desloguearse: ", error)
+      console.error("Error al desloguearse: ", error);
     }
-  }
+  };
   return (
     <div className="relative">
       <button
@@ -44,7 +43,9 @@ export default function UserDropdown() {
           <User className="w-6 h-6 text-gray-600 dark:text-gray-300" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{sessionStorage.getItem("username")|| ""}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {sessionStorage.getItem("username") || ""}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""

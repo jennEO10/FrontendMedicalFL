@@ -86,6 +86,19 @@ const Login = () => {
     }
   }, [isAuthenticated, isAuthorized, navigate]);
 
+  // Efecto adicional para manejar el estado de Firebase en producción
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user && sessionStorage.getItem("customLogin") === "true") {
+        // Si hay usuario de Firebase y customLogin está activo, asegurar estados
+        setIsAuthenticated(true);
+        setIsAuthorized(true);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     const email = login.email;
     const password = login.password;
@@ -138,7 +151,11 @@ const Login = () => {
 
       // Reiniciar contador en login exitoso
       setIntentosFallidos(0);
-      navigate(redirectPath);
+
+      // Pequeño delay para asegurar que los estados se establezcan en producción
+      setTimeout(() => {
+        navigate(redirectPath);
+      }, 100);
     } catch (customError: any) {
       // Manejar intento fallido
       await manejarIntentoFallido("Email/Password");
@@ -189,7 +206,11 @@ const Login = () => {
 
       // Reiniciar contador en login exitoso
       setIntentosFallidos(0);
-      navigate("/dash-admin");
+
+      // Pequeño delay para asegurar que los estados se establezcan en producción
+      setTimeout(() => {
+        navigate("/dash-admin");
+      }, 100);
     } catch (error: any) {
       // No mostrar error si el usuario canceló el popup
       if (

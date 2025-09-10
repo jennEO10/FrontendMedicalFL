@@ -5,7 +5,6 @@ const userService = {
   getAllUsers: async () => {
     try {
       const users = await userApi.getUsers();
-      console.log("Fetched users:", users);
       return users;
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -15,7 +14,6 @@ const userService = {
   newUser: async (data: User) => {
     try {
       const response = await userApi.createUser(data);
-      console.log("User created:", response);
       return response;
     } catch (error) {
       console.error("Error creating user:", error);
@@ -25,7 +23,6 @@ const userService = {
   updateUser: async (id: number, data: User) => {
     try {
       const response = await userApi.updateUser(id, data);
-      console.log("User updated:", response);
       return response;
     } catch (error) {
       console.error("Error updating user:", error);
@@ -35,7 +32,6 @@ const userService = {
   deleteUser: async (id: number) => {
     try {
       const response = await userApi.deleteUser(id);
-      console.log("User deleted:", response);
       return response;
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -45,7 +41,6 @@ const userService = {
   buscarNombre: async (name: string) => {
     try {
       const response = await userApi.searchName(name);
-      console.log("User found by name:", response);
       return response;
     } catch (error) {
       console.error("Error searching user by name:", error);
@@ -55,7 +50,6 @@ const userService = {
   buscarEmail: async (email: string) => {
     try {
       const response = await userApi.searchMail(email);
-      console.log("User found by email:", response);
       return response;
     } catch (error) {
       console.error("Error searching user by email:", error);
@@ -65,7 +59,6 @@ const userService = {
   seleccionarRol: async (rol: number) => {
     try {
       const response = await userApi.selectedRole(rol);
-      console.log("Users found by role:", response);
       return response;
     } catch (error) {
       console.error("Error searching users by role:", error);
@@ -75,7 +68,6 @@ const userService = {
   seleccionarEstado: async (estado: boolean) => {
     try {
       const response = await userApi.selectedEstado(estado);
-      console.log("Users found by status:", response);
       return response;
     } catch (error) {
       console.error("Error searching users by status:", error);
@@ -85,7 +77,6 @@ const userService = {
   buscarNombreRol: async (rolName: string) => {
     try {
       const response = await userApi.searchRoleName(rolName);
-      console.log("Users found by role name:", response);
       return response;
     } catch (error) {
       console.error("Error searching users by role name:", error);
@@ -95,7 +86,6 @@ const userService = {
   getUser: async (id: number) => {
     try {
       const response = await userApi.getUser(id);
-      console.log("Get user:", response);
       return response;
     } catch (error) {
       console.error("Error get User:", error);
@@ -105,7 +95,6 @@ const userService = {
   activarUsuario: async (id: number) => {
     try {
       const response = await userApi.activateUser(id);
-      console.log("Activate user:", response);
       return response;
     } catch (error) {
       console.error("Error activating user:", error);
@@ -115,7 +104,6 @@ const userService = {
   desactivarUsuario: async (id: number) => {
     try {
       const response = await userApi.deactivateUser(id);
-      console.log("Deactivate user:", response);
       return response;
     } catch (error) {
       console.error("Error deactivating user:", error);
@@ -125,7 +113,6 @@ const userService = {
   actualizarContraseña: async (id: number, newPassword: string) => {
     try {
       const response = await userApi.updatePassword(id, newPassword);
-      console.log("Password updated:", response);
       return response;
     } catch (error) {
       console.error("Error updating password:", error);

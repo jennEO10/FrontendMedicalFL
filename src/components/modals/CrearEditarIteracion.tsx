@@ -164,8 +164,6 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
 
     document.addEventListener("keydown", handleKeyDown);
 
-    console.log("Iteracion desde el modal crear: ", iteracion);
-
     if (!iteracion.startDate) {
       const fecha = getLocalDateTime();
       setIteracion((prev: any) => ({ ...prev, startDate: fecha }));
