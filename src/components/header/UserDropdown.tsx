@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "../../context/AuthContext";
 import { User } from "lucide-react";
@@ -9,6 +9,8 @@ import alertaService from "../../services/alertaService";
 export default function UserDropdown() {
   const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [username, setUsername] = useState("");
+  const [userEmail, setUserEmail] = useState("");
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -18,12 +20,30 @@ export default function UserDropdown() {
     setIsOpen(false);
   }
 
+  // Efecto para cargar los datos del usuario cuando estén disponibles
+  useEffect(() => {
+    const loadUserData = () => {
+      const storedUsername = sessionStorage.getItem("username");
+      const storedUserEmail = sessionStorage.getItem("userEmail");
+
+      if (storedUsername && storedUserEmail) {
+        setUsername(storedUsername);
+        setUserEmail(storedUserEmail);
+      } else {
+        // Si no están disponibles, esperar un poco y volver a intentar
+        setTimeout(loadUserData, 100);
+      }
+    };
+
+    loadUserData();
+  }, []);
+
   const userLogout = async () => {
     try {
       const alerta: Alerta = {
         id: 0,
         tipo: "🚪",
-        mensaje: `Usuario cerró sesión: ${sessionStorage.getItem("userEmail")}`,
+        mensaje: `Usuario cerró sesión: ${userEmail}`,
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
@@ -44,7 +64,7 @@ export default function UserDropdown() {
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">
-          {sessionStorage.getItem("username") || ""}
+          {username || ""}
         </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
@@ -73,10 +93,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {sessionStorage.getItem("username") || ""}
+            {username || ""}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {sessionStorage.getItem("userEmail")}
+            {userEmail}
           </span>
         </div>
 

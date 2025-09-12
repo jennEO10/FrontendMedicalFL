@@ -64,8 +64,6 @@ const OperadorDashboard = () => {
           };
         });
 
-      // console.log("Reporte formateado:", formatted)
-
       setReportes([formatted[0]]);
     } catch (error) {
       console.error("Error al obtener las predicciones:", error);

@@ -126,7 +126,6 @@ export default function UsuariosView() {
 
   const guardarUsuario = async () => {
     try {
-      // console.log("Guardando usuario:", usuario);
       const response = await usersService.newUser(usuario);
 
       // Obtener información completa del usuario
@@ -150,14 +149,12 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      // console.log("Usuario guardado:", response);
     } catch (error) {
       console.error("Error al guardar usuario:", error);
     }
   };
 
   const clickEditar = (usuario: User) => {
-    // console.log("Obtener datos para editar:", usuario);
     setUsuario(usuario);
     setModoEdicion(true);
     setMostrarModalAddUpd(true);
@@ -230,7 +227,6 @@ export default function UsuariosView() {
 
   const cambiarContraseña = async (newPassword: string) => {
     try {
-      // console.log("Cambiando contraseña para usuario:", usuario.id);
       await usersService.actualizarContraseña(usuario.id, newPassword);
 
       // Mostrar alerta de éxito
@@ -246,7 +242,6 @@ export default function UsuariosView() {
 
       setMostrarModalCambiarContraseña(false);
       setMostrarModalConfirmacion(true);
-      // console.log("Contraseña actualizada exitosamente");
     } catch (error) {
       console.error("Error al cambiar contraseña:", error);
 
@@ -265,7 +260,6 @@ export default function UsuariosView() {
 
   const editarUsuario = async () => {
     try {
-      // console.log("Editando datos del usuario:", usuario);
       const response = await usersService.updateUser(usuario.id, usuario);
 
       // Obtener información completa del usuario
@@ -289,22 +283,18 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      // console.log("Usuario editado:", response);
     } catch (error) {
       console.error("Error al guardar usuario:", error);
     }
   };
 
   const clickEliminar = (usuario: User) => {
-    // console.log("Obtener datos para eliminar:", usuario);
     setUsuario(usuario);
     setMostrarModalDelete(true);
   };
 
   const eliminarUsuario = async () => {
     try {
-      // console.log("Eliminando usuario:", usuario);
-
       const response = await usersService.deleteUser(usuario.id);
 
       // Remover el usuario del estado local
@@ -323,7 +313,6 @@ export default function UsuariosView() {
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      // console.log("Usuario eliminado:", response);
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
     }
@@ -340,8 +329,6 @@ export default function UsuariosView() {
   };
 
   const handleBuscar = async () => {
-    // console.log("Filtro elegido:", filtroElegido);
-    // console.log("Filtros aplicados:", filtros);
     // Aquí podrías aplicar los filtros al listado si es necesario
     try {
       switch (filtroElegido) {

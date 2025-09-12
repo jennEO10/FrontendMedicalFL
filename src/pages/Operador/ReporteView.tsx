@@ -41,8 +41,6 @@ export default function ReportesView() {
           };
         });
 
-      // console.log("Reporte formateado:", formatted)
-
       setReportes(formatted);
     } catch (error) {
       console.error("Error al obtener las predicciones:", error);

@@ -43,6 +43,7 @@ const Login = () => {
       return response;
     } catch (error) {
       console.error("Error al loguearse por firebase: ", error);
+      throw error; // Re-lanzar el error para que se maneje en el catch del handleGoogleLogin
     }
   };
 

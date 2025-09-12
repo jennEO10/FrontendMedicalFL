@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUserRole } from "../../hooks/useUserRole";
 
 const RoleRedirector = () => {
   const navigate = useNavigate();
+  const { isAdmin, isLoading } = useUserRole();
 
   useEffect(() => {
-    const roleId = sessionStorage.getItem("roleID");
-    const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
-    const isAdmin = roleId === "2" || roleName === "admin";
-
-    const redirectPath = isAdmin ? "/dash-admin" : "/dashboard";
-    navigate(redirectPath, { replace: true });
-  }, [navigate]);
+    if (!isLoading) {
+      const redirectPath = isAdmin ? "/dash-admin" : "/dashboard";
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAdmin, isLoading, navigate]);
 
   return null; // No renderiza nada, solo redirige
 };

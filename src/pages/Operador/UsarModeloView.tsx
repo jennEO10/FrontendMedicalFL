@@ -140,11 +140,8 @@ export default function UsarModeloView() {
       ])
     );
 
-    // console.log("Predicción enviada:", completado);
-
     try {
       const response = await prediccionService.crearInferencia(completado);
-      // console.log("Respuesta al crear la inferencia: ", response);
 
       const porcentaje = Math.round((response as number) * 10000) / 100; // ejemplo: 0.47277 => 47.28
 

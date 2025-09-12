@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
+import { useUserRole } from "../hooks/useUserRole";
 
 // Assume these icons are imported from an icon library
 import {
@@ -17,7 +18,18 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
-import { FaBell, FaBrain, FaBuilding, FaFileAlt, FaInfoCircle, FaMagic, FaRetweet, FaScroll, FaUsers, FaUserShield } from "react-icons/fa";
+import {
+  FaBell,
+  FaBrain,
+  FaBuilding,
+  FaFileAlt,
+  FaInfoCircle,
+  FaMagic,
+  FaRetweet,
+  FaScroll,
+  FaUsers,
+  FaUserShield,
+} from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 
 type NavItem = {
@@ -31,7 +43,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/dash-admin"
+    path: "/dash-admin",
     // subItems: [
     //   { name: "Ecommerce", path: "/", pro: false },
     //   { name: "Administrador", path: "/dash-admin", pro: false },
@@ -157,19 +169,13 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { logout } = useAuth()
+  const { logout } = useAuth();
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-  const roleId = sessionStorage?.getItem("roleID") ?? "2";
-  const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
-  const isAdmin = roleId === "2" || roleId === "0" || roleName === "admin";
+  const { isAdmin, isLoading } = useUserRole();
   const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
 
-  // console.log("Datos: ", roleId, roleName)
-
-  const filteredNavItems = isAdmin
-  ? navItems
-  : operatorNavItems;
+  const filteredNavItems = isAdmin ? navItems : operatorNavItems;
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -222,7 +228,7 @@ const AppSidebar: React.FC = () => {
       }
     }
   }, [openSubmenu]);
-  
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const tokenExpira = localStorage.getItem("token_expira");
@@ -251,7 +257,7 @@ const AppSidebar: React.FC = () => {
     };
 
     validarToken();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]); // cada vez que se navega
 
   const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {

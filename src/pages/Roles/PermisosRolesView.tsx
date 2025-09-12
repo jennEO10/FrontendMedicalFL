@@ -39,10 +39,6 @@ export default function PermisosView() {
           })
         );
 
-        // console.log("Permisos agrupados: ", modulosGenerados);
-
-        // console.log("Se obtiene los permisos del role seleccionado: ", permisosAsociados);
-
         const modulosActualizados = modulosGenerados.map((modulo) => {
           const permisosActualizados = modulo.permisos.map((permiso) => {
             const match = permisosAsociados.find((p) => p.id === permiso.id);
@@ -55,8 +51,6 @@ export default function PermisosView() {
 
           return { ...modulo, permisos: permisosActualizados };
         });
-
-        // console.log("Modulos actualizados: ", modulosActualizados);
 
         setModulos(modulosActualizados);
       } catch (error) {
@@ -75,7 +69,6 @@ export default function PermisosView() {
   };
 
   const handleGuardar = async () => {
-    // console.log('Módulos obtenidos:', modulos);
     const permisosSeleccionados = modulos
       .flatMap((modulo) => modulo.permisos)
       .filter((permiso) => permiso.checked)
@@ -90,11 +83,6 @@ export default function PermisosView() {
     const permisosAEliminar = permisosAsignados.filter(
       (id) => !permisosSeleccionados.includes(id)
     );
-
-    // console.log('✔️ Agregar:', permisosAAgregar);
-    // console.log('❌ Eliminar:', permisosAEliminar);
-
-    // console.log("Permisos Seleccionados: ", permisosSeleccionados)
 
     try {
       // Aquí haces la lógica real de actualizar en backend

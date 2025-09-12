@@ -34,7 +34,6 @@ export default function RolesView() {
 
       setRoles(rolesPermissions);
       setTodosLosRoles(rolesPermissions);
-      // console.log("Roles y Permisos cargados:", rolesPermissions);
     } catch (error) {
       console.error("Error al cargar roles:", error);
     }
@@ -62,7 +61,6 @@ export default function RolesView() {
 
   const crearRol = async () => {
     try {
-      // console.log("Rol a crear:", rol);
       const response = (await rulesService.newRule(rol)) as any;
 
       // Obtener información completa del rol
@@ -84,19 +82,16 @@ export default function RolesView() {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      // console.log("Rol creado:", response);
     } catch (error) {
       console.error("Error al crear rol:", error);
     }
   };
 
   const clickEditar = (rol: Rule) => {
-    // console.log("Editar rol:", rol);
     setRol(rol);
     setModoEdicion(true);
     setMostrarModal(true);
@@ -104,7 +99,6 @@ export default function RolesView() {
 
   const editarRol = async () => {
     try {
-      // console.log("Rol a editar:", rol);
       const response = await rulesService.updRule(rol.id, rol);
 
       // Obtener información completa del rol
@@ -126,26 +120,22 @@ export default function RolesView() {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      // console.log("Rol editado:", response);
     } catch (error) {
       console.error("Error al editar rol:", error);
     }
   };
 
   const clickEliminar = (rol: Rule) => {
-    // console.log("Eliminar rol:", rol);
     setRol(rol);
     setMostrarModalDelete(true);
   };
 
   const eliminarRol = async () => {
     try {
-      // console.log("Rol a eliminar:", rol);
       const response = await rulesService.delRule(rol.id);
 
       // Remover el rol del estado local
@@ -162,12 +152,10 @@ export default function RolesView() {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
       reiniciarFormulario();
-      // console.log("Rol eliminado:", response);
     } catch (error: any) {
       console.error("Error al eliminar rol:", error);
       alert("Error: " + error.message);

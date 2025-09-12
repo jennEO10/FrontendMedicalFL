@@ -5,12 +5,11 @@ import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import { useUserRole } from "../hooks/useUserRole";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
-  const roleId = sessionStorage.getItem("roleID");
-  const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
-  const isAdmin = roleId === "2" || roleName === "admin";
+  const { isAdmin, isLoading } = useUserRole();
 
   const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
 
@@ -88,7 +87,10 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link to={homeRoute} className="flex items-center space-x-2 lg:hidden">
+          <Link
+            to={homeRoute}
+            className="flex items-center space-x-2 lg:hidden"
+          >
             <img
               src="./images/logo/logo-icon.svg"
               alt="Logo"
@@ -99,7 +101,7 @@ const AppHeader: React.FC = () => {
               MedicalFL
             </span>
           </Link>
-          
+
           <button
             onClick={toggleApplicationMenu}
             className="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
@@ -164,7 +166,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            {sessionStorage.getItem('roleID') !== '1' && <NotificationDropdown />}
+            {!isLoading && isAdmin && <NotificationDropdown />}
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}

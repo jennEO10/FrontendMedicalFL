@@ -1,4 +1,4 @@
-import * as auth from '../api/authApi';
+import * as auth from "../api/authApi";
 import { LoginSchema } from "../models/login";
 
 const loginService = {

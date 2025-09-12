@@ -74,7 +74,6 @@ export default function IteracionesView() {
   const obtenerIteraciones = async () => {
     try {
       const listIteraciones = await iteracionService.getAllIteraciones();
-      // console.log("Lista de iteraciones: ", listIteraciones);
 
       // const iteracionForOrganization = await Promise.all(
       //   listIteraciones.map(async (iteracion) => {
@@ -122,7 +121,6 @@ export default function IteracionesView() {
         (a, b) => b.id - a.id
       );
 
-      // console.log("Iteraciones alteradas: ", iteracionesOrdenadas);
       setIteraciones(iteracionesOrdenadas);
       setTodasLasIteraciones(iteracionesOrdenadas);
     } catch (error) {
@@ -207,11 +205,8 @@ export default function IteracionesView() {
   // }
 
   const handleGuardarIteracion = async () => {
-    // console.log("Recibir datos de la iteración a crear:", iteracion);
     try {
       const response = await iteracionService.addIteracion(iteracion);
-
-      // console.log("Iteración guardada:", response);
 
       const iterationId = response.id;
       // const userIds = response.data?.userIds ?? [];
@@ -223,8 +218,6 @@ export default function IteracionesView() {
           iterationId
         );
         const response1 = await iteracionService.creatHyper(hyperParams);
-
-        // console.log("Hyperparameter guardada:", response1);
       }
 
       const VM = {
@@ -236,8 +229,6 @@ export default function IteracionesView() {
       };
       const lanzarVM = await iteracionService.lanzarVM(VM);
 
-      // console.log("VM lanzado correctamente: ", lanzarVM);
-
       const alerta: Alerta = {
         id: 0,
         tipo: "🔄",
@@ -247,7 +238,6 @@ export default function IteracionesView() {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
@@ -270,20 +260,17 @@ export default function IteracionesView() {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const clickEditar = (iteracion: Iteracion) => {
-    // console.log("Se carga la iteración seleccionada: ", iteracion);
     setEditMode(true);
     setIteracion(iteracion);
     setModalOpen(true);
   };
 
   const editarIteracion = async () => {
-    // console.log("Recibir datos de la iteración a editar:", iteracion);
     try {
       const response = await iteracionService.updIteracion(
         iteracion.id,
         iteracion
       );
-      // console.log("Iteración editada:", response);
 
       const iterationId = response.data?.id;
 
@@ -302,8 +289,6 @@ export default function IteracionesView() {
           hyperParams
         );
       }
-
-      // console.log("Hyperparameter editada:", response1);
 
       // Obtener información completa de la iteración editada
       const iteracionCompleta = await obtenerIteracionCompleta(response.data);
@@ -327,8 +312,6 @@ export default function IteracionesView() {
   };
 
   const eliminarIteracion = async () => {
-    // console.log("Iteración a eliminar:", iteracion);
-
     try {
       const response = await iteracionService.delIteracion(iteracion.id);
 
@@ -341,7 +324,6 @@ export default function IteracionesView() {
         timestamp: getLocalDateTime(),
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
-      // console.log("Alerta registrada:", alertaResponse);
       // 🟠 Emitir evento para notificaciones en tiempo real
       alertaEmitter.emit("alertaCreada");
 
@@ -353,7 +335,6 @@ export default function IteracionesView() {
       setTodasLasIteraciones(iteracionesFiltradas);
 
       reiniciarFormulario();
-      // console.log("Iteración eliminada:", response);
     } catch (error: any) {
       console.error("Error al eliminar la iteración:", error);
       alert("Error: " + error.message);
@@ -395,8 +376,6 @@ export default function IteracionesView() {
         return fila;
       });
 
-      // console.log("Datos normalizados: ", datosNormalizados);
-
       const worksheet = XLSX.utils.json_to_sheet(datosNormalizados, {
         header: cabeceras,
       });
@@ -413,8 +392,6 @@ export default function IteracionesView() {
       const columnaIndices = columnasPorcentaje.map((c) =>
         cabeceras.indexOf(c)
       );
-
-      // console.log("Indices: ", columnaIndices);
 
       datosNormalizados.forEach((_, rowIndex) => {
         columnaIndices.forEach((colIndex) => {

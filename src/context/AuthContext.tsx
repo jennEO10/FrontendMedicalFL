@@ -81,8 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await setPersistence(auth, browserSessionPersistence);
     const response = await signInWithPopup(auth, provider);
 
-    // console.log("Respuesta desde oAuth", await response.user.getIdToken())
-
     return response;
   };
 
