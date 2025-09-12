@@ -53,6 +53,9 @@ const IteracionForRondas = lazy(
 const MetricasPorUsuario = lazy(
   () => import("./pages/Iteraciones/MetricasPorUsuario")
 );
+const MetricasPorOrganizacion = lazy(
+  () => import("./pages/Iteraciones/MetricasPorOrganizacion")
+);
 
 // Lazy loading para páginas de roles
 const PermisosView = lazy(() => import("./pages/Roles/PermisosRolesView"));
@@ -117,6 +120,10 @@ export default function App() {
                 <Route
                   path="/metricas-usuario"
                   element={<MetricasPorUsuario />}
+                />
+                <Route
+                  path="/metricas-organizacion"
+                  element={<MetricasPorOrganizacion />}
                 />
                 <Route path="/log-sistema" element={<LogSistemaView />} />
                 <Route

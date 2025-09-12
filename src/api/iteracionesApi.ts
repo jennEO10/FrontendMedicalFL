@@ -1,5 +1,11 @@
-import api from './axiosConfig'
-import { HyperParameter, Iteracion, MetricasByIteracion, RondasForIteracion, VM } from '../models/iteracion';
+import api from "./axiosConfig";
+import {
+  HyperParameter,
+  Iteracion,
+  MetricasByIteracion,
+  RondasForIteracion,
+  VM,
+} from "../models/iteracion";
 
 export const getIteraciones = async () => {
   const response = await api.get<Iteracion[]>(`/api/listar-iteraciones`);
@@ -12,7 +18,10 @@ export const createIteracion = async (data: Iteracion) => {
 };
 
 export const updateIteracion = async (id: number, data: Iteracion) => {
-  const response = await api.patch<Iteracion>(`/api/actualizar-iteracion/${id}`, data);
+  const response = await api.patch<Iteracion>(
+    `/api/actualizar-iteracion/${id}`,
+    data
+  );
   return response;
 };
 
@@ -24,16 +33,20 @@ export const deleteIteracion = async (id: number) => {
 export const getLastInteraction = async () => {
   const response = await api.get<Iteracion>(`/api/obtener-ultima-iteracion`);
   return response.data;
-}
+};
 
 export const getLastInteractionByUser = async (userId: number) => {
-  const response = await api.get<Iteracion[]>(`/api/listar-iteraciones-por-usuario/${userId}`);
+  const response = await api.get<Iteracion[]>(
+    `/api/listar-iteraciones-por-usuario/${userId}`
+  );
   return response.data;
-}
+};
 
 // Hyperparameters
 export const getHyperIteracion = async (idIteracion: number) => {
-  const response = await api.get<HyperParameter>(`/api/listar-hyperparametros-por-iteracion/${idIteracion}`);
+  const response = await api.get<HyperParameter>(
+    `/api/listar-hyperparametros-por-iteracion/${idIteracion}`
+  );
   return response.data;
 };
 
@@ -43,18 +56,25 @@ export const createHyper = async (data: HyperParameter) => {
 };
 
 export const updateHyper = async (id: number, data: HyperParameter) => {
-  const response = await api.patch(`/api/actualizar-hyperparametro/${id}`, data);
+  const response = await api.patch(
+    `/api/actualizar-hyperparametro/${id}`,
+    data
+  );
   return response;
 };
 
 // Rondas
 export const getRondasIteration = async (idIteracion: number) => {
-  const response = await api.get<RondasForIteracion[]>(`/api/listar-rondas-por-iteracion/${idIteracion}`);
+  const response = await api.get<RondasForIteracion[]>(
+    `/api/listar-rondas-por-iteracion/${idIteracion}`
+  );
   return response.data;
 };
 
 export const exportMetricsByIteration = async (idIteracion: number) => {
-  const response = await api.get<MetricasByIteracion[]>(`/api/metrics/iteration/${idIteracion}`);
+  const response = await api.get<MetricasByIteracion[]>(
+    `/api/metrics/iteration/${idIteracion}`
+  );
   return response.data;
 };
 
@@ -66,7 +86,9 @@ export const launchVM = async (vm: VM) => {
 
 //Métricas
 export const getLastMetricByIteration = async (idIteracion: number) => {
-  const response = await api.get<MetricasByIteracion[]>(`/api/metrics/latest/iteration/${idIteracion}`);
+  const response = await api.get<MetricasByIteracion[]>(
+    `/api/metrics/latest/iteration/${idIteracion}`
+  );
   return response.data;
 };
 
@@ -76,6 +98,18 @@ export const getLastMetrics = async () => {
 };
 
 export const getMetricsByUser = async (userId: number, iterationId: number) => {
-  const response = await api.get<MetricasByIteracion[]>(`/api/usermetrics/user/${userId}/iteration/${iterationId}`);
+  const response = await api.get<MetricasByIteracion[]>(
+    `/api/usermetrics/user/${userId}/iteration/${iterationId}`
+  );
+  return response.data;
+};
+
+export const getMetricsByOrganization = async (
+  organizationId: number,
+  iterationId: number
+) => {
+  const response = await api.get<any[]>(
+    `/api/usermetrics/organizations/${organizationId}/iterations/${iterationId}`
+  );
   return response.data;
 };

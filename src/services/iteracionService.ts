@@ -140,6 +140,21 @@ const iteracionService = {
       throw error;
     }
   },
+  obtenerMetricasPorOrganizacion: async (
+    organizationId: number,
+    iterationId: number
+  ) => {
+    try {
+      const response = await ite.getMetricsByOrganization(
+        organizationId,
+        iterationId
+      );
+      return response;
+    } catch (error) {
+      console.error("Error al obtener las métricas por organización:", error);
+      throw error;
+    }
+  },
 };
 
 export default iteracionService;
