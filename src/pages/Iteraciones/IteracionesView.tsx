@@ -510,7 +510,7 @@ export default function IteracionesView() {
                       <FaUsers />
                     </button>
                     <button
-                      className="p-2 rounded-full bg-purple-500 text-white hover:bg-purple-600"
+                      className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600"
                       title="Métricas por Organización"
                       onClick={() => irAMetricasPorOrganizacion(iteracion)}
                     >

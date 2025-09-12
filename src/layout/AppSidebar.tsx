@@ -31,6 +31,7 @@ import {
   FaUserShield,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useTokenReady } from "../hooks/useTokenReady";
 
 type NavItem = {
   name: string;
@@ -172,9 +173,13 @@ const AppSidebar: React.FC = () => {
   const { logout } = useAuth();
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-  const { isAdmin, isLoading } = useUserRole();
-  const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
+  const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const { isTokenReady, isLoading: tokenLoading } = useTokenReady();
 
+  // El loading total es true si cualquiera de los dos está cargando
+  const isLoading = roleLoading || tokenLoading;
+
+  const homeRoute = isAdmin ? "/dash-admin" : "/dashboard";
   const filteredNavItems = isAdmin ? navItems : operatorNavItems;
 
   const [openSubmenu, setOpenSubmenu] = useState<{
@@ -458,7 +463,18 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(filteredNavItems, "main")}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  {(isExpanded || isHovered || isMobileOpen) && (
+                    <span className="ml-2 text-sm text-gray-500">
+                      Inicializando...
+                    </span>
+                  )}
+                </div>
+              ) : (
+                renderMenuItems(filteredNavItems, "main")
+              )}
             </div>
             {/* <div className="">
               <h2

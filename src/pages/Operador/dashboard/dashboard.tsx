@@ -4,9 +4,12 @@ import { Iteracion, MetricasByIteracion } from "../../../models/iteracion";
 import iteracionService from "../../../services/iteracionService";
 import { Prediccion } from "../../../models/prediccion";
 import prediccionService from "../../../services/prediccionService";
+import { useRoleGuard } from "../../../hooks/useRoleGuard";
+import LoadingScreen from "../../../components/common/LoadingScreen";
 
 const OperadorDashboard = () => {
   const navigate = useNavigate();
+  const { isLoading, hasAccess } = useRoleGuard({ requiredRole: "operator" });
   const [iteracion, setIteracion] = useState<Iteracion>({
     id: 0,
     iterationName: "",
@@ -134,6 +137,11 @@ const OperadorDashboard = () => {
   const irAReporte = () => {
     navigate("/view-reports");
   };
+
+  // Mostrar loading mientras se verifica el token y el rol
+  if (isLoading) {
+    return <LoadingScreen message="Inicializando sistema..." />;
+  }
 
   return (
     <div className="p-6 sm:p-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">

@@ -53,9 +53,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // Efecto adicional para verificar el estado de autenticación al cargar
+  // Efecto adicional para verificar el estado de autenticación inmediatamente
   useEffect(() => {
-    const checkAuthState = () => {
+    const checkInitialAuthState = () => {
       const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
       const hasToken = sessionStorage.getItem("token");
 
@@ -63,11 +63,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true);
         setIsAuthorized(true);
         setLoading(false);
+      } else if (!isCustomLogin && !hasToken) {
+        // No hay sesión personalizada, esperar a que Firebase se inicialice
+        setLoading(true);
       }
     };
 
-    // Verificar inmediatamente
-    checkAuthState();
+    // Verificar inmediatamente al cargar
+    checkInitialAuthState();
   }, []);
 
   const loginWithEmail = async (email: string, password: string) => {

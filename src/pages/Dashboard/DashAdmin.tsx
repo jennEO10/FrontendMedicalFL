@@ -15,9 +15,12 @@ import organizationService from "../../services/organizationService";
 import iteracionService from "../../services/iteracionService";
 import { Alerta } from "../../models/aletas";
 import alertaService from "../../services/alertaService";
+import { useRoleGuard } from "../../hooks/useRoleGuard";
+import LoadingScreen from "../../components/common/LoadingScreen";
 
 export default function DashboardAdminView() {
   const initialized = useRef(false);
+  const { isLoading, hasAccess } = useRoleGuard({ requiredRole: "admin" });
 
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -263,6 +266,11 @@ export default function DashboardAdminView() {
     if (dias < 30) return `Hace ${dias} día${dias > 1 ? "s" : ""}`;
     if (meses < 12) return `Hace ${meses} mes${meses > 1 ? "es" : ""}`;
     return `Hace ${años} año${años > 1 ? "s" : ""}`;
+  }
+
+  // Mostrar loading mientras se verifica el token y el rol
+  if (isLoading) {
+    return <LoadingScreen message="Inicializando sistema..." />;
   }
 
   return (

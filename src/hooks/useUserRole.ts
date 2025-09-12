@@ -22,12 +22,53 @@ export const useUserRole = (): UserRole => {
         setRoleName(storedRoleName);
         setIsLoading(false);
       } else {
-        // Si no están disponibles, esperar un poco y volver a intentar
-        setTimeout(loadUserRole, 100);
+        // Verificar si hay un token válido para determinar si debe seguir cargando
+        const hasToken = sessionStorage.getItem("token");
+        const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
+
+        if (!hasToken || !isCustomLogin) {
+          // No hay sesión activa, no es necesario seguir cargando
+          setIsLoading(false);
+        } else {
+          // Hay sesión pero no se ha cargado el rol aún, reintentar
+          setTimeout(loadUserRole, 50);
+        }
       }
     };
 
+    // Cargar inmediatamente
     loadUserRole();
+  }, []);
+
+  // Escuchar cambios en sessionStorage para actualizar el rol en tiempo real
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedRoleId = sessionStorage.getItem("roleID");
+      const storedRoleName = sessionStorage.getItem("roleName");
+
+      if (storedRoleId && storedRoleName) {
+        setRoleId(storedRoleId);
+        setRoleName(storedRoleName);
+        setIsLoading(false);
+      }
+    };
+
+    // Escuchar cambios en sessionStorage
+    window.addEventListener("storage", handleStorageChange);
+
+    // También escuchar cambios programáticos en sessionStorage
+    const originalSetItem = sessionStorage.setItem;
+    sessionStorage.setItem = function (key, value) {
+      originalSetItem.apply(this, [key, value]);
+      if (key === "roleID" || key === "roleName") {
+        handleStorageChange();
+      }
+    };
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      sessionStorage.setItem = originalSetItem;
+    };
   }, []);
 
   const isAdmin =
