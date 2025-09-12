@@ -15,6 +15,7 @@ import {
 import userService from "../../services/usersService";
 import { User } from "../../models/user";
 import iteracionService from "../../services/iteracionService";
+import organizationService from "../../services/organizationService";
 
 interface MetricasOrganizacion {
   nombre: string;
@@ -25,22 +26,27 @@ interface MetricasOrganizacion {
   organizationName: string;
 }
 
+interface Organizacion {
+  id: number;
+  name: string;
+}
+
 export default function MetricasPorOrganizacion() {
   const navigate = useNavigate();
   const location = useLocation();
   const iteracion = location.state?.iteracion;
 
   const [usuarios, setUsuarios] = useState<User[]>([]);
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<number | null>(
-    null
-  );
-  const [organizationId, setOrganizationId] = useState<number | null>(null);
+  const [organizaciones, setOrganizaciones] = useState<Organizacion[]>([]);
+  const [organizacionSeleccionada, setOrganizacionSeleccionada] = useState<
+    number | null
+  >(null);
   const [viewMode, setViewMode] = useState<"tabla" | "grafico">("tabla");
   const [metrics, setMetrics] = useState<MetricasOrganizacion[] | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>("accuracy");
 
   useEffect(() => {
-    const cargarUsuarios = async () => {
+    const cargarUsuariosYOrganizaciones = async () => {
       if (!iteracion?.userIds || iteracion.userIds.length === 0) return;
       try {
         const usuariosCargados = await Promise.all(
@@ -50,24 +56,60 @@ export default function MetricasPorOrganizacion() {
               id: res.id,
               username: res.username,
               organizationId: res.organizationId,
+              organizationName: res.nameOrganization,
             };
           })
         );
         setUsuarios(usuariosCargados);
+
+        // Extraer organizaciones únicas
+        const organizacionesUnicas = usuariosCargados.reduce(
+          (acc: Organizacion[], usuario) => {
+            const orgExists = acc.find(
+              (org) => org.id === usuario.organizationId
+            );
+            if (!orgExists) {
+              acc.push({
+                id: usuario.organizationId,
+                name: `Organización ${usuario.organizationId}`, // Placeholder temporal
+              });
+            }
+            return acc;
+          },
+          []
+        );
+
+        // Obtener nombres reales de las organizaciones
+        const organizacionesConNombres = await Promise.all(
+          organizacionesUnicas.map(async (org) => {
+            try {
+              const orgData = await organizationService.getOrganization(org.id);
+              return {
+                id: org.id,
+                name: orgData.name || `Organización ${org.id}`,
+              };
+            } catch (error) {
+              console.error(`Error obteniendo organización ${org.id}:`, error);
+              return org; // Mantener el placeholder si hay error
+            }
+          })
+        );
+
+        setOrganizaciones(organizacionesConNombres);
       } catch (error) {
         console.error("Error cargando usuarios:", error);
       }
     };
-    cargarUsuarios();
+    cargarUsuariosYOrganizaciones();
   }, [iteracion]);
 
   useEffect(() => {
-    if (usuarioSeleccionado === null || organizationId === null) return;
+    if (organizacionSeleccionada === null) return;
 
     const fetchMetrics = async () => {
       try {
         const data = await iteracionService.obtenerMetricasPorOrganizacion(
-          organizationId,
+          organizacionSeleccionada,
           iteracion.id
         );
         setMetrics(data);
@@ -77,14 +119,10 @@ export default function MetricasPorOrganizacion() {
       }
     };
     fetchMetrics();
-  }, [usuarioSeleccionado, organizationId, iteracion]);
+  }, [organizacionSeleccionada, iteracion]);
 
-  const handleUsuarioChange = (userId: number) => {
-    setUsuarioSeleccionado(userId);
-    const usuario = usuarios.find((u) => u.id === userId);
-    if (usuario) {
-      setOrganizationId(usuario.organizationId);
-    }
+  const handleOrganizacionChange = (organizationId: number) => {
+    setOrganizacionSeleccionada(organizationId);
   };
 
   const formatDataForChart = (
@@ -140,32 +178,32 @@ export default function MetricasPorOrganizacion() {
 
       <div className="mb-4">
         <label className="block text-sm font-medium mb-2">
-          Seleccione usuario para obtener su organización:
+          Seleccione una organización:
         </label>
         <select
           className="w-full sm:w-64 px-4 py-2 rounded-md border dark:bg-gray-800 border-gray-300 dark:border-gray-600"
-          value={usuarioSeleccionado !== null ? usuarioSeleccionado : ""}
+          value={
+            organizacionSeleccionada !== null ? organizacionSeleccionada : ""
+          }
           onChange={(e) => {
             const value = e.target.value;
             if (value) {
-              handleUsuarioChange(parseInt(value));
+              handleOrganizacionChange(parseInt(value));
             } else {
-              setUsuarioSeleccionado(null);
-              setOrganizationId(null);
+              setOrganizacionSeleccionada(null);
             }
           }}
         >
           <option value="">-- Seleccione --</option>
-          {usuarios.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.username}
+          {organizaciones.map((org) => (
+            <option key={org.id} value={org.id}>
+              {org.name}
             </option>
           ))}
         </select>
       </div>
 
-      {usuarioSeleccionado !== null &&
-      organizationId !== null &&
+      {organizacionSeleccionada !== null &&
       metrics !== null &&
       metrics.length > 0 ? (
         <>
@@ -195,9 +233,7 @@ export default function MetricasPorOrganizacion() {
           {viewMode === "tabla" ? (
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-x-auto max-h-[400px] overflow-y-auto">
               <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold">
-                  Métricas de la Organización: {metrics[0]?.organizationName}
-                </h3>
+                {/* Título de la organización eliminado según solicitud del usuario */}
               </div>
               <table className="w-full text-sm text-left">
                 <thead className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800">
@@ -268,9 +304,7 @@ export default function MetricasPorOrganizacion() {
                 ))}
               </div>
               <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
-                <h2 className="text-lg font-semibold mb-2">
-                  Métricas de la Organización: {metrics[0]?.organizationName}
-                </h2>
+                {/* Título de la organización eliminado según solicitud del usuario */}
                 <h3 className="text-md font-medium mb-4 text-gray-600 dark:text-gray-400">
                   {
                     getAvailableMetrics(metrics).find(
@@ -303,8 +337,7 @@ export default function MetricasPorOrganizacion() {
             </>
           )}
         </>
-      ) : usuarioSeleccionado !== null &&
-        organizationId !== null &&
+      ) : organizacionSeleccionada !== null &&
         metrics !== null &&
         metrics.length === 0 ? (
         <p className="text-sm text-gray-500 mt-4">
