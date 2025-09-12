@@ -31,14 +31,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
+      const hasToken = sessionStorage.getItem("token");
 
-      if (user || isCustomLogin) {
+      // Si hay login personalizado con token, mantener estados autenticados
+      if (isCustomLogin && hasToken) {
         setIsAuthenticated(true);
-        // En producción, asegurar que isAuthorized también se establezca
-        if (isCustomLogin && sessionStorage.getItem("token")) {
-          setIsAuthorized(true);
-        }
+        setIsAuthorized(true);
+      } else if (user && !isCustomLogin) {
+        // Solo manejar Firebase si no hay login personalizado
+        setIsAuthenticated(true);
+        setIsAuthorized(true);
       } else {
+        // No hay usuario ni login personalizado
         setIsAuthenticated(false);
         setIsAuthorized(false);
       }
@@ -47,6 +51,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Efecto adicional para verificar el estado de autenticación al cargar
+  useEffect(() => {
+    const checkAuthState = () => {
+      const isCustomLogin = sessionStorage.getItem("customLogin") === "true";
+      const hasToken = sessionStorage.getItem("token");
+
+      if (isCustomLogin && hasToken) {
+        setIsAuthenticated(true);
+        setIsAuthorized(true);
+        setLoading(false);
+      }
+    };
+
+    // Verificar inmediatamente
+    checkAuthState();
   }, []);
 
   const loginWithEmail = async (email: string, password: string) => {

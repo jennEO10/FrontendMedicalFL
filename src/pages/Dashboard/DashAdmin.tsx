@@ -1,12 +1,13 @@
+import { FaUsers, FaBuilding, FaShieldAlt, FaSyncAlt } from "react-icons/fa";
 import {
-  FaUsers,
-  FaBuilding,
-  FaShieldAlt,
-  FaSyncAlt,
-} from "react-icons/fa";
-import {
-  ResponsiveContainer, Tooltip, Legend,
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 import { useEffect, useState, useRef } from "react";
 import userService from "../../services/usersService";
@@ -52,25 +53,57 @@ export default function DashboardAdminView() {
   ]);
 
   const [alerts, setAlerts] = useState<Alerta[]>([]);
-  
+
   const getAllAlerts = async () => {
     try {
+      // Esperar a que el token esté disponible
+      const waitForToken = () => {
+        return new Promise<void>((resolve) => {
+          const checkToken = () => {
+            const token = sessionStorage.getItem("token");
+            if (token) {
+              resolve();
+            } else {
+              setTimeout(checkToken, 100);
+            }
+          };
+          checkToken();
+        });
+      };
+
+      await waitForToken();
       const response = (await alertaService.getAllAlerts())
-      .sort((a, b) => b.id - a.id)
-      .slice(0, 6);
-  
+        .sort((a, b) => b.id - a.id)
+        .slice(0, 6);
+
       setAlerts(response);
     } catch (error) {
-      console.error("Error al obtener las alertas: ", error)
+      console.error("Error al obtener las alertas: ", error);
     }
-  }
+  };
 
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
 
     const fetchData = async () => {
+      // Esperar a que el token esté disponible
+      const waitForToken = () => {
+        return new Promise<void>((resolve) => {
+          const checkToken = () => {
+            const token = sessionStorage.getItem("token");
+            if (token) {
+              resolve();
+            } else {
+              setTimeout(checkToken, 100);
+            }
+          };
+          checkToken();
+        });
+      };
+
       try {
+        await waitForToken();
         const [orgsRes, usersRes, iterationsRes] = await Promise.all([
           organizationService.fetchAll(),
           userService.getAllUsers(),
@@ -79,7 +112,8 @@ export default function DashboardAdminView() {
 
         setStatsData((prev) =>
           prev.map((stat, idx) => {
-            const value = [orgsRes, usersRes, [], iterationsRes][idx]?.length || 0;
+            const value =
+              [orgsRes, usersRes, [], iterationsRes][idx]?.length || 0;
             return {
               ...stat,
               value,
@@ -116,19 +150,97 @@ export default function DashboardAdminView() {
   }));
 
   const fullHistorico = [
-    { fecha: "13/06", usuarios: 1, iteraciones: 0, alertas: 0, organizaciones: 1 },
-    { fecha: "14/06", usuarios: 2, iteraciones: 1, alertas: 0, organizaciones: 1 },
-    { fecha: "15/06", usuarios: 2, iteraciones: 1, alertas: 0, organizaciones: 1 },
-    { fecha: "16/06", usuarios: 3, iteraciones: 1, alertas: 0, organizaciones: 1 },
-    { fecha: "17/06", usuarios: 5, iteraciones: 2, alertas: 0, organizaciones: 1 },
-    { fecha: "18/06", usuarios: 7, iteraciones: 3, alertas: 1, organizaciones: 2 },
-    { fecha: "19/06", usuarios: 9, iteraciones: 4, alertas: 1, organizaciones: 3 },
-    { fecha: "20/06", usuarios: 12, iteraciones: 6, alertas: 2, organizaciones: 3 },
-    { fecha: "21/06", usuarios: 14, iteraciones: 8, alertas: 3, organizaciones: 4 },
-    { fecha: "22/06", usuarios: 15, iteraciones: 10, alertas: 3, organizaciones: 5 },
-    { fecha: "23/06", usuarios: 16, iteraciones: 11, alertas: 4, organizaciones: 6 },
-    { fecha: "24/06", usuarios: 18, iteraciones: 13, alertas: 4, organizaciones: 7 },
-    { fecha: "25/06", usuarios: 19, iteraciones: 15, alertas: 4, organizaciones: 8 },
+    {
+      fecha: "13/06",
+      usuarios: 1,
+      iteraciones: 0,
+      alertas: 0,
+      organizaciones: 1,
+    },
+    {
+      fecha: "14/06",
+      usuarios: 2,
+      iteraciones: 1,
+      alertas: 0,
+      organizaciones: 1,
+    },
+    {
+      fecha: "15/06",
+      usuarios: 2,
+      iteraciones: 1,
+      alertas: 0,
+      organizaciones: 1,
+    },
+    {
+      fecha: "16/06",
+      usuarios: 3,
+      iteraciones: 1,
+      alertas: 0,
+      organizaciones: 1,
+    },
+    {
+      fecha: "17/06",
+      usuarios: 5,
+      iteraciones: 2,
+      alertas: 0,
+      organizaciones: 1,
+    },
+    {
+      fecha: "18/06",
+      usuarios: 7,
+      iteraciones: 3,
+      alertas: 1,
+      organizaciones: 2,
+    },
+    {
+      fecha: "19/06",
+      usuarios: 9,
+      iteraciones: 4,
+      alertas: 1,
+      organizaciones: 3,
+    },
+    {
+      fecha: "20/06",
+      usuarios: 12,
+      iteraciones: 6,
+      alertas: 2,
+      organizaciones: 3,
+    },
+    {
+      fecha: "21/06",
+      usuarios: 14,
+      iteraciones: 8,
+      alertas: 3,
+      organizaciones: 4,
+    },
+    {
+      fecha: "22/06",
+      usuarios: 15,
+      iteraciones: 10,
+      alertas: 3,
+      organizaciones: 5,
+    },
+    {
+      fecha: "23/06",
+      usuarios: 16,
+      iteraciones: 11,
+      alertas: 4,
+      organizaciones: 6,
+    },
+    {
+      fecha: "24/06",
+      usuarios: 18,
+      iteraciones: 13,
+      alertas: 4,
+      organizaciones: 7,
+    },
+    {
+      fecha: "25/06",
+      usuarios: 19,
+      iteraciones: 15,
+      alertas: 4,
+      organizaciones: 8,
+    },
   ];
 
   // Extraer las últimas 10 fechas con datos
@@ -228,7 +340,10 @@ export default function DashboardAdminView() {
               data={historicoData}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#374151" : "#e5e7eb"} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={isDarkMode ? "#374151" : "#e5e7eb"}
+              />
               <XAxis
                 dataKey="fecha"
                 tick={({ x, y, payload }) => (
@@ -255,14 +370,42 @@ export default function DashboardAdminView() {
                 )}
               />
               <Tooltip
-                contentStyle={{ backgroundColor: isDarkMode ? "#1f2937" : "#fff" }}
+                contentStyle={{
+                  backgroundColor: isDarkMode ? "#1f2937" : "#fff",
+                }}
                 labelStyle={{ color: isDarkMode ? "#e5e7eb" : "#111827" }}
               />
-              <Legend wrapperStyle={{ color: isDarkMode ? "#cbd5e1" : "#1f2937" }} />
-              <Line type="monotone" dataKey="usuarios" stroke="#22c55e" strokeWidth={2} name="Usuarios" />
-              <Line type="monotone" dataKey="iteraciones" stroke="#eab308" strokeWidth={2} name="Iteraciones" />
-              <Line type="monotone" dataKey="alertas" stroke="#ef4444" strokeWidth={2} name="Alertas" />
-              <Line type="monotone" dataKey="organizaciones" stroke="#6366f1" strokeWidth={2} name="Organizaciones" />
+              <Legend
+                wrapperStyle={{ color: isDarkMode ? "#cbd5e1" : "#1f2937" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="usuarios"
+                stroke="#22c55e"
+                strokeWidth={2}
+                name="Usuarios"
+              />
+              <Line
+                type="monotone"
+                dataKey="iteraciones"
+                stroke="#eab308"
+                strokeWidth={2}
+                name="Iteraciones"
+              />
+              <Line
+                type="monotone"
+                dataKey="alertas"
+                stroke="#ef4444"
+                strokeWidth={2}
+                name="Alertas"
+              />
+              <Line
+                type="monotone"
+                dataKey="organizaciones"
+                stroke="#6366f1"
+                strokeWidth={2}
+                name="Organizaciones"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -273,24 +416,23 @@ export default function DashboardAdminView() {
           Actividad Reciente
         </h2>
         <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
-  {alerts.map((alert, index) => (
-    <li
-      key={index}
-      className="flex items-start gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-50 dark:hover:bg-gray-800"
-    >
-      <div className="text-xl mt-1">{alert.tipo}</div>
-      <div className="flex flex-col w-full">
-        <span className="text-sm text-gray-700 dark:text-gray-300">
-          {alert.mensaje}
-        </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {formatearTiempoRelativo(alert.timestamp)}
-        </span>
-      </div>
-    </li>
-  ))}
-</ul>
-
+          {alerts.map((alert, index) => (
+            <li
+              key={index}
+              className="flex items-start gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              <div className="text-xl mt-1">{alert.tipo}</div>
+              <div className="flex flex-col w-full">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {alert.mensaje}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {formatearTiempoRelativo(alert.timestamp)}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

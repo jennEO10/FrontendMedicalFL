@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { FaBell, FaUser, FaBuilding, FaCheck, FaFileAlt, FaSync, FaExclamationTriangle, FaDatabase, FaLock } from "react-icons/fa";
+import {
+  FaBell,
+  FaUser,
+  FaBuilding,
+  FaCheck,
+  FaFileAlt,
+  FaSync,
+  FaExclamationTriangle,
+  FaDatabase,
+  FaLock,
+} from "react-icons/fa";
 import { Link } from "react-router";
 import { Alerta } from "../../models/aletas";
 import alertaService from "../../services/alertaService";
@@ -28,9 +38,25 @@ export default function NotificationDropdown() {
 
   const getAllAlerts = async () => {
     try {
+      // Esperar a que el token esté disponible
+      const waitForToken = () => {
+        return new Promise<void>((resolve) => {
+          const checkToken = () => {
+            const token = sessionStorage.getItem("token");
+            if (token) {
+              resolve();
+            } else {
+              setTimeout(checkToken, 100);
+            }
+          };
+          checkToken();
+        });
+      };
+
+      await waitForToken();
       const response = (await alertaService.getAllAlerts())
-      .sort((a, b) => b.id - a.id)
-      .slice(0, 10);
+        .sort((a, b) => b.id - a.id)
+        .slice(0, 10);
 
       setAlerts(response);
 
@@ -39,22 +65,22 @@ export default function NotificationDropdown() {
         prevAlertCount.current = response[0].id;
       }
     } catch (error) {
-      console.error("Error al obtener las alertas:",error)
+      console.error("Error al obtener las alertas:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    getAllAlerts()
+    getAllAlerts();
 
     const handler = () => {
       getAllAlerts();
       setNotifying(true); // 🔥 Activa la campanita
     };
 
-    alertaEmitter.on('alertaCreada', handler);
+    alertaEmitter.on("alertaCreada", handler);
 
     return () => {
-      alertaEmitter.off('alertaCreada', handler);
+      alertaEmitter.off("alertaCreada", handler);
     };
   }, []);
 
@@ -158,9 +184,7 @@ export default function NotificationDropdown() {
               key={index}
               className="flex items-start gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
             >
-              <div className="text-xl mt-1">
-                {alert.tipo}
-              </div>
+              <div className="text-xl mt-1">{alert.tipo}</div>
               <div className="flex flex-col w-full">
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   {alert.mensaje}

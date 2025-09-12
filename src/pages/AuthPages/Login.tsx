@@ -86,19 +86,6 @@ const Login = () => {
     }
   }, [isAuthenticated, isAuthorized, navigate]);
 
-  // Efecto adicional para manejar el estado de Firebase en producción
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && sessionStorage.getItem("customLogin") === "true") {
-        // Si hay usuario de Firebase y customLogin está activo, asegurar estados
-        setIsAuthenticated(true);
-        setIsAuthorized(true);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
   const handleEmailLogin = async (e: React.FormEvent) => {
     const email = login.email;
     const password = login.password;
@@ -107,6 +94,9 @@ const Login = () => {
       const response = (await authLogin(login)) as any;
 
       sessionStorage.setItem("token", response.token);
+
+      // Pequeño delay para asegurar que el token esté disponible
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const user = await userService.buscarEmail(email);
 
@@ -178,6 +168,9 @@ const Login = () => {
       }
 
       sessionStorage.setItem("token", response.token);
+
+      // Pequeño delay para asegurar que el token esté disponible
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const user1 = await userService.buscarEmail(user.email);
       const role = await rulesService.obtenerRole(user1.rolesId[0]);

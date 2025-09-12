@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'https://graphic-brook-404722.uc.r.appspot.com';
+const API_URL = "https://graphic-brook-404722.uc.r.appspot.com";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,9 +9,9 @@ const api = axios.create({
 // Interceptor para agregar el token en cada request
 api.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem("token");
     if (token && config.headers) {
-        config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
