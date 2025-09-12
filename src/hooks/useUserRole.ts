@@ -7,7 +7,7 @@ interface UserRole {
   isLoading: boolean;
 }
 
-export const useUserRole = (): UserRole => {
+export const useUserRole = (forceCheck?: number): UserRole => {
   const [roleId, setRoleId] = useState<string | null>(null);
   const [roleName, setRoleName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +39,20 @@ export const useUserRole = (): UserRole => {
     // Cargar inmediatamente
     loadUserRole();
   }, []);
+
+  // Re-evaluar cuando se fuerza la verificación
+  useEffect(() => {
+    if (forceCheck !== undefined && forceCheck > 0) {
+      const storedRoleId = sessionStorage.getItem("roleID");
+      const storedRoleName = sessionStorage.getItem("roleName");
+
+      if (storedRoleId && storedRoleName) {
+        setRoleId(storedRoleId);
+        setRoleName(storedRoleName);
+        setIsLoading(false);
+      }
+    }
+  }, [forceCheck]);
 
   // Escuchar cambios en sessionStorage para actualizar el rol en tiempo real
   useEffect(() => {

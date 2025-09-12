@@ -173,7 +173,9 @@ const AppSidebar: React.FC = () => {
   const { logout } = useAuth();
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-  const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const [forceRoleCheck, setForceRoleCheck] = useState(0);
+
+  const { isAdmin, isLoading: roleLoading } = useUserRole(forceRoleCheck);
   const { isTokenReady, isLoading: tokenLoading } = useTokenReady();
 
   // El loading total es true si cualquiera de los dos está cargando
@@ -190,6 +192,17 @@ const AppSidebar: React.FC = () => {
     {}
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Forzar re-evaluación del rol cuando el menú móvil se abre
+  useEffect(() => {
+    if (isMobileOpen) {
+      // Pequeño delay para asegurar que el menú se haya abierto completamente
+      const timer = setTimeout(() => {
+        setForceRoleCheck((prev) => prev + 1);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isMobileOpen]);
 
   // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
