@@ -232,9 +232,6 @@ export default function MetricasPorOrganizacion() {
 
           {viewMode === "tabla" ? (
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-x-auto max-h-[400px] overflow-y-auto">
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                {/* Título de la organización eliminado según solicitud del usuario */}
-              </div>
               <table className="w-full text-sm text-left">
                 <thead className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800">
                   <tr>
