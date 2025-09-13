@@ -38,9 +38,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true);
         setIsAuthorized(true);
       } else if (user && !isCustomLogin) {
-        // Solo manejar Firebase si no hay login personalizado
-        setIsAuthenticated(true);
-        setIsAuthorized(true);
+        // 🚨 NO establecer autenticación automáticamente para Firebase
+        // Solo establecer loading como false
+        console.log(
+          "Usuario de Firebase detectado, pero NO estableciendo autenticación automáticamente"
+        );
+        setIsAuthenticated(false);
+        setIsAuthorized(false);
       } else {
         // No hay usuario ni login personalizado
         setIsAuthenticated(false);

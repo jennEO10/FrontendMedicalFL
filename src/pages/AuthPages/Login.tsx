@@ -26,6 +26,7 @@ const Login = () => {
 
   const [login, setLogin] = useState<LoginSchema>({ email: "", password: "" });
   const [intentosFallidos, setIntentosFallidos] = useState(0);
+  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
   // const allowedEmails = ["jennyespinoza618@gmail.com", "jorgefernando614@gmail.com", "sebyon69@gmail.com"];
 
   const authLogin = async (login: LoginSchema) => {
@@ -45,6 +46,32 @@ const Login = () => {
       console.error("Error al loguearse por firebase: ", error);
       throw error; // Re-lanzar el error para que se maneje en el catch del handleGoogleLogin
     }
+  };
+
+  const manejarErrorOAuth = () => {
+    // Limpiar cualquier estado de autenticación
+    setIsAuthenticated(false);
+    setIsAuthorized(false);
+    setIsProcessingOAuth(false);
+
+    // Limpiar sessionStorage
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("userEmail");
+    sessionStorage.removeItem("roleID");
+    sessionStorage.removeItem("roleName");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("userOrganizationId");
+    sessionStorage.removeItem("customLogin");
+
+    // Cerrar sesión en Firebase
+    logout();
+
+    // Mostrar mensaje de error
+    alert("El correo ingresado no está registrado");
+
+    // Forzar que se quede en el login - usar replace para evitar historial
+    window.location.replace("/");
   };
 
   const manejarIntentoFallido = async (tipoLogin: string) => {
@@ -80,12 +107,13 @@ const Login = () => {
     const roleId = sessionStorage?.getItem("roleID") ?? "2";
     const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
 
-    if (isAuthenticated && isAuthorized) {
+    // 🚨 NO navegar si se está procesando OAuth
+    if (isAuthenticated && isAuthorized && !isProcessingOAuth) {
       const isAdmin = roleId === "2" || roleId === "0" || roleName === "admin";
       const redirectPath = isAdmin ? "/dash-admin" : "/dashboard";
       navigate(redirectPath); // Ya está logueado, redirige
     }
-  }, [isAuthenticated, isAuthorized, navigate]);
+  }, [isAuthenticated, isAuthorized, navigate, isProcessingOAuth]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     const email = login.email;
@@ -101,7 +129,12 @@ const Login = () => {
 
       const user = await userService.buscarEmail(email);
 
-      const isMatch = await comparePassword(password, user.password);
+      if (!user) {
+        alert("El correo ingresado no está registrado");
+        return;
+      }
+
+      const isMatch = await comparePassword(password, user?.password ?? "");
 
       if (!user || !isMatch) {
         throw new Error("Credenciales inválidas");
@@ -155,9 +188,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
+    setIsProcessingOAuth(true);
     try {
       const idToken = await (await loginWithGoogle()).user.getIdToken();
-      const response = (await authLoginOAuth(idToken)) as any;
+
+      // 🚨 PRIMERO validar con el backend si el usuario está registrado
+      const response: any = await authLoginOAuth(idToken);
 
       const user = auth.currentUser;
 
@@ -168,12 +204,34 @@ const Login = () => {
         return;
       }
 
+      // 🚨 PRIMERO guardar el token para poder hacer las consultas
       sessionStorage.setItem("token", response.token);
 
       // Pequeño delay para asegurar que el token esté disponible
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const user1 = await userService.buscarEmail(user.email);
+      // 🚨 AHORA validar que el usuario existe en la base de datos
+      let user1;
+      try {
+        user1 = await userService.buscarEmail(user.email);
+
+        // Verificar si el usuario existe
+        if (!user1) {
+          manejarErrorOAuth();
+          return;
+        }
+
+        // Verificar si el usuario está habilitado
+        if (!user1.enabled) {
+          alert("Usuario inactivo.");
+          logout(); // Cerrar sesión en Firebase
+          return;
+        }
+      } catch (error) {
+        manejarErrorOAuth();
+        return;
+      }
+
       const role = await rulesService.obtenerRole(user1.rolesId[0]);
 
       const alerta: Alerta = {
@@ -184,8 +242,10 @@ const Login = () => {
       };
       const alertaResponse = await alertaService.nuevaAlerta(alerta);
 
+      // 🚨 ESTABLECER AUTENTICACIÓN SOLO DESPUÉS DE VALIDAR TODO
       setIsAuthenticated(true);
       setIsAuthorized(true);
+      setIsProcessingOAuth(false);
 
       sessionStorage.setItem("username", user1.username);
       sessionStorage.setItem("userEmail", user1.mail);
@@ -206,12 +266,25 @@ const Login = () => {
         navigate("/dash-admin");
       }, 100);
     } catch (error: any) {
+      setIsProcessingOAuth(false);
+
       // No mostrar error si el usuario canceló el popup
       if (
         error.code === "auth/cancelled-popup-request" ||
         error.code === "auth/popup-closed-by-user"
       ) {
         // El usuario canceló el popup, no es un error real
+        return;
+      }
+
+      // Verificar si es un error 401 (usuario no registrado)
+      if (
+        error.response?.status === 401 ||
+        error.message?.includes("401") ||
+        error.code === "ERR_BAD_REQUEST" ||
+        error.message?.includes("Request failed with status code 401")
+      ) {
+        manejarErrorOAuth();
         return;
       }
 
