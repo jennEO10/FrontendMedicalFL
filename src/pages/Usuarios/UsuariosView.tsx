@@ -19,7 +19,7 @@ export default function UsuariosView() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [rules, setRules] = useState<Rule[]>([]);
   const [organizaciones, setOrganizaciones] = useState<Organization[]>([]);
-  const [usuario, setUsuario] = useState({
+  const [usuario, setUsuario] = useState<User>({
     id: 0,
     username: "",
     password: "",
@@ -260,7 +260,12 @@ export default function UsuariosView() {
 
   const editarUsuario = async () => {
     try {
-      const response = await usersService.updateUser(usuario.id, usuario);
+      // Excluir la contraseña del objeto antes de enviarlo
+      const { password, ...usuarioSinPassword } = usuario;
+      const response = await usersService.updateUser(
+        usuario.id,
+        usuarioSinPassword
+      );
 
       // Obtener información completa del usuario
       const usuarioCompleto = await obtenerUsuarioCompleto(response);
