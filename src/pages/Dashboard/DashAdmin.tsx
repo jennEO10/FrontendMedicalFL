@@ -273,6 +273,12 @@ export default function DashboardAdminView() {
     return <LoadingScreen message="Inicializando sistema..." />;
   }
 
+  // Si no tiene acceso, redirigir al dashboard del operador
+  if (!hasAccess) {
+    window.location.href = "/dashboard";
+    return <LoadingScreen message="Redirigiendo..." />;
+  }
+
   return (
     <div className="px-6 py-6 max-w-7xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-white">

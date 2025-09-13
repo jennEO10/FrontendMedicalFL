@@ -143,9 +143,15 @@ const OperadorDashboard = () => {
     return <LoadingScreen message="Inicializando sistema..." />;
   }
 
+  // Si no tiene acceso, redirigir al dashboard del administrador
+  if (!hasAccess) {
+    window.location.href = "/dash-admin";
+    return <LoadingScreen message="Redirigiendo..." />;
+  }
+
   return (
     <div className="p-6 sm:p-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Panel del Operador</h1>
+      <h1 className="text-3xl font-bold mb-6">Panel de Usuario</h1>
 
       {/* Estado actual */}
       <section className="mb-8">
