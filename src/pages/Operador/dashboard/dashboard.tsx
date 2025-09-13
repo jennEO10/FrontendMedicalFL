@@ -45,7 +45,12 @@ const OperadorDashboard = () => {
 
   const getPrediccionsAll = async () => {
     try {
-      const response = await prediccionService.getAllPredictions();
+      const userId = sessionStorage.getItem("userId");
+      if (!userId) {
+        return;
+      }
+
+      const response = await prediccionService.getPredictionsByUser(userId);
 
       const formatted = response
         .sort((a, b) => b.id - a.id) // orden descendente por id
@@ -67,9 +72,9 @@ const OperadorDashboard = () => {
           };
         });
 
-      setReportes([formatted[0]]);
+      setReportes(formatted.slice(0, 5));
     } catch (error) {
-      console.error("Error al obtener las predicciones:", error);
+      // Error al obtener las predicciones
     }
   };
 
@@ -108,12 +113,13 @@ const OperadorDashboard = () => {
         setMetrica(metricaTransformada);
       }
     } catch (error) {
-      console.error("Error al obtener la última ronda", error);
+      // Error al obtener la última ronda
     }
   };
 
   useEffect(() => {
     obtenerUltimaIteracion();
+    getPrediccionsAll();
   }, []);
 
   const getEstadoColor = () => {

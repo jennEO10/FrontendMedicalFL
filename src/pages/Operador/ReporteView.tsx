@@ -19,7 +19,12 @@ export default function ReportesView() {
 
   const getPrediccionsAll = async () => {
     try {
-      const response = await prediccionService.getAllPredictions();
+      const userId = sessionStorage.getItem("userId");
+      if (!userId) {
+        return;
+      }
+
+      const response = await prediccionService.getPredictionsByUser(userId);
 
       const formatted = response
         .sort((a, b) => a.id - b.id) // orden descendente por id
@@ -43,7 +48,7 @@ export default function ReportesView() {
 
       setReportes(formatted);
     } catch (error) {
-      console.error("Error al obtener las predicciones:", error);
+      // Error al obtener las predicciones
     }
   };
 
