@@ -333,6 +333,38 @@ export default function UsuariosView() {
     }
   };
 
+  // Función para formatear usuarios con organización y rol
+  const formatearUsuarios = async (usuarios: User | User[]) => {
+    // Convertir a array si es un objeto individual
+    const usuariosArray = Array.isArray(usuarios) ? usuarios : [usuarios];
+
+    const usuarioFormateado = await Promise.all(
+      usuariosArray.map(async (usuario) => {
+        try {
+          const [org, rol] = await Promise.all([
+            organizationService.getOrganization(usuario.organizationId),
+            usuario.rolesId?.[0] !== undefined
+              ? rulesService.obtenerRole(usuario.rolesId[0])
+              : Promise.resolve(undefined),
+          ]);
+
+          return {
+            ...usuario,
+            nameOrganization: org?.name || "Organización no encontrada",
+            roleName: rol?.name || "Rol no encontrado",
+          };
+        } catch (error) {
+          console.warn(
+            `Error al obtener organización para ID ${usuario.organizationId}:`,
+            error
+          );
+          return usuario;
+        }
+      })
+    );
+    return usuarioFormateado.sort((a, b) => a.id - b.id);
+  };
+
   const handleBuscar = async () => {
     // Aquí podrías aplicar los filtros al listado si es necesario
     try {
@@ -344,7 +376,8 @@ export default function UsuariosView() {
           }
 
           const result = await usersService.buscarNombre(filtros.nombre);
-          setUsuarios(result);
+          const usuariosFormateados = await formatearUsuarios(result);
+          setUsuarios(usuariosFormateados);
           break;
         }
         case "email": {
@@ -354,7 +387,8 @@ export default function UsuariosView() {
           }
 
           const emailResult = await usersService.buscarEmail(filtros.email);
-          setUsuarios([emailResult]);
+          const usuariosFormateados = await formatearUsuarios(emailResult);
+          setUsuarios(usuariosFormateados);
           break;
         }
         case "rolName": {
@@ -366,7 +400,8 @@ export default function UsuariosView() {
           const rolNameResult = await usersService.buscarNombreRol(
             filtros.rolName
           );
-          setUsuarios(rolNameResult);
+          const usuariosFormateados = await formatearUsuarios(rolNameResult);
+          setUsuarios(usuariosFormateados);
           break;
         }
         case "estado": {
@@ -378,7 +413,8 @@ export default function UsuariosView() {
           const estadoResult = await usersService.seleccionarEstado(
             Number(filtros.estado) === 1 ? true : false
           );
-          setUsuarios(estadoResult);
+          const usuariosFormateados = await formatearUsuarios(estadoResult);
+          setUsuarios(usuariosFormateados);
           break;
         }
         case "rol": {
@@ -390,7 +426,8 @@ export default function UsuariosView() {
           const rolResult = await usersService.seleccionarRol(
             Number(filtros.rol)
           );
-          setUsuarios(rolResult);
+          const usuariosFormateados = await formatearUsuarios(rolResult);
+          setUsuarios(usuariosFormateados);
           break;
         }
         default:
