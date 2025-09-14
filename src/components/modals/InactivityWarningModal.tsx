@@ -5,14 +5,20 @@ interface InactivityWarningModalProps {
   isOpen: boolean;
   onClose: () => void;
   onExtendSession: () => void;
+  warningTime: number;
+  logoutTime: number;
 }
 
 const InactivityWarningModal: FC<InactivityWarningModalProps> = ({
   isOpen,
   onClose,
   onExtendSession,
+  warningTime,
+  logoutTime,
 }) => {
-  const [timeLeft, setTimeLeft] = useState(60);
+  // Calcular el tiempo restante en segundos (diferencia entre logoutTime y warningTime)
+  const remainingTimeInSeconds = Math.floor((logoutTime - warningTime) / 1000);
+  const [timeLeft, setTimeLeft] = useState(remainingTimeInSeconds);
   const [isPaused, setIsPaused] = useState(false);
   const [autoCloseCountdown, setAutoCloseCountdown] = useState(10);
 
@@ -81,14 +87,14 @@ const InactivityWarningModal: FC<InactivityWarningModalProps> = ({
 
   useEffect(() => {
     if (!isOpen) {
-      setTimeLeft(60);
+      setTimeLeft(remainingTimeInSeconds);
       setIsPaused(false);
       setAutoCloseCountdown(10);
       return;
     }
 
     if (!isPaused) {
-      setTimeLeft(60);
+      setTimeLeft(remainingTimeInSeconds);
 
       const interval = setInterval(() => {
         setTimeLeft((prev) => {
@@ -106,7 +112,7 @@ const InactivityWarningModal: FC<InactivityWarningModalProps> = ({
         clearInterval(interval);
       };
     }
-  }, [isOpen, isPaused, onExtendSession, onClose]);
+  }, [isOpen, isPaused, onExtendSession, onClose, remainingTimeInSeconds]);
 
   if (!isOpen) return null;
 
@@ -170,8 +176,9 @@ const InactivityWarningModal: FC<InactivityWarningModalProps> = ({
           ) : (
             <>
               <p className="text-gray-800 dark:text-gray-200 text-center leading-relaxed mb-4">
-                La sesión se cerrará en 10 minutos, realice algún movimiento
-                para evitarlo.
+                La sesión se cerrará en{" "}
+                {Math.floor(remainingTimeInSeconds / 60)} minutos, realice algún
+                movimiento para evitarlo.
               </p>
 
               <div className="text-center">
@@ -184,7 +191,9 @@ const InactivityWarningModal: FC<InactivityWarningModalProps> = ({
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
                     <div
                       className="bg-red-500 h-2 rounded-full transition-all duration-1000 ease-linear"
-                      style={{ width: `${(timeLeft / 60) * 100}%` }}
+                      style={{
+                        width: `${(timeLeft / remainingTimeInSeconds) * 100}%`,
+                      }}
                     ></div>
                   </div>
 

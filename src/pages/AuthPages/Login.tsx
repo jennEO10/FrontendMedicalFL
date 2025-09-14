@@ -168,8 +168,7 @@ const Login = () => {
               const alertaExceso: Alerta = {
                 id: 0,
                 tipo: "🚨",
-                mensaje:
-                  "Usuario intentó acceder más de 3 veces con credenciales incorrectas",
+                mensaje: `${user.mail} intentó acceder más de 3 veces con credenciales incorrectas`,
                 timestamp: getLocalDateTime(),
               };
               await alertaService.nuevaAlerta(alertaExceso);
@@ -189,7 +188,7 @@ const Login = () => {
               const alertaIntentos: Alerta = {
                 id: 0,
                 tipo: "⚠️",
-                mensaje: "Inicio de sesión erróneo por 3 veces",
+                mensaje: `Inicio de sesión erróneo por 3 veces por ${user.mail}`,
                 timestamp: getLocalDateTime(),
               };
               await alertaService.nuevaAlerta(alertaIntentos);
@@ -315,8 +314,7 @@ const Login = () => {
               const alertaExceso: Alerta = {
                 id: 0,
                 tipo: "🚨",
-                mensaje:
-                  "Usuario intentó acceder más de 3 veces con credenciales incorrectas",
+                mensaje: `${user1.mail} intentó acceder más de 3 veces con credenciales incorrectas`,
                 timestamp: getLocalDateTime(),
               };
               await alertaService.nuevaAlerta(alertaExceso);
@@ -336,7 +334,7 @@ const Login = () => {
               const alertaIntentos: Alerta = {
                 id: 0,
                 tipo: "⚠️",
-                mensaje: "Inicio de sesión erróneo por 3 veces",
+                mensaje: `Inicio de sesión erróneo por 3 veces por ${user1.mail}`,
                 timestamp: getLocalDateTime(),
               };
               await alertaService.nuevaAlerta(alertaIntentos);

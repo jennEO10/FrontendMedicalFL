@@ -7,7 +7,7 @@ import {
 } from "react";
 import { useInactivity } from "../hooks/useInactivity";
 import { useAuth } from "./AuthContext";
-import InactivityWarningModal from "../components/modals/InactivityWarningModal";
+import { InactivityWarningModal } from "../components/inactivity";
 import { getCurrentInactivityConfig } from "../config/inactivity";
 
 interface InactivityContextProps {
@@ -57,6 +57,8 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
         isOpen={showWarning}
         onClose={() => setShowWarning(false)}
         onExtendSession={extendSession}
+        warningTime={WARNING_TIME}
+        logoutTime={LOGOUT_TIME}
       />
     </InactivityContext.Provider>
   );
