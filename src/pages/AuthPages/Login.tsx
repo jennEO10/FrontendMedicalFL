@@ -74,30 +74,6 @@ const Login = () => {
     window.location.replace("/");
   };
 
-  const manejarIntentoFallido = async (tipoLogin: string) => {
-    const nuevosIntentos = intentosFallidos + 1;
-    setIntentosFallidos(nuevosIntentos);
-
-    if (nuevosIntentos >= 3) {
-      // Crear alerta de intentos fallidos
-      const alerta: Alerta = {
-        id: 0,
-        tipo: "🚨",
-        mensaje: `Usuario falló 3 intentos de acceso consecutivos (${tipoLogin})`,
-        timestamp: getLocalDateTime(),
-      };
-
-      try {
-        await alertaService.nuevaAlerta(alerta);
-      } catch (error) {
-        console.error("Error al registrar alerta de intentos fallidos:", error);
-      }
-
-      // Reiniciar contador después de 3 intentos
-      setIntentosFallidos(0);
-    }
-  };
-
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setLogin({ ...login, [name]: value });
@@ -177,12 +153,74 @@ const Login = () => {
       setIntentosFallidos(0);
 
       // Pequeño delay para asegurar que los estados se establezcan en producción
-      setTimeout(() => {
+      setTimeout(async () => {
+        // Validar que el login sea exitoso Y que hubo intentos fallidos Y que el token esté disponible
+        const tokenDisponible = sessionStorage.getItem("token");
+        const hubo3IntentosFallidos =
+          sessionStorage.getItem("hubo3IntentosFallidos") === "true";
+        const huboMasDe3IntentosFallidos =
+          sessionStorage.getItem("huboMasDe3IntentosFallidos") === "true";
+
+        if (tokenDisponible) {
+          // Crear alerta de exceso de intentos si hubo más de 3
+          if (huboMasDe3IntentosFallidos) {
+            try {
+              const alertaExceso: Alerta = {
+                id: 0,
+                tipo: "🚨",
+                mensaje:
+                  "Usuario intentó acceder más de 3 veces con credenciales incorrectas",
+                timestamp: getLocalDateTime(),
+              };
+              await alertaService.nuevaAlerta(alertaExceso);
+              // Limpiar ambas banderas después de crear la alerta
+              sessionStorage.removeItem("huboMasDe3IntentosFallidos");
+              sessionStorage.removeItem("hubo3IntentosFallidos");
+            } catch (error) {
+              console.error(
+                "Error al registrar alerta de exceso de intentos:",
+                error
+              );
+            }
+          }
+          // Crear alerta de 3 intentos fallidos si hubo exactamente 3
+          else if (hubo3IntentosFallidos) {
+            try {
+              const alertaIntentos: Alerta = {
+                id: 0,
+                tipo: "⚠️",
+                mensaje: "Inicio de sesión erróneo por 3 veces",
+                timestamp: getLocalDateTime(),
+              };
+              await alertaService.nuevaAlerta(alertaIntentos);
+              // Limpiar la bandera después de crear la alerta
+              sessionStorage.removeItem("hubo3IntentosFallidos");
+            } catch (error) {
+              console.error(
+                "Error al registrar alerta de intentos fallidos:",
+                error
+              );
+            }
+          }
+        } else {
+        }
         navigate(redirectPath);
       }, 100);
     } catch (customError: any) {
       // Manejar intento fallido
-      await manejarIntentoFallido("Email/Password");
+      const nuevosIntentos = intentosFallidos + 1;
+      setIntentosFallidos(nuevosIntentos);
+
+      if (nuevosIntentos > 3) {
+        // Marcar que hubo más de 3 intentos fallidos
+        sessionStorage.setItem("huboMasDe3IntentosFallidos", "true");
+        // NO reiniciar contador para mantener el estado
+      } else if (nuevosIntentos === 3) {
+        // Marcar que hubo exactamente 3 intentos fallidos
+        sessionStorage.setItem("hubo3IntentosFallidos", "true");
+        // NO reiniciar contador para mantener el estado
+      }
+
       alert("Correo y/o contraseña incorrectos");
     }
   };
@@ -262,7 +300,57 @@ const Login = () => {
       setIntentosFallidos(0);
 
       // Pequeño delay para asegurar que los estados se establezcan en producción
-      setTimeout(() => {
+      setTimeout(async () => {
+        // Validar que el login sea exitoso Y que hubo intentos fallidos Y que el token esté disponible
+        const tokenDisponible = sessionStorage.getItem("token");
+        const hubo3IntentosFallidos =
+          sessionStorage.getItem("hubo3IntentosFallidos") === "true";
+        const huboMasDe3IntentosFallidos =
+          sessionStorage.getItem("huboMasDe3IntentosFallidos") === "true";
+
+        if (tokenDisponible) {
+          // Crear alerta de exceso de intentos si hubo más de 3
+          if (huboMasDe3IntentosFallidos) {
+            try {
+              const alertaExceso: Alerta = {
+                id: 0,
+                tipo: "🚨",
+                mensaje:
+                  "Usuario intentó acceder más de 3 veces con credenciales incorrectas",
+                timestamp: getLocalDateTime(),
+              };
+              await alertaService.nuevaAlerta(alertaExceso);
+              // Limpiar ambas banderas después de crear la alerta
+              sessionStorage.removeItem("huboMasDe3IntentosFallidos");
+              sessionStorage.removeItem("hubo3IntentosFallidos");
+            } catch (error) {
+              console.error(
+                "Error al registrar alerta de exceso de intentos:",
+                error
+              );
+            }
+          }
+          // Crear alerta de 3 intentos fallidos si hubo exactamente 3
+          else if (hubo3IntentosFallidos) {
+            try {
+              const alertaIntentos: Alerta = {
+                id: 0,
+                tipo: "⚠️",
+                mensaje: "Inicio de sesión erróneo por 3 veces",
+                timestamp: getLocalDateTime(),
+              };
+              await alertaService.nuevaAlerta(alertaIntentos);
+              // Limpiar la bandera después de crear la alerta
+              sessionStorage.removeItem("hubo3IntentosFallidos");
+            } catch (error) {
+              console.error(
+                "Error al registrar alerta de intentos fallidos:",
+                error
+              );
+            }
+          }
+        } else {
+        }
         navigate("/dash-admin");
       }, 100);
     } catch (error: any) {
@@ -289,7 +377,19 @@ const Login = () => {
       }
 
       // Manejar intento fallido solo para errores reales
-      await manejarIntentoFallido("Google OAuth");
+      const nuevosIntentos = intentosFallidos + 1;
+      setIntentosFallidos(nuevosIntentos);
+
+      if (nuevosIntentos > 3) {
+        // Marcar que hubo más de 3 intentos fallidos
+        sessionStorage.setItem("huboMasDe3IntentosFallidos", "true");
+        // NO reiniciar contador para mantener el estado
+      } else if (nuevosIntentos === 3) {
+        // Marcar que hubo exactamente 3 intentos fallidos
+        sessionStorage.setItem("hubo3IntentosFallidos", "true");
+        // NO reiniciar contador para mantener el estado
+      }
+
       alert("Error al iniciar sesión con Google: " + error.message);
     }
   };
