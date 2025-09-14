@@ -6,6 +6,7 @@ import { Prediccion } from "../../../models/prediccion";
 import prediccionService from "../../../services/prediccionService";
 import { useRoleGuard } from "../../../hooks/useRoleGuard";
 import LoadingScreen from "../../../components/common/LoadingScreen";
+import { getLastMetrics } from "../../../api/iteracionesApi";
 
 const OperadorDashboard = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const OperadorDashboard = () => {
   });
 
   const [reportes, setReportes] = useState<Prediccion[]>([]);
+  const [hasMetrics, setHasMetrics] = useState<boolean>(true);
 
   const getPrediccionsAll = async () => {
     try {
@@ -89,36 +91,56 @@ const OperadorDashboard = () => {
         );
 
       if (Array.isArray(ultimaIteracion) && ultimaIteracion.length > 0) {
-        const ultima = ultimaIteracion.sort((a, b) => b.id - a.id)[0]; // ordena por id desc y toma la primera
-        const ultimaIteracionByMetrica =
-          await iteracionService.obtenerUltimaMetricaPorIteracion(ultima.id);
+        const ultima = ultimaIteracion.sort((a, b) => b.id - a.id)[0];
         setIteracion(ultima);
+      }
+    } catch (error) {
+      // Error al obtener la última iteración
+    }
+  };
 
-        // extrae el primer elemento (viene en array)
-        const metricaRaw = ultimaIteracionByMetrica[0];
+  const obtenerMetricasActuales = async () => {
+    try {
+      const metricas = await getLastMetrics();
 
-        // transforma para que coincida con tu interfaz
+      if (Array.isArray(metricas) && metricas.length > 0) {
+        // Ordenar por iterationId descendente y luego por round descendente
+        const metricasOrdenadas = metricas.sort((a, b) => {
+          if (a.iterationId !== b.iterationId) {
+            return b.iterationId - a.iterationId; // Iteración más reciente primero
+          }
+          return b.round - a.round; // Ronda más reciente primero
+        });
+
+        const ultimaMetrica = metricasOrdenadas[0];
+
+        // Transforma para que coincida con tu interfaz
         const metricaTransformada = {
-          iterationId: metricaRaw.iterationId,
-          round: metricaRaw.round,
-          accuracy: metricaRaw.accuracy,
-          precision: metricaRaw.precision,
-          recall: metricaRaw.recall,
-          f1score: (metricaRaw as any).f1_score, // ← ¡transformación clave!
-          auc: metricaRaw.auc,
-          loss: metricaRaw.loss,
-          userId: metricaRaw.userId,
+          iterationId: ultimaMetrica.iterationId,
+          round: ultimaMetrica.round,
+          accuracy: ultimaMetrica.accuracy,
+          precision: ultimaMetrica.precision,
+          recall: ultimaMetrica.recall,
+          f1score: (ultimaMetrica as any).f1_score || ultimaMetrica.f1score,
+          auc: ultimaMetrica.auc,
+          loss: ultimaMetrica.loss,
+          userId: ultimaMetrica.userId,
         };
 
         setMetrica(metricaTransformada);
+        setHasMetrics(true);
+      } else {
+        setHasMetrics(false);
       }
     } catch (error) {
-      // Error al obtener la última ronda
+      console.error("Error al obtener métricas:", error);
+      setHasMetrics(false);
     }
   };
 
   useEffect(() => {
     obtenerUltimaIteracion();
+    obtenerMetricasActuales();
     getPrediccionsAll();
   }, []);
 
@@ -214,34 +236,46 @@ const OperadorDashboard = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Precision
-            </p>
-            <p className="text-lg font-bold">
-              {Math.round((metrica.precision ?? 0) * 10000) / 100}%
+        {hasMetrics ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Precision
+              </p>
+              <p className="text-lg font-bold">
+                {Math.round((metrica.precision ?? 0) * 10000) / 100}%
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Recall</p>
+              <p className="text-lg font-bold">
+                {Math.round((metrica.recall ?? 0) * 10000) / 100}%
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                F1 Score
+              </p>
+              <p className="text-lg font-bold">
+                {Math.round((metrica.f1score ?? 0) * 10000) / 100}%
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Accuracy
+              </p>
+              <p className="text-lg font-bold">
+                {Math.round((metrica.accuracy ?? 0) * 10000) / 100}%
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400 text-lg">
+              No hay métricas disponibles
             </p>
           </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Recall</p>
-            <p className="text-lg font-bold">
-              {Math.round((metrica.recall ?? 0) * 10000) / 100}%
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">F1 Score</p>
-            <p className="text-lg font-bold">
-              {Math.round((metrica.f1score ?? 0) * 10000) / 100}%
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
-            <p className="text-lg font-bold">
-              {Math.round((metrica.accuracy ?? 0) * 10000) / 100}%
-            </p>
-          </div>
-        </div>
+        )}
       </section>
 
       {/* Historial */}
