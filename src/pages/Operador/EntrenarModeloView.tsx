@@ -186,7 +186,6 @@ export default function EntrenarModeloView() {
               </p>
             )}
           </li>
-
           <li>
             Contenedor de entrenamiento:
             {allChecked ? (
