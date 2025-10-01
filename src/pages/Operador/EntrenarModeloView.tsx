@@ -18,7 +18,7 @@ export default function EntrenarModeloView() {
     code: "",
     state: "",
     iterationId: 0,
-    userId: 0
+    userId: 0,
   });
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [copiedDocker, setCopiedDocker] = useState(false);
@@ -69,14 +69,32 @@ export default function EntrenarModeloView() {
         if (ultimoRegistro?.state === "ACTIVE") {
           setCodigoInvitacion(ultimoRegistro);
         } else {
-          setCodigoInvitacion({ id: 0, code: "", state: "", iterationId: 0, userId: 0 });
+          setCodigoInvitacion({
+            id: 0,
+            code: "",
+            state: "",
+            iterationId: 0,
+            userId: 0,
+          });
         }
       } else {
-        setCodigoInvitacion({ id: 0, code: "", state: "", iterationId: 0, userId: 0 });
+        setCodigoInvitacion({
+          id: 0,
+          code: "",
+          state: "",
+          iterationId: 0,
+          userId: 0,
+        });
       }
     } catch (error) {
       console.error("Error al obtener la invitación por usuario: ", error);
-      setCodigoInvitacion({ id: 0, code: "", state: "", iterationId: 0, userId: 0 });
+      setCodigoInvitacion({
+        id: 0,
+        code: "",
+        state: "",
+        iterationId: 0,
+        userId: 0,
+      });
     }
   };
 
@@ -94,7 +112,9 @@ export default function EntrenarModeloView() {
       </header>
 
       <section className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold mb-4">Pasos para iniciar el entrenamiento</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Pasos para iniciar el entrenamiento
+        </h2>
         <ol className="list-decimal list-inside space-y-6 text-gray-700 dark:text-gray-300">
           <li>
             Descargar docker desktop.{" "}
@@ -107,23 +127,25 @@ export default function EntrenarModeloView() {
               Click Aquí
             </a>
           </li>
-          
+
           <li>Abrir terminal CMD o PowerShell</li>
 
           <li>
             Consentimientos requeridos:
             <div className="mt-4 space-y-4">
-              {(Object.entries(checked) as [ConsentKey, boolean][]).map(([key]) => (
-                <label key={key} className="flex gap-3 items-start">
-                  <input
-                    type="checkbox"
-                    checked={checked[key]}
-                    onChange={() => handleCheckboxChange(key)}
-                    className="accent-indigo-600 w-5 h-5 mt-1 shrink-0"
-                  />
-                  <span className="leading-snug">{consentLabels[key]}</span>
-                </label>
-              ))}
+              {(Object.entries(checked) as [ConsentKey, boolean][]).map(
+                ([key]) => (
+                  <label key={key} className="flex gap-3 items-start">
+                    <input
+                      type="checkbox"
+                      checked={checked[key]}
+                      onChange={() => handleCheckboxChange(key)}
+                      className="accent-indigo-600 w-5 h-5 mt-1 shrink-0"
+                    />
+                    <span className="leading-snug">{consentLabels[key]}</span>
+                  </label>
+                )
+              )}
             </div>
           </li>
 
@@ -135,7 +157,11 @@ export default function EntrenarModeloView() {
                   <input
                     value={codigoInvitacion.code}
                     onChange={(e) => setCodigoGenerado(e.target.value)}
-                    placeholder={!codigoInvitacion.code ? "No cuenta con código de invitación o está expirado" : undefined}
+                    placeholder={
+                      !codigoInvitacion.code
+                        ? "No cuenta con código de invitación o está expirado"
+                        : undefined
+                    }
                     className="w-full px-3 py-2 pr-10 rounded border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-sm cursor-not-allowed"
                     disabled
                   />
@@ -155,7 +181,9 @@ export default function EntrenarModeloView() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500 mt-2 italic">Completa los consentimientos para ver tu código.</p>
+              <p className="text-sm text-gray-500 mt-2 italic">
+                Completa los consentimientos para ver tu código.
+              </p>
             )}
           </li>
 
@@ -165,12 +193,13 @@ export default function EntrenarModeloView() {
               <div className="mt-2 space-y-4">
                 <div className="relative">
                   <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
-                    docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2
+                    docker pull
+                    us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
                   </pre>
                   <button
                     onClick={async () => {
                       await navigator.clipboard.writeText(
-                        "docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest2"
+                        "docker pull us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest"
                       );
                       setCopiedDocker(true);
                       setTimeout(() => setCopiedDocker(false), 1500);
@@ -188,7 +217,8 @@ export default function EntrenarModeloView() {
 
                 <div className="relative">
                   <pre className="bg-black text-white p-3 rounded text-sm overflow-x-auto whitespace-pre-wrap">
-                    docker run -p 8000:8000 -p 3000:3000 us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
+                    docker run -p 8000:8000 -p 3000:3000
+                    us-central1-docker.pkg.dev/graphic-brook-404722/flwr-client/medical-fl-app:latest
                   </pre>
                   <button
                     onClick={handleDockerCopy}
@@ -204,7 +234,9 @@ export default function EntrenarModeloView() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500 mt-2 italic">Se mostrará una vez aceptes los términos.</p>
+              <p className="text-sm text-gray-500 mt-2 italic">
+                Se mostrará una vez aceptes los términos.
+              </p>
             )}
           </li>
 
@@ -219,7 +251,9 @@ export default function EntrenarModeloView() {
                 http://localhost:3000
               </button>
             ) : (
-              <span className="text-sm text-gray-500 italic">Visible tras aceptar los consentimientos.</span>
+              <span className="text-sm text-gray-500 italic">
+                Visible tras aceptar los consentimientos.
+              </span>
             )}
           </li>
 
@@ -227,7 +261,9 @@ export default function EntrenarModeloView() {
             {allChecked ? (
               "Ingresar código de verificación generado."
             ) : (
-              <span className="text-sm text-gray-500 italic">Paso disponible tras aceptar términos.</span>
+              <span className="text-sm text-gray-500 italic">
+                Paso disponible tras aceptar términos.
+              </span>
             )}
           </li>
 
@@ -235,11 +271,12 @@ export default function EntrenarModeloView() {
             {allChecked ? (
               'Sube tu dataset (.xlsx) y haz clic en "Iniciar entrenamiento".'
             ) : (
-              <span className="text-sm text-gray-500 italic">Este paso será visible después de aceptar.</span>
+              <span className="text-sm text-gray-500 italic">
+                Este paso será visible después de aceptar.
+              </span>
             )}
           </li>
         </ol>
-
       </section>
     </main>
   );
