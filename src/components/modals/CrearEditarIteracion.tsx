@@ -27,6 +27,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
     rondas: "",
     tiempoLocal: "",
     userIds: "",
+    trainingMode: "",
   });
 
   const [touched, setTouched] = useState({
@@ -35,6 +36,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
     rondas: false,
     tiempoLocal: false,
     userIds: false,
+    trainingMode: false,
   });
 
   // Función para validar un campo específico
@@ -58,6 +60,10 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
         return !value || !Array.isArray(value) || value.length < 2
           ? "Se requieren al menos 2 usuarios participantes"
           : "";
+      case "trainingMode":
+        return !value || value.trim() === ""
+          ? "El modo de entrenamiento es obligatorio"
+          : "";
       default:
         return "";
     }
@@ -71,6 +77,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
       rondas: validateField("rondas", iteracion.rondas),
       tiempoLocal: validateField("tiempoLocal", iteracion.tiempoLocal),
       userIds: validateField("userIds", iteracion.userIds),
+      trainingMode: validateField("trainingMode", iteracion.trainingMode),
     };
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => error === "");
@@ -88,9 +95,16 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
       iteracion.userIds &&
       Array.isArray(iteracion.userIds) &&
       iteracion.userIds.length >= 2;
+    const hasTrainingMode =
+      iteracion.trainingMode && iteracion.trainingMode.trim() !== "";
 
     return (
-      hasName && hasMinUsers && hasRounds && hasLocalIterations && hasUsers
+      hasName &&
+      hasMinUsers &&
+      hasRounds &&
+      hasLocalIterations &&
+      hasUsers &&
+      hasTrainingMode
     );
   };
 
@@ -122,6 +136,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
         rondas: "",
         tiempoLocal: "",
         userIds: "",
+        trainingMode: "",
       });
       setTouched({
         iterationName: false,
@@ -129,6 +144,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
         rondas: false,
         tiempoLocal: false,
         userIds: false,
+        trainingMode: false,
       });
     } else {
       // Cuando se abre el modal, validar los campos si está en modo edición
@@ -142,6 +158,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
           rondas: validateField("rondas", iteracion.rondas),
           tiempoLocal: validateField("tiempoLocal", iteracion.tiempoLocal),
           userIds: validateField("userIds", iteracion.userIds),
+          trainingMode: validateField("trainingMode", iteracion.trainingMode),
         };
         setErrors(newErrors);
         setTouched({
@@ -150,6 +167,7 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
           rondas: true,
           tiempoLocal: true,
           userIds: true,
+          trainingMode: true,
         });
       }
     }
@@ -356,18 +374,26 @@ const CrearEditarIteracion: FC<CrearEditarIteracionProps> = ({
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-              Modo de Entrenamiento
+              Modo de Entrenamiento <span className="text-red-500">*</span>
             </label>
             <select
               name="trainingMode"
               value={iteracion.trainingMode || ""}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
+              onBlur={() => handleFieldBlur("trainingMode")}
+              className={`w-full px-4 py-2 rounded-md border text-sm ${
+                touched.trainingMode && errors.trainingMode
+                  ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                  : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800"
+              } text-gray-900 dark:text-white`}
             >
               <option value="">Seleccione</option>
               <option value="FRESH">Entrenamiento desde cero</option>
               <option value="RETRAIN">Re-Entrenamiento</option>
             </select>
+            {touched.trainingMode && errors.trainingMode && (
+              <p className="text-red-500 text-xs mt-1">{errors.trainingMode}</p>
+            )}
           </div>
           {/* Usuarios */}
           <div className="col-span-full">
