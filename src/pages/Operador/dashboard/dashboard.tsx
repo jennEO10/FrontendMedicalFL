@@ -236,7 +236,7 @@ const OperadorDashboard = () => {
           </button>
         </div>
 
-        {hasMetrics ? (
+        {hasMetrics && iteracion.state !== "Procesando" ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -272,7 +272,7 @@ const OperadorDashboard = () => {
         ) : (
           <div className="text-center py-8">
             <p className="text-gray-500 dark:text-gray-400 text-lg">
-              No hay métricas disponibles
+              No hay métricas disponibles.
             </p>
           </div>
         )}

@@ -45,17 +45,6 @@ const FiltroDinamico: FC<FiltroDinamicoProps> = ({ filtros, setFiltros, onBuscar
             onChange={handleInputChange}
           />
         );
-      case 'rolName':
-        return (
-          <input
-            type="text"
-            name="rolName"
-            placeholder="Buscar por rol"
-            className="w-full md:w-64 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-            value={filtros.rolName}
-            onChange={handleInputChange}
-          />
-        );
       case 'estado':
         return (
           <select
@@ -100,7 +89,6 @@ const FiltroDinamico: FC<FiltroDinamicoProps> = ({ filtros, setFiltros, onBuscar
         <option value="">Seleccione un filtro</option>
         <option value="nombre">Nombre</option>
         <option value="email">Email</option>
-        <option value="rolName">Rol Name</option>
         <option value="estado">Estado</option>
         <option value="rol">Rol</option>
       </select>

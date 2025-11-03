@@ -391,19 +391,6 @@ export default function UsuariosView() {
           setUsuarios(usuariosFormateados);
           break;
         }
-        case "rolName": {
-          if (!filtros.rolName) {
-            reiniciarCargaDatos(filtros.rolName);
-            return;
-          }
-
-          const rolNameResult = await usersService.buscarNombreRol(
-            filtros.rolName
-          );
-          const usuariosFormateados = await formatearUsuarios(rolNameResult);
-          setUsuarios(usuariosFormateados);
-          break;
-        }
         case "estado": {
           if (Number(filtros.estado) === 0) {
             reiniciarCargaDatos(Number(filtros.estado));
